@@ -1,0 +1,44 @@
+{
+  "name": "pouchy",
+  "version": "1.0.0",
+  "description": "A simple, opinionated interface for the amazing PouchDB",
+  "main": "pouchy.js",
+  "scripts": {
+    "test": "node test/test.js && npm run clean",
+    "clean": "rm -rf ./test-db-* && rm -rf test/ppath",
+    "preversion": "git checkout master && git pull && npm ls",
+    "publish-patch": "npm run preversion && npm version patch && git push origin master --tags && npm publish",
+    "publish-minor": "npm run preversion && npm version minor && git push origin master --tags && npm publish",
+    "publish-major": "npm run preversion && npm version major && git push origin master --tags && npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cdaringe/pouchy.git"
+  },
+  "keywords": [
+    "pouchdb",
+    "pouch",
+    "wrapper",
+    "api"
+  ],
+  "author": "cdaringe",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cdaringe/pouchy/issues"
+  },
+  "homepage": "https://github.com/cdaringe/pouchy#readme",
+  "devDependencies": {
+    "browserify": "^11.0.1",
+    "tape": "^4.0.3",
+    "testem": "^0.9.2"
+  },
+  "dependencies": {
+    "lodash.assign": "*",
+    "lodash.defaults": "*",
+    "lodash.uniq": "*",
+    "path": "^0.11.14",
+    "pouchdb": "^4.0.3",
+    "pouchdb-find": "^0.3.5",
+    "url": "^0.10.3"
+  }
+}
