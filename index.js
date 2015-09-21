@@ -12,7 +12,7 @@ var couchUrlify = function(str) {
 };
 
 /**
- * @constructor PouchWrapper
+ * @constructor Pouchy
  * @param {object} opts {
  *     name: {string} kname of db. calculated from derived url string if `conn` or `url` provided. otherwise, required
  *     conn: {object=} creates `url` using the awesome and simple [url.format](https://www.npmjs.com/package/url#url-format-urlobj)
@@ -24,7 +24,7 @@ var couchUrlify = function(str) {
  *     replicateLive: {boolean=} [default: true] activates only if `replicate` is set
  * }
  */
-function PouchWrapper(opts) {
+function Pouchy(opts) {
     var replicate = opts.replicate;
     var couchdbSafe = opts.couchdbSafe === undefined ? true : opts.couchdbSafe;
     var live; // replicate live
@@ -101,7 +101,7 @@ function PouchWrapper(opts) {
     }
 }
 
-assign(PouchWrapper.prototype, {
+assign(Pouchy.prototype, {
 
     all: function(opts) {
         opts = defaults(opts || {}, {
@@ -239,11 +239,11 @@ var pouchMethods = [
 ];
 
 pouchMethods.forEach(function (method) {
-    PouchWrapper.prototype[method] = function() {
+    Pouchy.prototype[method] = function() {
         return this.db[method].apply(this.db, arguments);
     };
 });
 
-PouchWrapper.PouchDB = PouchDB;
+Pouchy.PouchDB = PouchDB;
 
-module.exports = PouchWrapper;
+module.exports = Pouchy;

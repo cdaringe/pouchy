@@ -16,7 +16,7 @@ Simple [PouchDB](https://github.com/pouchdb/pouchdb) wrapper, equipped with a fe
 ## api
 Most `fn`s below modify default PouchDB behavior.  For full options, make sure to check out the [PouchDB API](http://pouchdb.com/api.html)
 
-### new PouchWrapper(opts)
+### new Pouchy(opts)
 Setup a new PouchDB wrapper!
 - @constructor
 - @param {object} opts {
@@ -31,7 +31,7 @@ Setup a new PouchDB wrapper!
     - url: {string=} url to remote CouchDB
 
 ```js
-var p = new PouchWrapper({ name: 'my-pouch-db' });
+var p = new Pouchy({ name: 'my-pouch-db' });
 ```
 
 
