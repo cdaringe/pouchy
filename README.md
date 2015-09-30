@@ -172,4 +172,5 @@ Accept a find query, formatted per the [find plugin query options](https://githu
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
+- 2.0.0 - Fix synced db `fs` location. Previously was not honoring `path` option
 - 1.0.0 - 2.0.1 pouchdb-wrapper => pouchy
