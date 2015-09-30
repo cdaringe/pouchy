@@ -22,7 +22,7 @@ var connUrl = 'https://localhost:3001'
 var p;
 
 test('constructor', function(t) {
-    t.plan(6);
+    t.plan(7);
 
     // name requirement
     try {
@@ -62,8 +62,18 @@ test('constructor', function(t) {
     }
     t.ok(pFail.url, 'conn url built successfully');
 
+
     var pPath = new P({ name: 'ppath', path: './test/' });
     t.ok(fs.lstatSync('test/ppath').isDirectory, 'construct db in path honored');
+
+    // custom paths and syncing
+    try {
+        fs.mkdirSync('test/custompath');
+    } catch(err) {
+        // pass
+    }
+    var pSync = new P({ url: 'http://www.bogus-sync-db.com/bogusdb', path: './test/custompath', replicate: 'both' });
+    t.ok(fs.lstatSync('test/custompath/bogusdb').isDirectory, 'paths honored when syncing');
 
     t.end();
 });

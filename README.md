@@ -26,7 +26,7 @@ Setup a new PouchDB wrapper!
     - changes: {object=} changes config. **by default starts emitting changes from _now_, and emits docs**
     - path: {string=} path to store pouch on filesystem, if using on filesystem!  defaults to _PouchDB_ default of cwd
     - pouchConfig: {object=} PouchDB constructor [options](http://pouchdb.com/api.html#create_database)
-    - replicate: {string=} [default: undefined] 'out/in/sync/both', where sync and both are ===
+    - replicate: {string=} [default: undefined] 'out/in/sync/both', where 'sync' and 'both' mean the same.  Shorthand for syncing a local datastore to a remote datastore.  **the local db name is extracted from the required url**.
     - replicateLive: {boolean=} [default: true] activates only if `replicate` is set
     - url: {string=} url to remote CouchDB
 

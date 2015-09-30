@@ -63,9 +63,8 @@ function Pouchy(opts) {
 
     if (_url) {
         this.url = _url;
-    } else {
-        this.path = path.join(opts.path || '', this.name);
     }
+    this.path = path.join(opts.path || '', this.name);
 
     this.db = new PouchDB(this.url || this.path, opts.pouchConfig);
     if (opts.changes === undefined || opts.changes === null) {
@@ -85,14 +84,14 @@ function Pouchy(opts) {
         live = opts.replicateLive === undefined ? true : opts.replicateLive;
         switch (replicate) {
             case 'out':
-                PouchDB.replicate(this.name, this.url, {live: true});
+                PouchDB.replicate(this.path, this.url, {live: true});
                 break;
             case 'in':
-                PouchDB.replicate(this.url, this.name, {live: true});
+                PouchDB.replicate(this.url, this.path, {live: true});
                 break;
             case 'sync':
-                PouchDB.replicate(this.name, this.url, {live: true});
-                PouchDB.replicate(this.url, this.name, {live: true});
+                PouchDB.replicate(this.path, this.url, {live: true});
+                PouchDB.replicate(this.url, this.path, {live: true});
                 break;
             default:
                 throw new Error('in/out replication direction ' +
