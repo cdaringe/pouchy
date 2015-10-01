@@ -46,7 +46,7 @@ function Pouchy(opts) {
 
     if (_url) {
         pathParts = url.parse(_url).pathname.split('/');
-        opts.name = this.name = pathParts[pathParts.length - 1];
+        this.name = pathParts[pathParts.length - 1];
         if (couchdbSafe && this.name !== couchUrlify(this.name.toLowerCase())) {
             throw new Error([
                 'provided `url` or `conn` "',
