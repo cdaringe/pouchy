@@ -11,7 +11,6 @@ Simple [PouchDB](https://github.com/pouchdb/pouchdb) wrapper, equipped with a fe
     - ex `.clear()/.deleteAll()` to purge your store of its docs.
 - because you want `find` to return simply an array of docs!
 - because it pre-loads the `pouchdb-find` plugin, which is super handy and regularly used!
-- because when you add a doc, you want it to resolve to the doc with the `_id/_rev` added, not just metadata about the add, for you to manually update.
 
 ## api
 Most `fn`s below modify default PouchDB behavior.  For full options, make sure to check out the [PouchDB API](http://pouchdb.com/api.html)
@@ -23,7 +22,6 @@ Setup a new PouchDB wrapper!
     - name: {string=} name of db. calculated from derived url string if `conn` or `url` provided. otherwise, required
     - conn: {object=} creates `url` using the awesome and simple [url.format](https://www.npmjs.com/package/url#url-format-urlobj)
     - couchdbSafe {boolean=} [default: true] asserts that `name` provided or `url` provided will work with couchdb.  tests by asserting str conforms to [couch specs](https://wiki.apache.org/couchdb/HTTP_database_API#Naming_and_Addressing), minus the `/`.  This _may complain that some valid urls are invalid_.  Please be aware and disable if necessary.
-    - changes: {object=} changes config. **by default starts emitting changes from _now_, and emits docs**
     - path: {string=} path to store pouch on filesystem, if using on filesystem!  defaults to _PouchDB_ default of cwd
     - pouchConfig: {object=} PouchDB constructor [options](http://pouchdb.com/api.html#create_database)
     - replicate: {string=} [default: undefined] 'out/in/sync/both', where 'sync' and 'both' mean the same.  Shorthand for syncing a local datastore to a remote datastore.  **the local db name is extracted from the required url**.
@@ -114,16 +112,6 @@ Deletes all the documents in the store.
 - @returns `promise`
 - @alias `pouch.destroy()`
 
-### on(evt, cb)
-- @returns `undefined`
-- @throws without a cb
-    - @alias to `pouch.changes.on(evt, cb)`
-
-### off(evt, cb)
-Removes the cb provided to `on` to stop listening and responding accordinly to events!
-- @returns `undefined`
-- @throws without a cb
-
 ### save(doc, opts)
 Adds or updates a document.  If `_id` is set, a `put` is performed (basic add operation). If no `_id` present, a `post` is performed, in which the doc is added, and large-random-string is assigned as `_id`.
 - @param doc {object} doc to store
@@ -172,6 +160,7 @@ Accept a find query, formatted per the [find plugin query options](https://githu
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
+- 3.0.0 - remove default `changes`, and associated `on/off`. didn't work out-of-the-box anyway.  may return in 4.x
 - 2.0.1 - Don't modify constructor opts.name
 - 2.0.0 - Fix synced db `fs` location. Previously was not honoring `path` option
 - 1.0.0 - 2.0.1 pouchdb-wrapper => pouchy

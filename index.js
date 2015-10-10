@@ -64,18 +64,9 @@ function Pouchy(opts) {
     if (_url) {
         this.url = _url;
     }
-    this.path = path.join(opts.path || '', this.name);
+    this.path = path.resolve(opts.path || '', this.name);
 
     this.db = new PouchDB(this.url || this.path, opts.pouchConfig);
-    if (opts.changes === undefined || opts.changes === null) {
-        this.db.changes({
-            since: 'now',
-            live: true,
-            include_docs: true // jshint ignore:line
-        });
-    } else if (opts.changes) {
-        this.db.changes(opts.changes);
-    }
     if (replicate) {
         if (!this.url) {
             throw new ReferenceError('url or conn object required to replicate');
@@ -155,20 +146,6 @@ assign(Pouchy.prototype, {
 
     deleteDB: function() { // jshint ignore:line
         return this.db.destroy();
-    },
-
-    on: function(evt, cb) {
-        if (!cb) {
-            throw new ReferenceError('cb to must be specified');
-        }
-        this.changes.on(evt, cb);
-    },
-
-    off: function(evt, cb) {
-        if (!cb) {
-            throw new ReferenceError('cb to stop listening with must be specified');
-        }
-        this.changes.removeListener(evt, cb);
     },
 
     update: function(doc, opts) {
