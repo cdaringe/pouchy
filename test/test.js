@@ -72,10 +72,18 @@ test('constructor', function(t) {
     } catch(err) {
         // pass
     }
-    var pSync = new P({ url: 'http://www.bogus-sync-db.com/bogusdb', path: './test/custompath', replicate: 'both' });
-    t.ok(fs.lstatSync('test/custompath/bogusdb').isDirectory, 'paths honored when syncing');
 
-    t.end();
+    var pSync = new P({
+        url: 'http://www.bogus-sync-db.com/bogusdb',
+        path: './test/custompath',
+        replicate: 'both'
+    });
+    pSync.info().catch(function(err) {
+        t.ok(err, 'errors on invalid remote db request');
+    }).catch(function(err) {
+        t.fail(err.message);
+    });
+
 });
 
 
