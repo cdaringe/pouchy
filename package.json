@@ -30,7 +30,7 @@
   "devDependencies": {
     "browserify": "11.2.0",
     "leveldown": "^1.4.1",
-    "tape": "4.2.1",
+    "tape": "4.2.2",
     "testem": "0.9.8"
   },
   "dependencies": {
