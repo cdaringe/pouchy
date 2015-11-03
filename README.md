@@ -160,6 +160,7 @@ Accept a find query, formatted per the [find plugin query options](https://githu
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
+- 4.0.0 - major bump with PouchDB
 - 3.0.0 - remove default `changes`, and associated `on/off`. didn't work out-of-the-box anyway.  may return in 4.x
 - 2.0.1 - Don't modify constructor opts.name
 - 2.0.0 - Fix synced db `fs` location. Previously was not honoring `path` option
