@@ -31,7 +31,7 @@
     "browserify": "12.0.1",
     "leveldown": "^1.4.1",
     "tape": "4.2.2",
-    "testem": "0.9.8"
+    "testem": "0.9.9"
   },
   "dependencies": {
     "lodash.assign": "3.2.0",
