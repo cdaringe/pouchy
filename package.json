@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/cdaringe/pouchy#readme",
   "devDependencies": {
-    "browserify": "12.0.1",
+    "browserify": "13.0.0",
     "leveldown": "^1.4.1",
     "tape": "4.4.0",
     "testem": "0.9.11"
