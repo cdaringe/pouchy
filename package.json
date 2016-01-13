@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "lodash.assign": "3.2.0",
-    "lodash.defaults": "3.1.2",
+    "lodash.defaults": "4.0.0",
     "lodash.uniq": "3.2.2",
     "path": "0.12.7",
     "pouchdb-find": "^0.8.0",
