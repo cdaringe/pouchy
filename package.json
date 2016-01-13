@@ -34,7 +34,7 @@
     "testem": "1.0.0"
   },
   "dependencies": {
-    "lodash.assign": "3.2.0",
+    "lodash.assign": "4.0.0",
     "lodash.defaults": "3.1.2",
     "lodash.uniq": "4.0.1",
     "path": "0.12.7",
