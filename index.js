@@ -1,9 +1,11 @@
 'use strict';
 var PouchDB = require('pouchdb');
 PouchDB.plugin(require('pouchdb-find'));
-var assign = require('lodash.assign');
-var defaults = require('lodash.defaults');
-var unique = require('lodash.uniq');
+var assign = require('lodash/assign');
+var defaults = require('lodash/defaults');
+var unique = require('lodash/uniq');
+var noop = require('lodash/noop');
+var toArray = require('lodash/toArray');
 var url = require('url');
 var path = require('path');
 var designDocRegex = new RegExp('^_design/');
@@ -93,27 +95,47 @@ function Pouchy(opts) {
 
 assign(Pouchy.prototype, {
 
-    all: function(opts) {
+    all: function(opts, cb) {
+        if (typeof opts === 'function') {
+            cb = opts;
+            opts = {};
+        }
         opts = defaults(opts || {}, {
             include_docs: true // jshint ignore:line
         });
-        return this.db.allDocs(opts).then(function getDocs(docs) {
+        var p = this.db.allDocs(opts).then(function getDocs(docs) {
             return docs.rows.reduce(function(r, v) {
                 if (opts.includeDesignDocs || !v.doc._id.match(designDocRegex)) {
                     r.push(v.doc)
                 }
+                debugger;
                 return r;
             }, []);
         });
+        if (!cb) { return p; }
+        p.then(
+            function(r) { cb(null, r); },
+            function(err) { cb(err, null); }
+        );
     },
 
     add: function() {
-        return this.save.apply(this, arguments);
+        var cb;
+        var args = toArray(arguments);
+        if (typeof args[args.length - 1] === 'function') {
+            cb = args.pop();
+        }
+        var p = this.save.apply(this, args);
+        if (!cb) { return p; }
+        p.then(
+            function(r) { cb(null, r); },
+            function(err) { cb(err, null); }
+        );
     },
 
-    createIndicies: function(indicies) {
+    createIndicies: function(indicies, cb) {
         indicies = Array.isArray(indicies) ? indicies : [indicies];
-        return this.db.createIndex({
+        var p = this.db.createIndex({
             index: {
                 fields: unique(indicies)
             }
@@ -123,63 +145,126 @@ assign(Pouchy.prototype, {
                 throw err;
             }
         });
+        if (!cb) { return p; }
+        p.then(
+            function(r) { cb(null, r); },
+            function(err) { cb(err, null); }
+        );
     },
 
     clear: function() {
-        return this.deleteAll.apply(this, arguments);
+        var cb;
+        var args = toArray(arguments);
+        if (typeof args[args.length - 1] === 'function') {
+            cb = args.pop();
+        }
+        var p = this.deleteAll.apply(this, args);
+        if (!cb) { return p; }
+        p.then(
+            function(r) { cb(null, r); },
+            function(err) { cb(err, null); }
+        );
     },
 
     delete: function(doc, opts, cb) {
-        if (cb) {
-            // pouch checks for the cb arg def
-            return this.db.remove(doc, opts, cb);
+        if (typeof opts === 'function') {
+            cb = opts;
+            opts = {};
         }
-        return this.db.remove(doc, opts);
+        var p = this.db.remove(doc, opts);
+        if (!cb) { return p; }
+        p.then(
+            function(r) { cb(null, r); },
+            function(err) { cb(err, null); }
+        );
     },
 
-    deleteAll: function() {
-        return this.all().then(function deleteEach(docs) {
+    deleteAll: function(cb) {
+        var p = this.all().then(function deleteEach(docs) {
             docs = docs.map(function(doc) { return this.delete(doc); }.bind(this));
             return Promise.all(docs);
         }.bind(this));
+        if (!cb) { return p; }
+        p.then(
+            function(r) { cb(null, r); },
+            function(err) { cb(err, null); }
+        );
     },
 
-    deleteDB: function() { // jshint ignore:line
-        return this.db.destroy();
+    deleteDB: function(p) { // jshint ignore:line
+        var p = this.db.destroy();
+        if (!cb) { return p; }
+        p.then(
+            function(r) { cb(null, r); },
+            function(err) { cb(err, null); }
+        );
     },
 
-    update: function(doc, opts) {
+    update: function(doc, opts, cb) {
+        if (typeof opts === 'function') {
+            cb = opts;
+            opts = {};
+        }
         opts = opts || {};
         // http://pouchdb.com/api.html#create_document
         // db.put(doc, [docId], [docRev], [options], [callback])
-        return this.db.put(doc, opts._id, opts._rev).then(function(meta) {
+        var p = this.db.put(doc, opts._id, opts._rev).then(function(meta) {
             doc._id = meta.id;
             doc._rev = meta.rev;
             return doc;
         });
+        if (!cb) { return p; }
+        p.then(
+            function(r) { cb(null, r); },
+            function(err) { cb(err, null); }
+        );
     },
 
-    save: function(doc, opts) {
+    save: function(doc, opts, cb) {
+        if (typeof opts === 'function') {
+            cb = opts;
+            opts = {};
+        }
         // http://pouchdb.com/api.html#create_document
         // db.post(doc, [docId], [docRev], [options], [callback])
         var method = doc.hasOwnProperty('_id') ? 'put' : 'post';
-        return this.db[method](doc).then(function(meta) {
+        var p = this.db[method](doc).then(function(meta) {
             delete meta.status;
             doc._id = meta.id;
             doc._rev = meta.rev;
             return doc;
         });
+        if (!cb) { return p; }
+        p.then(
+            function(r) { cb(null, r); },
+            function(err) { cb(err, null); }
+        );
     },
 
     // pouchdb-find proxies
-    createIndex: function() {
-        return this.createIndicies.apply(this, arguments);
+    createIndex: function(cb) {
+        var cb;
+        var args = toArray(arguments);
+        if (typeof args[args.length - 1] === 'function') {
+            cb = args.pop();
+        }
+        var p = this.createIndicies.apply(this, args);
+        if (!cb) { return p; }
+        p.then(
+            function(r) { cb(null, r); },
+            function(err) { cb(err, null); }
+        );
     },
 
-    find: function(opts) {
-        return this.db.find(opts).then(function returnDocsArray(rslt) {
+    find: function(opts, cb) {
+        var p = this.db.find(opts).then(function returnDocsArray(rslt) {
             return rslt.docs;
         });
+        if (!cb) { return p; }
+        p.then(
+            function(r) { cb(null, r); },
+            function(err) { cb(err, null); }
+        );
     }
 
 });
@@ -216,7 +301,12 @@ var pouchMethods = [
 
 pouchMethods.forEach(function (method) {
     Pouchy.prototype[method] = function() {
-        return this.db[method].apply(this.db, arguments);
+        var cb;
+        var args = toArray(arguments);
+        if (typeof args[args.length - 1] === 'function') {
+            cb = args.pop();
+        }
+        return this.db[method].apply(this.db, args);
     };
 });
 

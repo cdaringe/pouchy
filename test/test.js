@@ -97,7 +97,7 @@ test('all, add, save, delete', function(t) {
     ];
     p = new P({ name: name + Date.now() });
 
-    t.plan(5);
+    t.plan(6);
     p.add(docs[0]) // add1
     .then(function checkAdd1(doc) {
         t.equal(docs[0]._id, doc._id, '.add kept _id via put');
@@ -120,9 +120,19 @@ test('all, add, save, delete', function(t) {
     .then(function getAll() {
         return p.all();
     })
-    .then(function checkGetAll(r) {
-        t.equal(r.length, docs.length, 'same number of docs added come out!');
+    .then(function checkGetAllPromise(r) {
+        t.equal(r.length, docs.length, 'same number of docs added come out! (promise mode)');
         t.equal(r[3].dummyKey, docs[3].dummyKey,  'actual docs returned by .all');
+    })
+    .then(function checkGetAllCallback(r) {
+        return new Promise(function(res, rej) {
+            p.all(function(err, r) {
+                debugger;
+                if (err) { return rej(err); }
+                t.equal(r.length, docs.length, 'same number of docs added come out! (cb mode)');
+                return res();
+            });
+        });
     })
     .then(function() {
         return p.delete(docs[0]);
