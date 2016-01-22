@@ -305,7 +305,12 @@ pouchMethods.forEach(function (method) {
         if (typeof args[args.length - 1] === 'function') {
             cb = args.pop();
         }
-        return this.db[method].apply(this.db, args);
+        var p = this.db[method].apply(this.db, args);
+        if (!cb) { return p; }
+        p.then(
+            function(r) { cb(null, r); },
+            function(err) { cb(err, null); }
+        );
     };
 });
 
