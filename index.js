@@ -108,7 +108,6 @@ assign(Pouchy.prototype, {
                 if (opts.includeDesignDocs || !v.doc._id.match(designDocRegex)) {
                     r.push(v.doc)
                 }
-                debugger;
                 return r;
             }, []);
         });
