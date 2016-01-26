@@ -37,7 +37,7 @@
     "lodash": "^4.0.0",
     "path": "0.12.7",
     "pouchdb": "5.2.0",
-    "pouchdb-find": "^0.8.0",
+    "pouchdb-find": "^0.9.0",
     "url": "0.11.0"
   }
 }
