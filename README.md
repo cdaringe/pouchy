@@ -160,6 +160,7 @@ Accept a find query, formatted per the [find plugin query options](https://githu
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
+- 5.2.0 - bump with couch
 - 5.1.0 - deps bump & add cb interface
 - 5.0.0 - deps bump only.  all future releases with track major version #s with PouchDB
 - 4.0.0 - major bump with PouchDB
