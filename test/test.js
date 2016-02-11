@@ -22,7 +22,7 @@ var connUrl = 'https://localhost:3001'
 var p;
 
 test('constructor', function(t) {
-    t.plan(7);
+    t.plan(8);
 
     // name requirement
     try {
@@ -66,6 +66,8 @@ test('constructor', function(t) {
     var pPath = new P({ name: 'ppath', path: './test/' });
     t.ok(fs.lstatSync('test/ppath').isDirectory, 'construct db in path honored');
 
+    var pSlash = new P({ name: 'db/with/slash', path: './test/' });
+    t.ok(pSlash, 'allows / in db name');
     // custom paths and syncing
     try {
         fs.mkdirSync('test/custompath');
@@ -127,7 +129,6 @@ test('all, add, save, delete', function(t) {
     .then(function checkGetAllCallback(r) {
         return new Promise(function(res, rej) {
             p.all(function(err, r) {
-                debugger;
                 if (err) { return rej(err); }
                 t.equal(r.length, docs.length, 'same number of docs added come out! (cb mode)');
                 return res();

@@ -10,7 +10,7 @@ var url = require('url');
 var path = require('path');
 var designDocRegex = new RegExp('^_design/');
 var couchUrlify = function(str) {
-    return str.replace(/[^a-z0-9_$()+-]/gi, '');
+    return str.replace(/[^/a-z0-9_$()+-]/gi, '');
 };
 
 /**
@@ -59,7 +59,11 @@ function Pouchy(opts) {
     } else {
         this.name = couchUrlify(opts.name).toLowerCase();
         if (couchdbSafe && this.name !== opts.name) {
-            throw new Error('provided name "' + opts.name +'" may not be couchdb safe');
+            throw new Error([
+                'provided name', '"' + opts.name + '"',
+                'may not be couchdb safe. couchdb safe url:',
+                this.name
+            ].join(' '));
         }
     }
 
