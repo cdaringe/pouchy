@@ -2,7 +2,7 @@
   "name": "pouchy",
   "version": "6.0.0",
   "description": "A simple, opinionated interface for the amazing PouchDB",
-  "main": "pouchy.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "node test/ && npm run clean",
     "clean": "rm -rf ./test-db-* && rm -rf test/ppath && rm -rf test/custompath",

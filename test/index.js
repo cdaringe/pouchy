@@ -1,6 +1,13 @@
 'use strict';
 var test = require('tape');
-var P = require('../');
+var Pouchy = require('../');
+var fs = require('fs.extra');
+var path = require('path');
+var testDir = path.join(__dirname, './.test-db-dir');
+var pouchyFactory = function(opts) {
+  if (!opts.path) { opts.path = testDir; }
+  return new Pouchy(opts);
+};
 var couchdbInvalidName = 'TEsT dB';
 var couchdbInvalidUrl = 'https://www.me.org/eeek/invalidPathname';
 var couchdbValidUrl = 'https://www.me.org/eeek/invalidPathname';
@@ -17,17 +24,20 @@ var conn = {
     port: 3001,
     pathname: 'validpathname'
 };
-var fs = require('fs.extra');
 var connUrl = 'https://localhost:3001'
-var path = require('path');
 var p;
 
+test('setup', function(t) {
+    try { fs.mkdirSync(testDir); } catch(err) {};
+    t.end();
+});
+
 test('constructor', function(t) {
-    t.plan(8);
+    t.plan(10);
 
     // name requirement
     try {
-        var p = new P({});
+        var p = new pouchyFactory({});
         t.fail('pouchdb didnt have name');
     } catch(err) {
         t.ok(true, 'enforced name');
@@ -35,21 +45,21 @@ test('constructor', function(t) {
 
     // invalid name
     try {
-        p = new P({ name: couchdbInvalidName });
+        p = new pouchyFactory({ name: couchdbInvalidName });
     } catch(err) {
         t.ok(true, 'Errored on couchdbInvalidName');
     }
 
     // invalid url
     try {
-        p = new P({ name: couchdbInvalidUrl });
+        p = new pouchyFactory({ name: couchdbInvalidUrl });
     } catch(err) {
         t.ok(true, 'Errored on couchdbInvalidUrl');
     }
 
     // invalid conn
     try {
-        p = new P({ conn: couchdbInvalidConn });
+        p = new pouchyFactory({ conn: couchdbInvalidConn });
     } catch(err) {
         t.ok(true, 'Errored on couchdbInvalidUrl');
     }
@@ -57,28 +67,49 @@ test('constructor', function(t) {
     // conn building url
     var pFail;
     try {
-        pFail = new P({ conn: conn });
+        pFail = new pouchyFactory({ conn: conn });
     } catch(err) {
         // pass, expected to fail
     }
     t.ok(pFail.url, 'conn url built successfully');
 
 
-    var pPath = new P({ name: 'ppath', path: './test/' });
-    t.ok(fs.lstatSync('test/ppath').isDirectory, 'construct db in path honored');
+    var pPath = new pouchyFactory({ name: 'ppath' });
+    t.ok(fs.lstatSync(path.resolve(testDir, 'ppath')).isDirectory, 'construct db in path honored');
 
-    var pSlash = new P({ name: 'db/with/slash', path: './test/' });
+    var pSlash = new pouchyFactory({ name: 'db/with/slash' });
     t.ok(pSlash, 'allows / in db name');
-    // custom paths and syncing
-    try {
-        fs.mkdirSync('test/custompath');
-    } catch(err) {
-        // pass
-    }
+    pSlash.save({ _id: 'slash-test'}, (err, doc) => {
+        if (err) {
+            t.pass('forbids writing dbs with slashes/in/name to disk');
+            return;
+        }
+        t.fail('permitted writing db with slashes/in/db/name to disk');
+        t.end();
 
-    var pSync = new P({
+    });
+
+    // custom path
+    var customDir = path.join(__dirname, 'custom-db-path');
+    try { fs.rmrfSync(customDir); } catch(err) {}
+    try { fs.mkdirSync(customDir); } catch(err) {}
+    var pCustomPath = new pouchyFactory({
+        name: 'custom-dir-db',
+        path: customDir,
+    });
+    pCustomPath.save({ _id: 'custom-path-test' }, (err, doc) => {
+        if (err) {
+            t.fail(err);
+            t.end();
+            return;
+        }
+        var customStat = fs.statSync(path.join(customDir, 'custom-dir-db', 'LOG'));
+        t.ok(customStat, 'custom db paths');
+        try { fs.rmrfSync(customDir); } catch(err) {}
+    });
+
+    var pSync = new pouchyFactory({
         url: 'http://www.bogus-sync-db.com/bogusdb',
-        path: './test/custompath',
         replicate: 'both'
     });
     pSync.info().catch(function(err) {
@@ -89,8 +120,6 @@ test('constructor', function(t) {
 
 });
 
-
-
 test('all, add, save, delete', function(t) {
     var docs = [
         {_id: 'test-doc-1', test: 'will put on `add` with _id'},
@@ -98,7 +127,7 @@ test('all, add, save, delete', function(t) {
         {_id: 'test-doc-3', test: 'will put on `save` with _id'},
         {_id: 'test-doc-4', dummyKey: 'dummyVal'}
     ];
-    p = new P({ name: name + Date.now() });
+    p = new pouchyFactory({ name: name + Date.now() });
 
     t.plan(6);
     p.add(docs[0]) // add1
@@ -149,7 +178,7 @@ test('all, add, save, delete', function(t) {
 });
 
 test('indexes & find', function(t) {
-    p = new P({ name: name + Date.now() });
+    p = new pouchyFactory({ name: name + Date.now() });
     t.plan(2);
     p.createIndicies('test')
         .then(function(indexResults) {
@@ -176,7 +205,7 @@ test('indexes & find', function(t) {
 });
 
 test('update', function(t) {
-    p = new P({ name: name + Date.now() });
+    p = new pouchyFactory({ name: name + Date.now() });
     var rev;
     t.plan(3);
     return p.add({test: 'update-test'})
@@ -206,7 +235,7 @@ test('update', function(t) {
 });
 
 test('proxies loaded', function(t) {
-    p = new P({ name: name + Date.now() });
+    p = new pouchyFactory({ name: name + Date.now() });
     t.ok(p.info, 'proxied function present');
     t.end();
 });
@@ -219,13 +248,14 @@ test('pefers db folder named after opts.name vs url /pathname', function(t) {
         fs.rmrf(dbDir);
         fs.mkdirpSync(dbDir);
     } catch(err) {}
-    var p = new P({
+    var p = new pouchyFactory({
         name: dbName,
         path: dbDir,
         url: destUrl
     });
     t.plan(2)
     p.save({ _id: 'xzy' }).then(doc => {
+        debugger
         t.ok(fs.lstatSync(path.resolve(dbDir, dbName, 'LOG')), 'db in dir derived from `name`, not url');
         t.equal(p.url, destUrl, 'url remains intact');
         try { fs.rmrf(dbDir); } catch(err) {}
@@ -234,4 +264,9 @@ test('pefers db folder named after opts.name vs url /pathname', function(t) {
         t.fail(err);
         t.end();
     });
+});
+
+test('teardown', function(t) {
+    try { fs.rmrf(testDir); } catch(err) {};
+    t.end();
 });
