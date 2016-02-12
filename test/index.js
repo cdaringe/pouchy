@@ -75,7 +75,14 @@ test('constructor', function(t) {
 
 
     var pPath = new pouchyFactory({ name: 'ppath' });
-    t.ok(fs.lstatSync(path.resolve(testDir, 'ppath')).isDirectory, 'construct db in path honored');
+    pPath.save({ _id: 'test-path'}, (err, doc) => {
+        if (err) {
+            t.fail(err);
+            t.end()
+        }
+        var lstat = fs.lstatSync(path.resolve(testDir, 'ppath'));
+        t.ok(lstat.isDirectory, 'construct db in path honored');
+    });
 
     var pSlash = new pouchyFactory({ name: 'db/with/slash' });
     t.ok(pSlash, 'allows / in db name');
