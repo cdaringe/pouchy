@@ -48,7 +48,8 @@ function Pouchy(opts) {
 
     if (_url) {
         pathParts = url.parse(_url).pathname.split('/');
-        this.name = pathParts[pathParts.length - 1];
+        // check opts.name, as name may have / in it
+        this.name = opts.name || pathParts[pathParts.length - 1];
         if (couchdbSafe && this.name !== couchUrlify(this.name.toLowerCase())) {
             throw new Error([
                 'provided `url` or `conn` "',
@@ -72,7 +73,10 @@ function Pouchy(opts) {
     }
     this.path = path.resolve(opts.path || '', this.name);
 
-    this.db = new PouchDB(this.url || this.path, opts.pouchConfig);
+    this.db = new PouchDB(
+        opts.name ? this.path : this.url,
+        opts.pouchConfig
+    );
     if (replicate) {
         if (!this.url) {
             throw new ReferenceError('url or conn object required to replicate');
@@ -81,14 +85,14 @@ function Pouchy(opts) {
         live = opts.replicateLive === undefined ? true : opts.replicateLive;
         switch (replicate) {
             case 'out':
-                PouchDB.replicate(this.path, this.url, {live: true});
+                PouchDB.replicate(this.path, this.url, { live: true });
                 break;
             case 'in':
-                PouchDB.replicate(this.url, this.path, {live: true});
+                PouchDB.replicate(this.url, this.path, { live: true });
                 break;
             case 'sync':
-                PouchDB.replicate(this.path, this.url, {live: true});
-                PouchDB.replicate(this.url, this.path, {live: true});
+                PouchDB.replicate(this.path, this.url, { live: true });
+                PouchDB.replicate(this.url, this.path, { live: true });
                 break;
             default:
                 throw new Error('in/out replication direction ' +

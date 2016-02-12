@@ -1,6 +1,6 @@
 'use strict';
 var test = require('tape');
-var P = require('../index.js');
+var P = require('../');
 var couchdbInvalidName = 'TEsT dB';
 var couchdbInvalidUrl = 'https://www.me.org/eeek/invalidPathname';
 var couchdbValidUrl = 'https://www.me.org/eeek/invalidPathname';
@@ -17,8 +17,9 @@ var conn = {
     port: 3001,
     pathname: 'validpathname'
 };
-var fs = require('fs');
+var fs = require('fs.extra');
 var connUrl = 'https://localhost:3001'
+var path = require('path');
 var p;
 
 test('constructor', function(t) {
@@ -208,4 +209,29 @@ test('proxies loaded', function(t) {
     p = new P({ name: name + Date.now() });
     t.ok(p.info, 'proxied function present');
     t.end();
+});
+
+test('pefers db folder named after opts.name vs url /pathname', function(t) {
+    var dbName = 'p2';
+    var dbDir = './test-db-dir';
+    var destUrl = 'http://www.dummy/couch/p1/' + dbName;
+    try {
+        fs.rmrf(dbDir);
+        fs.mkdirpSync(dbDir);
+    } catch(err) {}
+    var p = new P({
+        name: dbName,
+        path: dbDir,
+        url: destUrl
+    });
+    t.plan(2)
+    p.save({ _id: 'xzy' }).then(doc => {
+        t.ok(fs.lstatSync(path.resolve(dbDir, dbName, 'LOG')), 'db in dir derived from `name`, not url');
+        t.equal(p.url, destUrl, 'url remains intact');
+        try { fs.rmrf(dbDir); } catch(err) {}
+        t.end();
+    }).catch(err => {
+        t.fail(err);
+        t.end();
+    });
 });
