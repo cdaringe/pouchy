@@ -4,8 +4,8 @@
   "description": "A simple, opinionated interface for the amazing PouchDB",
   "main": "src/index.js",
   "scripts": {
-    "lint": "standard src/ test",
-    "lintfix": "standard --format src/ test",
+    "lint": "standard",
+    "lintfix": "standard-format -w",
     "test": "node test/ && npm run clean",
     "clean": "rm -rf ./test-db-* && rm -rf test/ppath && rm -rf test/custompath",
     "preversion": "git checkout master && git pull && npm ls",
@@ -37,6 +37,7 @@
     "leveldown": "^1.4.1",
     "memdown": "^1.1.2",
     "standard": "^6.0.7",
+    "standard-format": "^2.1.1",
     "tape": "4.4.0",
     "testem": "1.2.2"
   },
