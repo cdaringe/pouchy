@@ -39,6 +39,7 @@ function Pouchy(opts) {
     if (!opts.name && !opts.url && !opts.conn) {
         throw new ReferenceError('db name, url, or conn required to create or access pouchdb');
     }
+    if (!this) { throw new ReferenceError('no `this` context.  did you forget `new`?'); }
 
     if (opts.url) {
         _url = opts.url;
