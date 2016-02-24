@@ -39,7 +39,7 @@
     "standard": "^6.0.7",
     "standard-format": "^2.1.1",
     "tape": "4.4.0",
-    "testem": "1.4.0"
+    "testem": "1.4.1"
   },
   "dependencies": {
     "lodash": "^4.0.0",
