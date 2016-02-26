@@ -112,8 +112,13 @@ assign(Pouchy.prototype, {
     })
     var p = this.db.allDocs(opts).then(function getDocs (docs) {
       return docs.rows.reduce(function (r, v) {
-        if (opts.includeDesignDocs || !v.doc._id.match(designDocRegex)) {
-          r.push(v.doc)
+        if (
+            opts.includeDesignDocs || (
+                (v.doc && !v.doc._id.match(designDocRegex)) ||
+                (v.id && !v.id.match(designDocRegex))
+            )
+        ) {
+          r.push(v.doc || v)
         }
         return r
       }, [])

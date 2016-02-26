@@ -131,7 +131,7 @@ test('all, add, save, delete', function (t) {
   ]
   p = pouchyFactory({ name: name + Date.now() })
 
-  t.plan(6)
+  t.plan(7)
   p.add(docs[0]) // add1
     .then(function checkAdd1 (doc) {
       t.equal(docs[0]._id, doc._id, '.add kept _id via put')
@@ -157,6 +157,12 @@ test('all, add, save, delete', function (t) {
     .then(function checkGetAllPromise (r) {
       t.equal(r.length, docs.length, 'same number of docs added come out! (promise mode)')
       t.equal(r[3].dummyKey, docs[3].dummyKey, 'actual docs returned by .all')
+    })
+    .then(function getAll () {
+      return p.all({ include_docs: false })
+    })
+    .then(function checkGetAllPromise (r) {
+      t.equal(r.length, docs.length, 'same number of docs added come out! (promise mode)')
     })
     .then(function checkGetAllCallback (r) {
       return new Promise(function (resolve, reject) {
