@@ -110,16 +110,17 @@ assign(Pouchy.prototype, {
     opts = defaults(opts || {}, {
       include_docs: true // jshint ignore:line
     })
-    var p = this.db.allDocs(opts).then(function getDocs (docs) {
+    var p = this.db.allDocs(opts)
+    .then(function getDocs (docs) {
       return docs.rows.reduce(function (r, v) {
-        if (
-            opts.includeDesignDocs || (
-                (v.doc && !v.doc._id.match(designDocRegex)) ||
-                (v.id && !v.id.match(designDocRegex))
-            )
-        ) {
-          r.push(v.doc || v)
+        var doc = opts.include_docs ? v.doc : v
+        // rework doc format to always have id ==> _id
+        if (!opts.include_docs) {
+          doc._id = doc.id
+          delete doc.id
         }
+        if (!opts.includeDesignDocs) r.push(doc)
+        else if (opts.includeDesignDocs && doc._id.match(designDocRegex)) r.push(doc)
         return r
       }, [])
     })
