@@ -160,6 +160,7 @@ Accept a find query, formatted per the [find plugin query options](https://githu
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
+- 6.0.6 - fix issue where `_id` was still `id` when doing `.all({ include_docs: false })`
 - 6.0.4 - fix replication issue where db backend not honored
 - 6.0.0 - db will store locally via leveldown as `name` if passed. `url` will still be used for replication if requested.  prior versions preferred `url` to the Pouch constructor over name
 - 5.2.1 - permit / in couchdb db name
