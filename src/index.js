@@ -5,6 +5,7 @@ var assign = require('lodash/assign')
 var defaults = require('lodash/defaults')
 var unique = require('lodash/uniq')
 var toArray = require('lodash/toArray')
+var get = require('lodash/get')
 var url = require('url')
 var path = require('path')
 var designDocRegex = new RegExp('^_design/')
@@ -30,7 +31,7 @@ function Pouchy (opts) {
   var couchdbSafe = opts.couchdbSafe === undefined ? true : opts.couchdbSafe
   var pathParts
   var _url // temp url used during validation cycle
-  var live  // eslint-disable-line
+  var live // eslint-disable-line
 
   if (!opts) {
     throw new ReferenceError('db options required')
@@ -111,19 +112,19 @@ assign(Pouchy.prototype, {
       include_docs: true // jshint ignore:line
     })
     var p = this.db.allDocs(opts)
-    .then(function getDocs (docs) {
-      return docs.rows.reduce(function (r, v) {
-        var doc = opts.include_docs ? v.doc : v
-        // rework doc format to always have id ==> _id
-        if (!opts.include_docs) {
-          doc._id = doc.id
-          delete doc.id
-        }
-        if (!opts.includeDesignDocs) r.push(doc)
-        else if (opts.includeDesignDocs && doc._id.match(designDocRegex)) r.push(doc)
-        return r
-      }, [])
-    })
+      .then(function getDocs (docs) {
+        return docs.rows.reduce(function (r, v) {
+          var doc = opts.include_docs ? v.doc : v
+          // rework doc format to always have id ==> _id
+          if (!opts.include_docs) {
+            doc._id = doc.id
+            delete doc.id
+          }
+          if (!opts.includeDesignDocs) r.push(doc)
+          else if (opts.includeDesignDocs && doc._id.match(designDocRegex)) r.push(doc)
+          return r
+        }, [])
+      })
     if (!cb) { return p }
     p.then(
       function (r) { cb(null, r) },
@@ -142,6 +143,35 @@ assign(Pouchy.prototype, {
     p.then(
       function (r) { cb(null, r) },
       function (err) { cb(err, null) }
+    )
+  },
+
+  bulkGet: function (opts, cb) {
+    if (Array.isArray(opts)) opts = { docs: opts }
+    opts.docs = opts.docs.map((doc) => {
+      // because PouchDB can't make up it's mind, we need
+      // to map back to id and rev here
+      let nDoc = assign({}, doc)
+      if (nDoc._id) nDoc.id = nDoc._id
+      if (nDoc._rev) nDoc.rev = nDoc._rev
+      delete nDoc._rev
+      delete nDoc._id
+      return nDoc
+    })
+    var p = this.db.bulkGet(opts)
+      .then((r) => {
+        return r.results.map((docGroup) => {
+          const doc = get(docGroup, 'docs[0].ok')
+          if (!doc) {
+            throw new ReferenceError('doc ' + docGroup.id + 'not found')
+          }
+          return doc
+        })
+      })
+    if (!cb) return p
+    p.then(
+      (r) => { cb(null, r) },
+      (err) => { cb(err, null) }
     )
   },
 

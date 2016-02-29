@@ -185,6 +185,27 @@ test('all, add, save, delete', function (t) {
     })
 })
 
+test('bulkGet', (t) => {
+  p = pouchyFactory({ name: 'test_db_' + Date.now() })
+  var dummyDocs = [
+    { _id: 'a', a: 'a' },
+    { _id: 'b', b: 'b' }
+  ]
+  t.plan(1)
+  Promise.resolve()
+    .then(() => p.save(dummyDocs[0]))
+    .then((doc) => (dummyDocs[0] = doc))
+    .then(() => p.save(dummyDocs[1]))
+    .then((doc) => (dummyDocs[1] = doc))
+    .then(() => {
+      p.bulkGet(dummyDocs)
+        .then((docs) => {
+          t.deepEqual(docs, dummyDocs, 'bulkGet returns sane results')
+          t.end()
+        })
+    })
+})
+
 test('indexes & find', function (t) {
   p = pouchyFactory({ name: name + Date.now() })
   t.plan(2)
