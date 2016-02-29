@@ -170,8 +170,8 @@ assign(Pouchy.prototype, {
       })
     if (!cb) return p
     p.then(
-      (r) => { cb(null, r) },
-      (err) => { cb(err, null) }
+      (r) => cb(null, r),
+      (err) => cb(err, null)
     )
   },
 

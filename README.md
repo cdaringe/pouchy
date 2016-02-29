@@ -61,13 +61,40 @@ p.add({ _id: 'my-sauce', bbq: 'sauce' }).then(function(doc) {
 });
 
 // no _id
-p.add({peanut: 'butter'}).then(function(doc) {
+p.add({ peanut: 'butter' }).then(function(doc) {
     console.log(doc._id, doc._rev, doc.peanut); // '66188...00BF885E', '1-0d74...7ac', 'butter'
 });
 ```
 
 ### bulkGet(docs)
 The native bulkGet PouchDB API is hardly user friendly.  In fact, it's down right wacky!  This method patches PouchDB's `bulkGet` and assumes that _all_ of your requested docs exist.  If they do not, it will error usual normal error routes.
+
+A good example of what you can expect is actually right out of the tests!
+
+```js
+var dummyDocs = [
+  { _id: 'a', data: 'a' },
+  { _id: 'b', data: 'b' }
+]
+Promise.resolve()
+  .then(() => p.save(dummyDocs[0])) // add our first doc to the db
+  .then((doc) => (dummyDocs[0] = doc)) // update our doc set so _rev gets added
+  .then(() => p.save(dummyDocs[1]))
+  .then((doc) => (dummyDocs[1] = doc))
+  .then(() => {
+    // drop doc .data attrs to be thoroughly demonstrative
+    const toFetch = dummyDocs.map(dummy => ({
+      _id: dummy._id,
+      _rev: dummy._rev
+      // or .id, .rev
+    }))
+    p.bulkGet(toFetch)
+      .then((docs) => {
+        t.deepEqual(docs, dummyDocs, 'bulkGet returns sane results')
+        t.end()
+      })
+  })
+```
 
 ### createIndicies(indicies)
 Basic index creator.

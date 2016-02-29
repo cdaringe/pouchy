@@ -188,8 +188,8 @@ test('all, add, save, delete', function (t) {
 test('bulkGet', (t) => {
   p = pouchyFactory({ name: 'test_db_' + Date.now() })
   var dummyDocs = [
-    { _id: 'a', a: 'a' },
-    { _id: 'b', b: 'b' }
+    { _id: 'a', data: 'a' },
+    { _id: 'b', data: 'b' }
   ]
   t.plan(1)
   Promise.resolve()
@@ -198,6 +198,11 @@ test('bulkGet', (t) => {
     .then(() => p.save(dummyDocs[1]))
     .then((doc) => (dummyDocs[1] = doc))
     .then(() => {
+      // drop doc .data attrs to be thoroughly demonstrative
+      const toFetch = dummyDocs.map((dummy) => {
+        return { _id: dummy._id, _rev: dummy._rev } // or .id, .rev
+      })
+      p.bulkGet(toFetch)
       p.bulkGet(dummyDocs)
         .then((docs) => {
           t.deepEqual(docs, dummyDocs, 'bulkGet returns sane results')
