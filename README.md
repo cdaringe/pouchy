@@ -67,7 +67,7 @@ p.add({ peanut: 'butter' }).then(function(doc) {
 ```
 
 ### bulkGet(docs)
-The native bulkGet PouchDB API is hardly user friendly.  In fact, it's down right wacky!  This method patches PouchDB's `bulkGet` and assumes that _all_ of your requested docs exist.  If they do not, it will error usual normal error routes.
+The native bulkGet PouchDB API is hardly user friendly.  In fact, it's down right wacky!  This method patches PouchDB's `bulkGet` and assumes that _all_ of your requested docs exist.  If they do not, it will error via the usual error control flows.
 
 A good example of what you can expect is actually right out of the tests!
 
