@@ -45,7 +45,7 @@ test('setup', function (t) {
 })
 
 test('constructor', function (t) {
-  t.plan(10)
+  t.plan(11)
 
   // name requirement
   try {
@@ -54,6 +54,9 @@ test('constructor', function (t) {
   } catch (err) {
     t.ok(true, 'enforced name')
   }
+
+  p = new Pouchy({ name: 'nameonly', pouchConfig: { db: require('memdown') } })
+  t.ok(p, 'name only db ok')
 
   // invalid name
   try {
