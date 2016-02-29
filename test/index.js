@@ -191,7 +191,7 @@ test('bulkGet', (t) => {
     { _id: 'a', data: 'a' },
     { _id: 'b', data: 'b' }
   ]
-  t.plan(1)
+  t.plan(2)
   Promise.resolve()
     .then(() => p.save(dummyDocs[0]))
     .then((doc) => (dummyDocs[0] = doc))
@@ -206,7 +206,13 @@ test('bulkGet', (t) => {
       p.bulkGet(dummyDocs)
         .then((docs) => {
           t.deepEqual(docs, dummyDocs, 'bulkGet returns sane results')
-          t.end()
+        })
+        .then(() => {
+          p.bulkGet([{ _id: 'bananas' }])
+            .catch((err) => {
+              t.ok(err, 'errors when _id not in bulkGet result set')
+              t.end()
+            })
         })
     })
 })
