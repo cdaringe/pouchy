@@ -86,14 +86,14 @@ function Pouchy (opts) {
     live = (opts.replicateLive === undefined) ? true : opts.replicateLive
     switch (replicate) {
       case 'out':
-        this.db.replicate.to(this.url, { live: true })
+        this.changeEmitter = this.db.replicate.to(this.url, { live: true })
         break
       case 'in':
-        this.db.replicate.from(this.url, { live: true })
+        this.changeEmitter = this.db.replicate.from(this.url, { live: true })
         break
       case 'sync':
-        this.db.replicate.to(this.url, { live: true })
-        this.db.replicate.from(this.url, { live: true })
+        this.changeEmitter = this.db.replicate.to(this.url, { live: true })
+        this.changeEmitter = this.db.replicate.from(this.url, { live: true })
         break
       default:
         throw new Error('in/out replication direction ' +
