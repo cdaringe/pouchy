@@ -25,6 +25,7 @@ Setup a new PouchDB wrapper!
     - path: {string=} path to store pouch on filesystem, if using on filesystem!  defaults to _PouchDB_ default of cwd
     - pouchConfig: {object=} PouchDB constructor [options](http://pouchdb.com/api.html#create_database)
     - replicate: {string=} [default: undefined] 'out/in/sync/both', where 'sync' and 'both' mean the same.  Shorthand for syncing a local datastore to a remote datastore.  **the local db name is extracted from the required url**.
+      - adds `.changeEmitter` to your instance so you may listen for events
     - replicateLive: {boolean=} [default: true] activates only if `replicate` is set
     - url: {string=} url to remote CouchDB
 
@@ -189,6 +190,7 @@ Accept a find query, formatted per the [find plugin query options](https://githu
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
+- 6.2.0 - add `this.changeEmitter` when using the `replicate` API
 - 6.1.0 - add `bulkGet`
 - 6.0.6 - fix issue where `_id` was still `id` when doing `.all({ include_docs: false })`
 - 6.0.4 - fix replication issue where db backend not honored
