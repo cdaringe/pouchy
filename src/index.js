@@ -92,8 +92,7 @@ function Pouchy (opts) {
         this.changeEmitter = this.db.replicate.from(this.url, { live: true })
         break
       case 'sync':
-        this.changeEmitter = this.db.replicate.to(this.url, { live: true })
-        this.changeEmitter = this.db.replicate.from(this.url, { live: true })
+        this.changeEmitter = this.db.sync(this.url, { live: true })
         break
       default:
         throw new Error('in/out replication direction ' +
