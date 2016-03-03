@@ -297,7 +297,8 @@ assign(Pouchy.prototype, {
   },
 
   destroy: function () {
-    this.syncEmitter.cancel()
+    if (this.syncEmitter) this.syncEmitter.cancel()
+    if (this.changesEmitter) this.changesEmitter.cancel()
     this.db.destroy.apply(this.db, arguments)
   },
 
