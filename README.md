@@ -190,7 +190,8 @@ Accept a find query, formatted per the [find plugin query options](https://githu
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
-- 6.2.0 - add `this.changeEmitter` when using the `replicate` API
+- 6.2.2 - deprecate 6.2.0-1. changeEmitter => syncEmitter (rapid patch, so no major bump)
+- 6.2.1 - add `this.syncEmitter` when using the `replicate` API
 - 6.1.0 - add `bulkGet`
 - 6.0.6 - fix issue where `_id` was still `id` when doing `.all({ include_docs: false })`
 - 6.0.4 - fix replication issue where db backend not honored
@@ -198,7 +199,7 @@ Thanks! [cdaringe](http://cdaringe.com/)
 - 5.2.1 - permit / in couchdb db name
 - 5.2.0 - bump with couch
 - 5.1.0 - deps bump & add cb interface
-- 5.0.0 - deps bump only.  all future releases with track major version #s with PouchDB
+- 5.0.0 - deps bump only.  ~~all future releases with track major version #s with PouchDB~~
 - 4.0.0 - major bump with PouchDB
 - 3.0.0 - remove default `changes`, and associated `on/off`. didn't work out-of-the-box anyway.  may return in 4.x
 - 2.0.1 - Don't modify constructor opts.name
