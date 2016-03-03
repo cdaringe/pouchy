@@ -1,9 +1,9 @@
 'use strict'
+// Pouchy.PouchDB.debug.enable('*')
 var test = require('tape')
+var fs = require('fs')
 var cp = require('child_process')
 var Pouchy = require('../')
-// Pouchy.PouchDB.debug.enable('*')
-var fs = require('fs.extra')
 var path = require('path')
 var testDir = path.join(__dirname, './.test-db-dir')
 var pouchyFactory = function (opts) {
@@ -27,16 +27,24 @@ var conn = {
 }
 let p
 
+const mkdirp = (dir) => {
+  cp.execSync('mkdir -p ' + dir)
+}
+
+const rmrf = (dir) => {
+  try { cp.execSync('rm -rf ' + dir) } catch (err) {}
+}
+
 const setup = () => {
-  cp.execSync('rm -rf ' + testDir)
-  cp.execSync('mkdir -p ' + testDir)
+  rmrf(testDir)
+  mkdirp(testDir)
   if (!fs.statSync(testDir).isDirectory) {
     throw new ReferenceError('test dir not generated')
   }
 }
 
 const teardown = () => {
-  try { fs.rmrf(testDir) } catch (err) {}
+  try { rmrf(testDir) } catch (err) {}
 }
 
 test('setup', function (t) {
@@ -102,8 +110,8 @@ test('constructor', function (t) {
 
   // custom path
   var customDir = path.join(__dirname, 'custom-db-path')
-  try { fs.rmrfSync(customDir) } catch (err) {}
-  try { fs.mkdirSync(customDir) } catch (err) {}
+  try { rmrf(customDir) } catch (err) {}
+  try { mkdirp(customDir) } catch (err) {}
   var pCustomPath = pouchyFactory({
     name: 'custom-dir-db',
     path: customDir
@@ -112,7 +120,7 @@ test('constructor', function (t) {
     if (err) { return t.end(err.message) }
     var customStat = fs.statSync(path.join(customDir, 'custom-dir-db', 'LOG'))
     t.ok(customStat, 'custom db paths')
-    try { fs.rmrfSync(customDir) } catch (err) {}
+    try { rmrf(customDir) } catch (err) {}
   })
 
   var pSync = pouchyFactory({
@@ -123,6 +131,7 @@ test('constructor', function (t) {
     .catch(function (err) {
       t.ok(err, 'errors on invalid remote db request')
     })
+    .then(() => pSync.destroy())
 })
 
 test('all, add, save, delete', function (t) {
@@ -301,48 +310,53 @@ test('prefers db folder named after opts.name vs url /pathname', function (t) {
 })
 
 test('memdown', (t) => {
-  t.plan(1)
+  t.plan(2)
   setup()
   var memdownOpts = {
     name: 'test-memdown',
     pouchConfig: { db: require('memdown') }
   }
-  var noMemdownOpts = {
-    name: 'test-memdown'
+  var leveldownOpts = {
+    name: 'test-memdown',
+    pouchConfig: { db: require('leveldown') }
   }
-  var p = pouchyFactory(memdownOpts)
-  p.save({ _id: '123' })
-    // test
+  var pLeveldown = pouchyFactory(leveldownOpts)
+  pLeveldown.save({ _id: '456', data: 'blah' })
     .then(() => {
       try {
-        fs.statSync(path.resolve(testDir, memdownOpts.name, 'LOG'))
+        t.ok(
+          fs.statSync(path.join(testDir, leveldownOpts.name, 'LOG')),
+          'LOG present, memdown disabled'
+        )
       } catch (err) {
-        if (err.code === 'ENOENT') {
-          t.ok(err, 'no stores generated when configured for memdown')
-          return
-        }
+        throw new Error('expected LOG file when not using memdown')
       }
-      t.end('db dir found when using memdown')
     })
     .then(() => {
-      var p2 = pouchyFactory(noMemdownOpts)
-      p2.save({ _id: '456' })
+      var pMemdown = pouchyFactory(memdownOpts)
+      rmrf(pMemdown.db._db_name) // full path to
+      pMemdown.save({ _id: '123' })
+        // test
         .then(() => {
           try {
-            t.ok(
-              fs.statSync(path.join(testDir, noMemdownOpts.name, 'LOG')),
-              'LOG present, memdown disabled'
-            )
+            fs.statSync(path.resolve(testDir, memdownOpts.name, 'LOG'))
           } catch (err) {
-            return t.end('expected LOG file')
+            if (err.code === 'ENOENT') {
+              t.ok(err, 'no stores generated when configured for memdown')
+              teardown()
+              t.end()
+              return
+            }
           }
-          teardown()
-          t.end()
+          t.end('db dir found when using memdown')
         })
     })
+    .catch(t.end)
 })
 
 test('teardown', function (t) {
+  t.plan(1)
   teardown()
+  t.pass('teardown ok')
   t.end()
 })

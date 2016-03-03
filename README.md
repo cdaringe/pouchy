@@ -190,7 +190,7 @@ Accept a find query, formatted per the [find plugin query options](https://githu
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
-- 6.2.2 - deprecate 6.2.0-1. changeEmitter => syncEmitter (rapid patch, so no major bump)
+- 6.3.0 - add `destroy`, which `.cancel`s any replication from `.syncEmitter` (see `replicate`). deprecate 6.2.0-1. changeEmitter => syncEmitter (rapid patch, so no major bump)
 - 6.2.1 - add `this.syncEmitter` when using the `replicate` API
 - 6.1.0 - add `bulkGet`
 - 6.0.6 - fix issue where `_id` was still `id` when doing `.all({ include_docs: false })`

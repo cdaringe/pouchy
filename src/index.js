@@ -296,6 +296,11 @@ assign(Pouchy.prototype, {
     )
   },
 
+  destroy: function () {
+    this.syncEmitter.cancel()
+    this.db.destroy.apply(this.db, arguments)
+  },
+
   find: function (opts, cb) {
     var p = this.db.find(opts).then(function returnDocsArray (rslt) {
       return rslt.docs
@@ -340,6 +345,7 @@ var pouchMethods = [
 ]
 
 pouchMethods.forEach(function (method) {
+  if (Pouchy.prototype[method]) { return }
   Pouchy.prototype[method] = function () {
     var cb
     var args = toArray(arguments)
