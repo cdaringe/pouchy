@@ -106,6 +106,27 @@ assign(Pouchy.prototype, {
           mode + '\''
         ].join(' '))
     }
+    this._bindEarlyEventDetectors(this.syncEmitter, replOpts)
+  },
+
+  _bindEarlyEventDetectors: function (emitter, replOpts) {
+    if (replOpts.live) this._handleSyncLikelyComplete(emitter, replOpts)
+  },
+
+  _handleSyncLikelyComplete: function (emitter) {
+    let waitForSync
+    const resetSyncWaitTime = (info) => {
+      clearTimeout(waitForSync)
+      waitForSync = setTimeout(() => {
+        emitter.emit('hasLikelySynced')
+        emitter.removeListener('change', resetSyncWaitTime)
+        emitter.removeListener('active', resetSyncWaitTime)
+        emitter.removeListener('paused', resetSyncWaitTime)
+      }, 150)
+    }
+    emitter.on('paused', resetSyncWaitTime)
+    emitter.on('change', resetSyncWaitTime)
+    emitter.on('active', resetSyncWaitTime)
   },
 
   all: function (opts, cb) {
@@ -303,7 +324,9 @@ assign(Pouchy.prototype, {
   },
 
   destroy: function () {
-    if (this.syncEmitter) this.syncEmitter.cancel()
+    if (this.syncEmitter) {
+      this.syncEmitter.cancel()
+    }
     return this.db.destroy.apply(this.db, arguments)
   },
 

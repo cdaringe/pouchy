@@ -29,6 +29,7 @@ Setup a new PouchDB wrapper!
         - `{ out/in/sync: ... }` where ... are the  [official PouchDB replication options](http://pouchdb.com/api.html#replication)
         - `'out/in/sync'`  are shorthand for syncing a local datastore to a remote datastore.  Applies `live` and `retry` using PouchDB defaults
       - adds `.syncEmitter` to your instance so you may listen for events. note, `.destroy` will now scrap this emitter
+        - `.syncEmitter` emits `hasLikelySynced` if replicating `live`.  it's a fast and loose attempt to mimic the `complete` event when not using `live`.  make sure to `.syncEmitter.on('error', ...)` too when using this event!
     - url: {string=} url to remote CouchDB
 
 ```js
@@ -192,6 +193,7 @@ Accept a find query, formatted per the [find plugin query options](https://githu
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
+- 7.1.0 - add `hasLikelySynced` event
 - 7.0.0 - modify replicate API.  dropped `'both'` sync option, added `{}` option.  dropped `replicateLive`
 - 6.3.0 - add `destroy`, which `.cancel`s any replication from `.syncEmitter` (see `replicate`). deprecate 6.2.0-1. changeEmitter => syncEmitter (rapid patch, so no major bump)
 - 6.2.1 - add `this.syncEmitter` when using the `replicate` API
