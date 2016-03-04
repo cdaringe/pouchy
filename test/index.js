@@ -53,7 +53,7 @@ test('setup', function (t) {
 })
 
 test('constructor', function (t) {
-  t.plan(11)
+  t.plan(10)
 
   // name requirement
   try {
@@ -122,16 +122,43 @@ test('constructor', function (t) {
     t.ok(customStat, 'custom db paths')
     try { rmrf(customDir) } catch (err) {}
   })
+})
 
+test('basic sync', function (t) {
+  t.plan(2)
   var pSync = pouchyFactory({
     url: 'http://www.bogus-sync-db.com/bogusdb',
-    replicate: 'both'
+    replicate: 'sync'
   })
   pSync.info()
     .catch(function (err) {
       t.ok(err, 'errors on invalid remote db request')
     })
     .then(() => pSync.destroy())
+    .catch(function (err) {
+      t.ok(err, 'errors on destroy on invalid remote db request')
+    })
+    .then(() => t.end())
+    .catch(t.end)
+})
+
+test('custom replication inputs sync', function (t) {
+  // string `sync` tested above, try objects now
+  t.plan(2)
+  var pSync = pouchyFactory({
+    url: 'http://www.bogus-sync-db.com/bogusdb',
+    replicate: { sync: { live: true, heartbeat: 1, timeout: 1 } }
+  })
+  pSync.info()
+    .catch(function (err) {
+      t.ok(err, 'errors on invalid remote db request')
+    })
+    .then(() => pSync.destroy())
+    .catch(function (err) {
+      t.ok(err, 'errors on destroy on invalid remote db request')
+    })
+    .then(() => t.end())
+    .catch(t.end)
 })
 
 test('all, add, save, delete', function (t) {

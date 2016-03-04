@@ -24,9 +24,11 @@ Setup a new PouchDB wrapper!
     - couchdbSafe {boolean=} [default: true] asserts that `name` provided or `url` provided will work with couchdb.  tests by asserting str conforms to [couch specs](https://wiki.apache.org/couchdb/HTTP_database_API#Naming_and_Addressing), minus the `/`.  This _may complain that some valid urls are invalid_.  Please be aware and disable if necessary.
     - path: {string=} path to store pouch on filesystem, if using on filesystem!  defaults to _PouchDB_ default of cwd
     - pouchConfig: {object=} PouchDB constructor [options](http://pouchdb.com/api.html#create_database)
-    - replicate: {string=} [default: undefined] 'out/in/sync/both', where 'sync' and 'both' mean the same.  Shorthand for syncing a local datastore to a remote datastore.  **the local db name is extracted from the required url**.
-      - adds `.changeEmitter` to your instance so you may listen for events
-    - replicateLive: {boolean=} [default: true] activates only if `replicate` is set
+    - replicate: {object=|string=} [default: undefined]
+      - options:
+        - `{ out/in/sync: ... }` where ... are the  [official PouchDB replication options](http://pouchdb.com/api.html#replication)
+        - `'out/in/sync'`  are shorthand for syncing a local datastore to a remote datastore.  Applies `live` and `retry` using PouchDB defaults
+      - adds `.syncEmitter` to your instance so you may listen for events. note, `.destroy` will now scrap this emitter
     - url: {string=} url to remote CouchDB
 
 ```js
@@ -68,7 +70,7 @@ p.add({ peanut: 'butter' }).then(function(doc) {
 ```
 
 ### bulkGet(docs)
-The native bulkGet PouchDB API is hardly user friendly.  In fact, it's down right wacky!  This method patches PouchDB's `bulkGet` and assumes that _all_ of your requested docs exist.  If they do not, it will error via the usual error control flows.
+The native bulkGet PouchDB API is not very user friendly.  In fact, it's down right wacky!  This method patches PouchDB's `bulkGet` and assumes that _all_ of your requested docs exist.  If they do not, it will error via the usual error control flows.
 
 A good example of what you can expect is actually right out of the tests!
 
@@ -190,6 +192,7 @@ Accept a find query, formatted per the [find plugin query options](https://githu
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
+- 7.0.0 - modify replicate API.  dropped `'both'` sync option, added `{}` option.  dropped `replicateLive`
 - 6.3.0 - add `destroy`, which `.cancel`s any replication from `.syncEmitter` (see `replicate`). deprecate 6.2.0-1. changeEmitter => syncEmitter (rapid patch, so no major bump)
 - 6.2.1 - add `this.syncEmitter` when using the `replicate` API
 - 6.1.0 - add `bulkGet`

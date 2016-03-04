@@ -27,11 +27,8 @@ var couchUrlify = function (str) {
  * }
  */
 function Pouchy (opts) {
-  var replicate = opts.replicate
   var couchdbSafe = opts.couchdbSafe === undefined ? true : opts.couchdbSafe
   var pathParts
-  var _url // temp url used during validation cycle
-  var live // eslint-disable-line
 
   if (!opts) {
     throw new ReferenceError('db options required')
@@ -42,19 +39,20 @@ function Pouchy (opts) {
   if (!this) { throw new ReferenceError('no `this` context.  did you forget `new`?') }
 
   if (opts.url) {
-    _url = opts.url
+    this.url = opts.url
   } else if (opts.conn) {
-    _url = url.format(opts.conn)
+    this.url = url.format(opts.conn)
   }
 
-  if (_url) {
-    pathParts = url.parse(_url).pathname.split('/')
+  // assert that url is safe looking
+  if (this.url) {
+    pathParts = url.parse(this.url).pathname.split('/')
     // check opts.name, as name may have / in it
     this.name = opts.name || pathParts[pathParts.length - 1]
     if (couchdbSafe && this.name !== couchUrlify(this.name.toLowerCase())) {
       throw new Error([
         'provided `url` or `conn` "',
-        ((opts.conn && JSON.stringify(opts.conn)) || _url),
+        ((opts.conn && JSON.stringify(opts.conn)) || this.url),
         '" may not be couchdb safe'
       ].join(' '))
     }
@@ -69,39 +67,47 @@ function Pouchy (opts) {
     }
   }
 
-  if (_url) {
-    this.url = _url
-  }
   this.path = path.resolve(opts.path || '', this.name)
-
   this.db = new PouchDB(
     opts.name ? this.path : this.url,
     opts.pouchConfig
   )
-  if (replicate) {
-    if (!this.url) {
-      throw new ReferenceError('url or conn object required to replicate')
-    }
-    replicate = replicate === 'both' ? 'sync' : replicate
-    live = (opts.replicateLive === undefined) ? true : opts.replicateLive
-    switch (replicate) {
-      case 'out':
-        this.syncEmitter = this.db.replicate.to(this.url, { live: true, retry: true })
-        break
-      case 'in':
-        this.syncEmitter = this.db.replicate.from(this.url, { live: true, retry: true })
-        break
-      case 'sync':
-        this.syncEmitter = this.db.sync(this.url, { live: true, retry: true })
-        break
-      default:
-        throw new Error('in/out replication direction ' +
-          'must be specified')
-    }
-  }
+  if (opts.replicate) this._handleReplication(opts.replicate)
 }
 
 assign(Pouchy.prototype, {
+
+  _handleReplication: function (opts) {
+    if (!this.url) {
+      throw new ReferenceError('url or conn object required to replicate')
+    }
+    let mode
+    let replOpts
+    if (typeof opts === 'string') {
+      mode = opts
+      replOpts = { live: true, retry: true }
+    } else {
+      mode = Object.keys(opts)[0]
+      replOpts = opts[mode]
+    }
+    switch (mode) {
+      case 'out':
+        this.syncEmitter = this.db.replicate.to(this.url, replOpts)
+        break
+      case 'in':
+        this.syncEmitter = this.db.replicate.from(this.url, replOpts)
+        break
+      case 'sync':
+        this.syncEmitter = this.db.sync(this.url, replOpts)
+        break
+      default:
+        throw new Error([
+          'in/out replication direction must be specified, got \'',
+          mode + '\''
+        ].join(' '))
+    }
+  },
+
   all: function (opts, cb) {
     if (typeof opts === 'function') {
       cb = opts
@@ -298,7 +304,6 @@ assign(Pouchy.prototype, {
 
   destroy: function () {
     if (this.syncEmitter) this.syncEmitter.cancel()
-    if (this.changesEmitter) this.changesEmitter.cancel()
     return this.db.destroy.apply(this.db, arguments)
   },
 
