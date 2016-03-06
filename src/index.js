@@ -117,17 +117,28 @@ assign(Pouchy.prototype, {
   _handleSyncLikelyComplete: function (emitter) {
     let waitForSync
     const resetSyncWaitTime = (info) => {
+      clearTimeout(maxSyncWait)
       clearTimeout(waitForSync)
       waitForSync = setTimeout(() => {
         emitter.emit('hasLikelySynced')
-        emitter.removeListener('change', resetSyncWaitTime)
-        emitter.removeListener('active', resetSyncWaitTime)
-        emitter.removeListener('paused', resetSyncWaitTime)
+        modListeners('removeListener')
       }, 150)
     }
-    emitter.addListener('paused', resetSyncWaitTime)
-    emitter.addListener('change', resetSyncWaitTime)
-    emitter.addListener('active', resetSyncWaitTime)
+    const modListeners = (action) => {
+      emitter[action]('change', resetSyncWaitTime)
+      emitter[action]('active', resetSyncWaitTime)
+      emitter[action]('paused', resetSyncWaitTime)
+    }
+
+    // set max wait time before moving on
+    const maxSyncWait = setTimeout(
+      () => {
+        if (waitForSync) return
+        resetSyncWaitTime()
+      },
+      500
+    )
+    modListeners('addListener')
   },
 
   all: function (opts, cb) {
