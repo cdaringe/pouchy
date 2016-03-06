@@ -72,6 +72,7 @@ function Pouchy (opts) {
     opts.name ? this.path : this.url,
     opts.pouchConfig
   )
+
   if (opts.replicate) this._handleReplication(opts.replicate)
 }
 
@@ -124,9 +125,9 @@ assign(Pouchy.prototype, {
         emitter.removeListener('paused', resetSyncWaitTime)
       }, 150)
     }
-    emitter.on('paused', resetSyncWaitTime)
-    emitter.on('change', resetSyncWaitTime)
-    emitter.on('active', resetSyncWaitTime)
+    emitter.addListener('paused', resetSyncWaitTime)
+    emitter.addListener('change', resetSyncWaitTime)
+    emitter.addListener('active', resetSyncWaitTime)
   },
 
   all: function (opts, cb) {
