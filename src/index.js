@@ -307,7 +307,7 @@ assign(Pouchy.prototype, {
     }
     // http://pouchdb.com/api.html#create_document
     // db.post(doc, [docId], [docRev], [options], [callback])
-    var method = doc.hasOwnProperty('_id') ? 'put' : 'post'
+    var method = doc.hasOwnProperty('_id') && (doc._id || doc._id === 0) ? 'put' : 'post'
     var p = this.db[method](doc).then(function (meta) {
       delete meta.status
       doc._id = meta.id
