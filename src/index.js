@@ -122,9 +122,9 @@ assign(Pouchy.prototype, {
       }, 150)
     }
     var updateEmitters = function (action) {
-      emitter[action]('change', resetSyncWaitTime)
-      emitter[action]('active', resetSyncWaitTime)
-      emitter[action]('paused', resetSyncWaitTime)
+      emitter[action]('change', function (info) { resetSyncWaitTime('change', info) })
+      emitter[action]('active', function (info) { resetSyncWaitTime('active', info) })
+      emitter[action]('paused', function (info) { resetSyncWaitTime('paused', info) })
     }
 
     // set max wait time before moving on
@@ -336,7 +336,11 @@ pouchMethods.forEach(function (method) {
     var cb
     var args = toArray(arguments)
     if (typeof args[args.length - 1] === 'function') cb = args.pop()
-    return bb.resolve(this.db[method].apply(this.db, args)).asCallback(cb)
+    var rtn = this.db[method].apply(this.db, args)
+    if (rtn instanceof Promise || rtn instanceof bb) {
+      return bb.resolve().asCallback(cb)
+    }
+    return rtn
   }
 })
 

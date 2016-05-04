@@ -132,16 +132,20 @@ test('basic sync', function (t) {
     url: 'http://www.bogus-sync-db.com/bogusdb',
     replicate: 'sync'
   })
-  pSync.info()
+  var __handled = false
+  var handleNaughtySyncEvent = function (evt) {
+    if (__handled) return
+    __handled = true
+    t.pass('paused handler (retry default)')
+    pSync.destroy()
     .catch(function (err) {
-      t.ok(err, 'errors on invalid remote db request')
-    })
-    .then(() => pSync.destroy())
-    .catch(function (err) {
-      t.ok(err, 'errors on destroy on invalid remote db request')
+      t.ok(err, 'pauses/errors on destroy on invalid remote db request')
     })
     .then(() => t.end())
     .catch(t.end)
+  }
+  pSync.syncEmitter.on('paused', handleNaughtySyncEvent)
+  pSync.syncEmitter.on('error', handleNaughtySyncEvent)
 })
 
 test('custom replication inputs sync', function (t) {
@@ -151,16 +155,15 @@ test('custom replication inputs sync', function (t) {
     url: 'http://www.bogus-sync-db.com/bogusdb',
     replicate: { sync: { live: true, heartbeat: 1, timeout: 1 } }
   })
-  pSync.info()
-    .catch(function (err) {
-      t.ok(err, 'errors on invalid remote db request')
-    })
-    .then(() => pSync.destroy())
+  pSync.syncEmitter.on('error', function () {
+    t.pass('syncEmitter enters error on bogus url w/out')
+    pSync.destroy()
     .catch(function (err) {
       t.ok(err, 'errors on destroy on invalid remote db request')
     })
     .then(() => t.end())
     .catch(t.end)
+  })
 })
 
 test('all, add, save, delete', function (t) {
@@ -382,6 +385,17 @@ test('memdown', (t) => {
     })
     .catch(t.end)
 })
+
+// test('changes', (t) => {
+//   // var p = pouchyFactory({ name: 'changesdb' })
+//   var p = new Pouchy.PouchDB(path.join(__dirname, './.test-db-dir/changesdb'))
+//   t.plan(1)
+//   p.changes().on('changed', (info) => {
+//     t.pass('info passed')
+//     t.end()
+//   })
+//   p.put({ _id: '123', dummy: 1 })
+// })
 
 test('teardown', function (t) {
   t.plan(1)
