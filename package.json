@@ -35,7 +35,7 @@
     "git-validate": "^2.1.4",
     "leveldown": "^1.4.1",
     "memdown": "^1.1.2",
-    "standard": "^6.0.7",
+    "standard": "^7.0.0",
     "standard-format": "^2.1.1",
     "tape": "4.5.0",
     "testem": "1.6.0"
