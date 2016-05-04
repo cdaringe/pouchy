@@ -25,6 +25,8 @@ var conn = {
   port: 3001,
   pathname: 'validpathname'
 }
+var bb = require('bluebird')
+bb.config({ warnings: false })
 let p
 
 const mkdirp = (dir) => {

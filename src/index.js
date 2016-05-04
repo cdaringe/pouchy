@@ -1,4 +1,5 @@
 'use strict'
+
 var PouchDB = require('pouchdb')
 PouchDB.plugin(require('pouchdb-find'))
 var assign = require('lodash/assign')
@@ -9,9 +10,8 @@ var get = require('lodash/get')
 var url = require('url')
 var path = require('path')
 var designDocRegex = new RegExp('^_design/')
-var couchUrlify = function (str) {
-  return str.replace(/[^/a-z0-9_$()+-]/gi, '')
-}
+var couchUrlify = function (str) { return str.replace(/[^/a-z0-9_$()+-]/gi, '') }
+var bb = require('bluebird')
 
 /**
  * @constructor Pouchy
@@ -77,13 +77,10 @@ function Pouchy (opts) {
 }
 
 assign(Pouchy.prototype, {
-
   _handleReplication: function (opts) {
-    if (!this.url) {
-      throw new ReferenceError('url or conn object required to replicate')
-    }
     let mode
     let replOpts
+    if (!this.url) throw new ReferenceError('url or conn object required to replicate')
     if (typeof opts === 'string') {
       mode = opts
       replOpts = { live: true, retry: true }
@@ -103,8 +100,8 @@ assign(Pouchy.prototype, {
         break
       default:
         throw new Error([
-          'in/out replication direction must be specified, got \'',
-          mode + '\''
+          "in/out replication direction must be specified, got '",
+          mode + "'"
         ].join(' '))
     }
     this._bindEarlyEventDetectors(this.syncEmitter, replOpts)
@@ -116,29 +113,29 @@ assign(Pouchy.prototype, {
 
   _handleSyncLikelyComplete: function (emitter) {
     let waitForSync
-    const resetSyncWaitTime = (info) => {
+    var resetSyncWaitTime = function (info) {
       clearTimeout(maxSyncWait)
       clearTimeout(waitForSync)
       waitForSync = setTimeout(() => {
         emitter.emit('hasLikelySynced')
-        modListeners('removeListener')
+        updateEmitters('removeListener')
       }, 150)
     }
-    const modListeners = (action) => {
+    var updateEmitters = function (action) {
       emitter[action]('change', resetSyncWaitTime)
       emitter[action]('active', resetSyncWaitTime)
       emitter[action]('paused', resetSyncWaitTime)
     }
 
     // set max wait time before moving on
-    const maxSyncWait = setTimeout(
-      () => {
+    var maxSyncWait = setTimeout(
+      function () {
         if (waitForSync) return
         resetSyncWaitTime()
       },
       500
     )
-    modListeners('addListener')
+    updateEmitters('addListener')
   },
 
   all: function (opts, cb) {
@@ -146,28 +143,23 @@ assign(Pouchy.prototype, {
       cb = opts
       opts = {}
     }
-    opts = defaults(opts || {}, {
-      include_docs: true // jshint ignore:line
-    })
-    var p = this.db.allDocs(opts)
-      .then(function getDocs (docs) {
-        return docs.rows.reduce(function (r, v) {
-          var doc = opts.include_docs ? v.doc : v
-          // rework doc format to always have id ==> _id
-          if (!opts.include_docs) {
-            doc._id = doc.id
-            delete doc.id
-          }
-          if (!opts.includeDesignDocs) r.push(doc)
-          else if (opts.includeDesignDocs && doc._id.match(designDocRegex)) r.push(doc)
-          return r
-        }, [])
-      })
-    if (!cb) { return p }
-    p.then(
-      function (r) { cb(null, r) },
-      function (err) { cb(err, null) }
-    )
+    opts = defaults(opts || {}, { include_docs: true })
+    return bb.resolve(
+      this.db.allDocs(opts)
+        .then(function getDocs (docs) {
+          return docs.rows.reduce(function (r, v) {
+            var doc = opts.include_docs ? v.doc : v
+            // rework doc format to always have id ==> _id
+            if (!opts.include_docs) {
+              doc._id = doc.id
+              delete doc.id
+            }
+            if (!opts.includeDesignDocs) r.push(doc)
+            else if (opts.includeDesignDocs && doc._id.match(designDocRegex)) r.push(doc)
+            return r
+          }, [])
+        })
+    ).asCallback(cb)
   },
 
   add: function () {
@@ -176,17 +168,12 @@ assign(Pouchy.prototype, {
     if (typeof args[args.length - 1] === 'function') {
       cb = args.pop()
     }
-    var p = this.save.apply(this, args)
-    if (!cb) { return p }
-    p.then(
-      function (r) { cb(null, r) },
-      function (err) { cb(err, null) }
-    )
+    return bb.resolve(this.save.apply(this, args)).asCallback(cb)
   },
 
   bulkGet: function (opts, cb) {
     if (Array.isArray(opts)) opts = { docs: opts }
-    opts.docs = opts.docs.map((doc) => {
+    opts.docs = opts.docs.map(function (doc) {
       // because PouchDB can't make up it's mind, we need
       // to map back to id and rev here
       let nDoc = assign({}, doc)
@@ -196,40 +183,30 @@ assign(Pouchy.prototype, {
       delete nDoc._id
       return nDoc
     })
-    var p = this.db.bulkGet(opts)
-      .then((r) => {
-        return r.results.map((docGroup) => {
-          const doc = get(docGroup, 'docs[0].ok')
-          if (!doc) {
-            throw new ReferenceError('doc ' + docGroup.id + 'not found')
-          }
-          return doc
+    return bb.resolve(
+      this.db.bulkGet(opts)
+        .then(function (r) {
+          return r.results.map(function (docGroup) {
+            var doc = get(docGroup, 'docs[0].ok')
+            if (!doc) {
+              throw new ReferenceError('doc ' + docGroup.id + 'not found')
+            }
+            return doc
+          })
         })
-      })
-    if (!cb) return p
-    p.then(
-      (r) => cb(null, r),
-      (err) => cb(err, null)
-    )
+    ).asCallback(cb)
   },
 
   createIndicies: function (indicies, cb) {
     indicies = Array.isArray(indicies) ? indicies : [indicies]
-    var p = this.db.createIndex({
-      index: {
-        fields: unique(indicies)
-      }
-    })
-      .catch(function (err) {
-        if (err.status !== 409) {
-          throw err
+    return bb.resolve(
+      this.db.createIndex({
+        index: {
+          fields: unique(indicies)
         }
       })
-    if (!cb) { return p }
-    p.then(
-      function (r) { cb(null, r) },
-      function (err) { cb(err, null) }
-    )
+        .catch(function (err) { if (err.status !== 409) throw err })
+    ).asCallback(cb)
   },
 
   clear: function () {
@@ -238,12 +215,7 @@ assign(Pouchy.prototype, {
     if (typeof args[args.length - 1] === 'function') {
       cb = args.pop()
     }
-    var p = this.deleteAll.apply(this, args)
-    if (!cb) { return p }
-    p.then(
-      function (r) { cb(null, r) },
-      function (err) { cb(err, null) }
-    )
+    return bb.resolve(this.deleteAll.apply(this, args)).asCallback(cb)
   },
 
   delete: function (doc, opts, cb) {
@@ -251,33 +223,20 @@ assign(Pouchy.prototype, {
       cb = opts
       opts = {}
     }
-    var p = this.db.remove(doc, opts)
-    if (!cb) { return p }
-    p.then(
-      function (r) { cb(null, r) },
-      function (err) { cb(err, null) }
-    )
+    return bb.resolve(this.db.remove(doc, opts)).asCallback(cb)
   },
 
   deleteAll: function (cb) {
-    var p = this.all().then(function deleteEach (docs) {
-      docs = docs.map(function (doc) { return this.delete(doc) }.bind(this))
-      return Promise.all(docs)
-    }.bind(this))
-    if (!cb) { return p }
-    p.then(
-      function (r) { cb(null, r) },
-      function (err) { cb(err, null) }
-    )
+    return bb.resolve(
+      this.all().then(function deleteEach (docs) {
+        docs = docs.map(function (doc) { return this.delete(doc) }.bind(this))
+        return Promise.all(docs)
+      }.bind(this))
+    ).asCallback(cb)
   },
 
   deleteDB: function (cb) { // jshint ignore:line
-    var p = this.db.destroy()
-    if (!cb) { return p }
-    p.then(
-      function (r) { cb(null, r) },
-      function (err) { cb(err, null) }
-    )
+    return bb.resolve(this.db.destroy()).asCallback(cb)
   },
 
   update: function (doc, opts, cb) {
@@ -288,16 +247,13 @@ assign(Pouchy.prototype, {
     opts = opts || {}
     // http://pouchdb.com/api.html#create_document
     // db.put(doc, [docId], [docRev], [options], [callback])
-    var p = this.db.put(doc, opts._id, opts._rev).then(function (meta) {
-      doc._id = meta.id
-      doc._rev = meta.rev
-      return doc
-    })
-    if (!cb) { return p }
-    p.then(
-      function (r) { cb(null, r) },
-      function (err) { cb(err, null) }
-    )
+    return bb.resolve(
+      this.db.put(doc, opts._id, opts._rev).then(function (meta) {
+        doc._id = meta.id
+        doc._rev = meta.rev
+        return doc
+      })
+    ).asCallback(cb)
   },
 
   save: function (doc, opts, cb) {
@@ -308,17 +264,14 @@ assign(Pouchy.prototype, {
     // http://pouchdb.com/api.html#create_document
     // db.post(doc, [docId], [docRev], [options], [callback])
     var method = doc.hasOwnProperty('_id') && (doc._id || doc._id === 0) ? 'put' : 'post'
-    var p = this.db[method](doc).then(function (meta) {
-      delete meta.status
-      doc._id = meta.id
-      doc._rev = meta.rev
-      return doc
-    })
-    if (!cb) { return p }
-    p.then(
-      function (r) { cb(null, r) },
-      function (err) { cb(err, null) }
-    )
+    return bb.resolve(
+      this.db[method](doc).then(function (meta) {
+        delete meta.status
+        doc._id = meta.id
+        doc._rev = meta.rev
+        return doc
+      })
+    ).asCallback(cb)
   },
 
   // pouchdb-find proxies
@@ -327,30 +280,22 @@ assign(Pouchy.prototype, {
     if (typeof args[args.length - 1] === 'function') {
       cb = args.pop()
     }
-    var p = this.createIndicies.apply(this, args)
-    if (!cb) { return p }
-    p.then(
-      function (r) { cb(null, r) },
-      function (err) { cb(err, null) }
-    )
+    return bb.resolve(this.createIndicies.apply(this, args)).asCallback(cb)
   },
 
-  destroy: function () {
+  destroy: function (cb) {
     if (this.syncEmitter) {
       this.syncEmitter.cancel()
     }
-    return this.db.destroy.apply(this.db, arguments)
+    return bb.resolve(this.db.destroy.apply(this.db, arguments)).asCallback(cb)
   },
 
   find: function (opts, cb) {
-    var p = this.db.find(opts).then(function returnDocsArray (rslt) {
-      return rslt.docs
-    })
-    if (!cb) { return p }
-    p.then(
-      function (r) { cb(null, r) },
-      function (err) { cb(err, null) }
-    )
+    return bb.resolve(
+      this.db.find(opts).then(function returnDocsArray (rslt) {
+        return rslt.docs
+      })
+    ).asCallback(cb)
   }
 
 })
@@ -390,15 +335,8 @@ pouchMethods.forEach(function (method) {
   Pouchy.prototype[method] = function () {
     var cb
     var args = toArray(arguments)
-    if (typeof args[args.length - 1] === 'function') {
-      cb = args.pop()
-    }
-    var p = this.db[method].apply(this.db, args)
-    if (!cb) { return p }
-    p.then(
-      function (r) { cb(null, r) },
-      function (err) { cb(err, null) }
-    )
+    if (typeof args[args.length - 1] === 'function') cb = args.pop()
+    return bb.resolve(this.db[method].apply(this.db, args)).asCallback(cb)
   }
 })
 

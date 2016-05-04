@@ -41,6 +41,7 @@
     "testem": "1.6.0"
   },
   "dependencies": {
+    "bluebird": "^3.3.5",
     "lodash": "^4.0.0",
     "path": "0.12.7",
     "pouchdb": "5.3.2",
