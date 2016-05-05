@@ -57,6 +57,11 @@ test('setup', function (t) {
 test('constructor', function (t) {
   t.plan(10)
 
+  try {
+    p = new Pouchy()
+    t.fail('pouchy requires input')
+  } catch (err) {}
+
   // name requirement
   try {
     pouchyFactory({})
@@ -138,11 +143,11 @@ test('basic sync', function (t) {
     __handled = true
     t.pass('paused handler (retry default)')
     pSync.destroy()
-    .catch(function (err) {
-      t.ok(err, 'pauses/errors on destroy on invalid remote db request')
-    })
-    .then(() => t.end())
-    .catch(t.end)
+      .catch(function (err) {
+        t.ok(err, 'pauses/errors on destroy on invalid remote db request')
+      })
+      .then(() => t.end())
+      .catch(t.end)
   }
   pSync.syncEmitter.on('paused', handleNaughtySyncEvent)
   pSync.syncEmitter.on('error', handleNaughtySyncEvent)
@@ -158,11 +163,11 @@ test('custom replication inputs sync', function (t) {
   pSync.syncEmitter.on('error', function () {
     t.pass('syncEmitter enters error on bogus url w/out')
     pSync.destroy()
-    .catch(function (err) {
-      t.ok(err, 'errors on destroy on invalid remote db request')
-    })
-    .then(() => t.end())
-    .catch(t.end)
+      .catch(function (err) {
+        t.ok(err, 'errors on destroy on invalid remote db request')
+      })
+      .then(() => t.end())
+      .catch(t.end)
   })
 })
 
@@ -246,11 +251,9 @@ test('bulkGet', (t) => {
       const toFetch = dummyDocs.map((dummy) => {
         return { _id: dummy._id, _rev: dummy._rev } // or .id, .rev
       })
-      p.bulkGet(toFetch)
-      p.bulkGet(dummyDocs)
-        .then((docs) => {
-          t.deepEqual(docs, dummyDocs, 'bulkGet returns sane results')
-        })
+      p.bulkGet(toFetch).then((docs) => {
+        t.deepEqual(docs, dummyDocs, 'bulkGet returns sane results')
+      })
         .then(() => {
           p.bulkGet([{ _id: 'bananas' }])
             .catch((err) => {
@@ -263,11 +266,11 @@ test('bulkGet', (t) => {
 
 test('indexes & find', function (t) {
   p = pouchyFactory({ name: name + Date.now() })
-  t.plan(2)
+  t.plan(3)
   p.createIndicies('test')
     .then(function (indexResults) {
       t.pass('indicies created')
-      return p.db.bulkDocs([
+      return p.bulkDocs([
         {test: 't1', _id: 'doc1'},
         {test: 't2', _id: 'doc2'}
       ])
@@ -280,6 +283,10 @@ test('indexes & find', function (t) {
     })
     .then(function (result) {
       t.equal('doc2', result[0]._id, 'find on index')
+    })
+    .then(function () { return p.info() })
+    .then(function (info) {
+      t.ok(info, 'proxy method ok')
       t.end()
     })
     .catch(function (err) {

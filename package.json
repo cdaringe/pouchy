@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "standard",
     "lintfix": "standard-format -w",
-    "test": "node test/ && npm run clean",
+    "test": "istanbul cover test/ && npm run clean",
+    "posttest": "istanbul check --statements 90 --functions 90 --branches 90",
     "clean": "rm -rf ./test-db-* && rm -rf test/ppath && rm -rf test/custompath",
     "preversion": "git checkout master && git pull && npm ls",
     "publish-patch": "npm run preversion && npm version patch && git push origin master --tags && npm publish",

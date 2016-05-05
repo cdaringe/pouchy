@@ -1,7 +1,7 @@
 'use strict'
 
-var PouchDB = require('pouchdb')
-PouchDB.plugin(require('pouchdb-find'))
+var PouchDB = require('./bluebirdify-pouchdb')
+var bluebird = require('bluebird')
 var assign = require('lodash/assign')
 var defaults = require('lodash/defaults')
 var unique = require('lodash/uniq')
@@ -11,7 +11,6 @@ var url = require('url')
 var path = require('path')
 var designDocRegex = new RegExp('^_design/')
 var couchUrlify = function (str) { return str.replace(/[^/a-z0-9_$()+-]/gi, '') }
-var bb = require('bluebird')
 
 /**
  * @constructor Pouchy
@@ -27,15 +26,17 @@ var bb = require('bluebird')
  * }
  */
 function Pouchy (opts) {
-  var couchdbSafe = opts.couchdbSafe === undefined ? true : opts.couchdbSafe
-  var pathParts
-
   if (!opts) {
     throw new ReferenceError('db options required')
   }
+
+  var couchdbSafe = opts.couchdbSafe === undefined ? true : opts.couchdbSafe
+  var pathParts
+
   if (!opts.name && !opts.url && !opts.conn) {
     throw new ReferenceError('db name, url, or conn required to create or access pouchdb')
   }
+  /* istanbul ignore next */
   if (!this) { throw new ReferenceError('no `this` context.  did you forget `new`?') }
 
   if (opts.url) {
@@ -80,6 +81,7 @@ assign(Pouchy.prototype, {
   _handleReplication: function (opts) {
     let mode
     let replOpts
+    /* istanbul ignore next */
     if (!this.url) throw new ReferenceError('url or conn object required to replicate')
     if (typeof opts === 'string') {
       mode = opts
@@ -89,9 +91,11 @@ assign(Pouchy.prototype, {
       replOpts = opts[mode]
     }
     switch (mode) {
+      /* istanbul ignore next */
       case 'out':
         this.syncEmitter = this.db.replicate.to(this.url, replOpts)
         break
+      /* istanbul ignore next */
       case 'in':
         this.syncEmitter = this.db.replicate.from(this.url, replOpts)
         break
@@ -99,6 +103,7 @@ assign(Pouchy.prototype, {
         this.syncEmitter = this.db.sync(this.url, replOpts)
         break
       default:
+        /* istanbul ignore next */
         throw new Error([
           "in/out replication direction must be specified, got '",
           mode + "'"
@@ -121,6 +126,7 @@ assign(Pouchy.prototype, {
         updateEmitters('removeListener')
       }, 150)
     }
+    /* istanbul ignore next */
     var updateEmitters = function (action) {
       emitter[action]('change', function (info) { resetSyncWaitTime('change', info) })
       emitter[action]('active', function (info) { resetSyncWaitTime('active', info) })
@@ -130,6 +136,7 @@ assign(Pouchy.prototype, {
     // set max wait time before moving on
     var maxSyncWait = setTimeout(
       function () {
+        /* istanbul ignore next */
         if (waitForSync) return
         resetSyncWaitTime()
       },
@@ -144,31 +151,32 @@ assign(Pouchy.prototype, {
       opts = {}
     }
     opts = defaults(opts || {}, { include_docs: true })
-    return bb.resolve(
-      this.db.allDocs(opts)
-        .then(function getDocs (docs) {
-          return docs.rows.reduce(function (r, v) {
-            var doc = opts.include_docs ? v.doc : v
-            // rework doc format to always have id ==> _id
-            if (!opts.include_docs) {
-              doc._id = doc.id
-              delete doc.id
-            }
-            if (!opts.includeDesignDocs) r.push(doc)
-            else if (opts.includeDesignDocs && doc._id.match(designDocRegex)) r.push(doc)
-            return r
-          }, [])
-        })
-    ).asCallback(cb)
+    return this.db.allDocs(opts)
+      .then(function getDocs (docs) {
+        return docs.rows.reduce(function (r, v) {
+          var doc = opts.include_docs ? v.doc : v
+          // rework doc format to always have id ==> _id
+          if (!opts.include_docs) {
+            doc._id = doc.id
+            delete doc.id
+          }
+          /* istanbul ignore next */
+          if (!opts.includeDesignDocs) r.push(doc)
+          else if (opts.includeDesignDocs && doc._id.match(designDocRegex)) r.push(doc)
+          return r
+        }, [])
+      })
+      .asCallback(cb)
   },
 
   add: function () {
     var cb
     var args = toArray(arguments)
+    /* istanbul ignore next */
     if (typeof args[args.length - 1] === 'function') {
       cb = args.pop()
     }
-    return bb.resolve(this.save.apply(this, args)).asCallback(cb)
+    return this.save.apply(this, args).asCallback(cb)
   },
 
   bulkGet: function (opts, cb) {
@@ -183,63 +191,92 @@ assign(Pouchy.prototype, {
       delete nDoc._id
       return nDoc
     })
-    return bb.resolve(
-      this.db.bulkGet(opts)
-        .then(function (r) {
-          return r.results.map(function (docGroup) {
-            var doc = get(docGroup, 'docs[0].ok')
-            if (!doc) {
-              throw new ReferenceError('doc ' + docGroup.id + 'not found')
-            }
-            return doc
-          })
+    return this.db.bulkGet(opts)
+      .then(function (r) {
+        return r.results.map(function (docGroup) {
+          var doc = get(docGroup, 'docs[0].ok')
+          if (!doc) {
+            throw new ReferenceError('doc ' + docGroup.id + 'not found')
+          }
+          return doc
         })
-    ).asCallback(cb)
+      })
+      .asCallback(cb)
+  },
+
+  createIndex: function (cb) {
+    /* istanbul ignore next */
+    var args = toArray(arguments)
+    /* istanbul ignore next */
+    if (typeof args[args.length - 1] === 'function') {
+      cb = args.pop()
+    }
+    /* istanbul ignore next */
+    return this.createIndicies.apply(this, args).asCallback(cb)
   },
 
   createIndicies: function (indicies, cb) {
     indicies = Array.isArray(indicies) ? indicies : [indicies]
-    return bb.resolve(
-      this.db.createIndex({
-        index: {
-          fields: unique(indicies)
-        }
-      })
-        .catch(function (err) { if (err.status !== 409) throw err })
-    ).asCallback(cb)
+    return bluebird.resolve()
+      .then(function _createIndicies () {
+        return this.db.createIndex({
+          index: { fields: unique(indicies) }
+        })
+      }.bind(this))
+      /* istanbul ignore next */
+      .catch(function handleFailCreateIndicies (err) { if (err.status !== 409) throw err })
+      .asCallback(cb)
   },
 
   clear: function () {
     var cb
     var args = toArray(arguments)
+    /* istanbul ignore next */
     if (typeof args[args.length - 1] === 'function') {
       cb = args.pop()
     }
-    return bb.resolve(this.deleteAll.apply(this, args)).asCallback(cb)
+    return this.deleteAll.apply(this, args).asCallback(cb)
   },
 
   delete: function (doc, opts, cb) {
+    /* istanbul ignore next */
     if (typeof opts === 'function') {
       cb = opts
       opts = {}
     }
-    return bb.resolve(this.db.remove(doc, opts)).asCallback(cb)
+    return this.db.remove(doc, opts).asCallback(cb)
   },
 
   deleteAll: function (cb) {
-    return bb.resolve(
-      this.all().then(function deleteEach (docs) {
+    return this.all()
+      .then(function deleteEach (docs) {
         docs = docs.map(function (doc) { return this.delete(doc) }.bind(this))
         return Promise.all(docs)
       }.bind(this))
-    ).asCallback(cb)
+      .asCallback(cb)
   },
 
-  deleteDB: function (cb) { // jshint ignore:line
-    return bb.resolve(this.db.destroy()).asCallback(cb)
+  deleteDB: function (cb) {
+    /* istanbul ignore next */
+    return this.db.destroy().asCallback(cb)
+  },
+
+  destroy: function (cb) {
+    if (this.syncEmitter) {
+      this.syncEmitter.cancel()
+    }
+    return this.db.destroy.apply(this.db, arguments).asCallback(cb)
+  },
+
+  find: function (opts, cb) {
+    return bluebird.resolve()
+      .then(function _find () { return this.db.find(opts) }.bind(this))
+      .then(function returnDocsArray (rslt) { return rslt.docs })
+      .asCallback(cb)
   },
 
   update: function (doc, opts, cb) {
+    /* istanbul ignore next */
     if (typeof opts === 'function') {
       cb = opts
       opts = {}
@@ -247,13 +284,12 @@ assign(Pouchy.prototype, {
     opts = opts || {}
     // http://pouchdb.com/api.html#create_document
     // db.put(doc, [docId], [docRev], [options], [callback])
-    return bb.resolve(
-      this.db.put(doc, opts._id, opts._rev).then(function (meta) {
-        doc._id = meta.id
-        doc._rev = meta.rev
-        return doc
-      })
-    ).asCallback(cb)
+    return this.db.put(doc, opts._id, opts._rev).then(function (meta) {
+      doc._id = meta.id
+      doc._rev = meta.rev
+      return doc
+    })
+      .asCallback(cb)
   },
 
   save: function (doc, opts, cb) {
@@ -264,38 +300,14 @@ assign(Pouchy.prototype, {
     // http://pouchdb.com/api.html#create_document
     // db.post(doc, [docId], [docRev], [options], [callback])
     var method = doc.hasOwnProperty('_id') && (doc._id || doc._id === 0) ? 'put' : 'post'
-    return bb.resolve(
-      this.db[method](doc).then(function (meta) {
+    return bluebird.resolve(this.db[method](doc))
+      .then(function (meta) {
         delete meta.status
         doc._id = meta.id
         doc._rev = meta.rev
         return doc
       })
-    ).asCallback(cb)
-  },
-
-  // pouchdb-find proxies
-  createIndex: function (cb) {
-    var args = toArray(arguments)
-    if (typeof args[args.length - 1] === 'function') {
-      cb = args.pop()
-    }
-    return bb.resolve(this.createIndicies.apply(this, args)).asCallback(cb)
-  },
-
-  destroy: function (cb) {
-    if (this.syncEmitter) {
-      this.syncEmitter.cancel()
-    }
-    return bb.resolve(this.db.destroy.apply(this.db, arguments)).asCallback(cb)
-  },
-
-  find: function (opts, cb) {
-    return bb.resolve(
-      this.db.find(opts).then(function returnDocsArray (rslt) {
-        return rslt.docs
-      })
-    ).asCallback(cb)
+      .asCallback(cb)
   }
 
 })
@@ -303,7 +315,6 @@ assign(Pouchy.prototype, {
 // proxy pouch methods, and pouch-find methods
 var pouchMethods = [
   // proxy pouch instance methods
-  'destroy',
   'put',
   'post',
   'get',
@@ -331,15 +342,20 @@ var pouchMethods = [
 ]
 
 pouchMethods.forEach(function (method) {
+  /* istanbul ignore next */
   if (Pouchy.prototype[method]) { return }
   Pouchy.prototype[method] = function () {
     var cb
     var args = toArray(arguments)
+    /* istanbul ignore next */
     if (typeof args[args.length - 1] === 'function') cb = args.pop()
     var rtn = this.db[method].apply(this.db, args)
-    if (rtn instanceof Promise || rtn instanceof bb) {
-      return bb.resolve().asCallback(cb)
+    if (rtn instanceof bluebird || rtn instanceof Promise) {
+      return bluebird.resolve()
+        .then(function proxyPouch () { return rtn })
+        .asCallback(cb)
     }
+    /* istanbul ignore next */
     return rtn
   }
 })
