@@ -33,6 +33,7 @@
   "homepage": "https://github.com/cdaringe/pouchy#readme",
   "devDependencies": {
     "browserify": "13.0.0",
+    "coveralls": "^2.11.9",
     "git-validate": "^2.1.4",
     "istanbul": "^0.4.3",
     "leveldown": "^1.4.1",
