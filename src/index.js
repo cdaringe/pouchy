@@ -204,7 +204,9 @@ assign(Pouchy.prototype, {
       .asCallback(cb)
   },
 
-  createIndex: function (cb) {
+  createIndex: function () {
+    /* istanbul ignore next */
+    var cb
     /* istanbul ignore next */
     var args = toArray(arguments)
     /* istanbul ignore next */
@@ -261,11 +263,16 @@ assign(Pouchy.prototype, {
     return this.db.destroy().asCallback(cb)
   },
 
-  destroy: function (cb) {
+  destroy: function () {
+    var cb
+    var args = toArray(arguments)
+    if (typeof args[args.length - 1] === 'function') {
+      cb = args.pop()
+    }
     if (this.syncEmitter) {
       this.syncEmitter.cancel()
     }
-    return this.db.destroy.apply(this.db, arguments).asCallback(cb)
+    return this.db.destroy.apply(this.db, args).asCallback(cb)
   },
 
   find: function (opts, cb) {
