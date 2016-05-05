@@ -113,6 +113,7 @@ assign(Pouchy.prototype, {
   },
 
   _bindEarlyEventDetectors: function (emitter, replOpts) {
+    /* istanbul ignore else */
     if (replOpts.live) this._handleSyncLikelyComplete(emitter, replOpts)
   },
 
@@ -180,12 +181,15 @@ assign(Pouchy.prototype, {
   },
 
   bulkGet: function (opts, cb) {
+    /* istanbul ignore else */
     if (Array.isArray(opts)) opts = { docs: opts }
     opts.docs = opts.docs.map(function (doc) {
       // because PouchDB can't make up it's mind, we need
       // to map back to id and rev here
       let nDoc = assign({}, doc)
+      /* istanbul ignore else */
       if (nDoc._id) nDoc.id = nDoc._id
+      /* istanbul ignore else */
       if (nDoc._rev) nDoc.rev = nDoc._rev
       delete nDoc._rev
       delete nDoc._id
@@ -266,9 +270,11 @@ assign(Pouchy.prototype, {
   destroy: function () {
     var cb
     var args = toArray(arguments)
+    /* istanbul ignore next */
     if (typeof args[args.length - 1] === 'function') {
       cb = args.pop()
     }
+    /* istanbul ignore else */
     if (this.syncEmitter) {
       this.syncEmitter.cancel()
     }

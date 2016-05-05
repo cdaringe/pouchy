@@ -193,6 +193,7 @@ Accept a find query, formatted per the [find plugin query options](https://githu
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
+- 8.0.5 - fix issues w/ promise/cbs. sorry for 8.0.x-8.0.5 churn!
 - 8.0.0 - support cb & promise interface.  added bluebird to make this seamless and less verbose
 - 7.1.0 - add `hasLikelySynced` event
 - 7.0.0 - modify replicate API.  dropped `'both'` sync option, added `{}` option.  dropped `replicateLive`
