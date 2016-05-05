@@ -34,6 +34,7 @@
   "devDependencies": {
     "browserify": "13.0.0",
     "git-validate": "^2.1.4",
+    "istanbul": "^0.4.3",
     "leveldown": "^1.4.1",
     "memdown": "^1.1.2",
     "standard": "^7.0.0",
