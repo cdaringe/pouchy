@@ -1,6 +1,8 @@
 # pouchy
 [ ![Codeship Status for cdaringe/pouchy](https://codeship.com/projects/723a9160-4203-0133-3599-062894ba1566/status?branch=master)](https://codeship.com/projects/103658)
 
+[![Coverage Status](https://coveralls.io/repos/github/cdaringe/pouchy/badge.svg?branch=master)](https://coveralls.io/github/cdaringe/pouchy?branch=master)
+
 ## what
 Simple [PouchDB](https://github.com/pouchdb/pouchdb) wrapper, equipped with a few useful sugar methods.  Most methods provided are _very_ simple PouchDB-native method modifiers, but are targetted to save you frequent re-typing!  This library also proxies most of the PouchDB API directly, so you can use it like a Pouch itself!
 
