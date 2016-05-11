@@ -14,21 +14,20 @@ var couchUrlify = function (str) { return str.replace(/[^/a-z0-9_$()+-]/gi, '') 
 
 /**
  * @constructor Pouchy
- * @param {object} opts {
- *     name: {string} kname of db. calculated from derived url string if `conn` or `url` provided. otherwise, required
- *     conn: {object=} creates `url` using the awesome and simple [url.format](https://www.npmjs.com/package/url#url-format-urlobj)
- *     couchdbSafe {boolean=} [default: true] asserts that `name` provided or `url` provided will work with couchdb.  tests by asserting str conforms to [couch specs](https://wiki.apache.org/couchdb/HTTP_database_API#Naming_and_Addressing), minus the `/`.  This _may complain that some valid urls are invalid_.  Please be aware and disable if necessary.
- *     url: {string=} url to remote CouchDB
- *     path: {string=} path to store pouch on filesystem, if using on filesystem!  defaults to _PouchDB_ default of cwd
- *     pouchConfig: {object=} PouchDB constructor [options](http://pouchdb.com/api.html#create_database)
- *     replicate: {string=} [default: undefined] 'out/in/sync/both', where sync and both are ===
- *     replicateLive: {boolean=} [default: true] activates only if `replicate` is set
- * }
+ * @param {object} opts
+ * @param {string}  [opts.name] name of db. recommended for most dbs. calculated from derived url string if `conn` or `url` provided. otherwise, required
+ * @param {object}  [opts.conn] creates `url` using the awesome and simple [url.format](https://www.npmjs.com/package/url#url-format-urlobj)
+ * @param {boolean} [opts.couchdbSafe] [default: true] asserts that `name` provided or `url` provided will work with couchdb.  tests by asserting str conforms to [couch specs](https://wiki.apache.org/couchdb/HTTP_database_API#Naming_and_Addressing), minus the `/`.  This _may complain that some valid urls are invalid_.  Please be aware and disable if necessary.
+ * @param {string}  [opts.url] url to remote CouchDB
+ * @param {string}  [opts.path] path to store pouch on filesystem, if using on filesystem!  defaults to _PouchDB_ default of cwd
+ * @param {object}  [opts.pouchConfig] PouchDB constructor [options](http://pouchdb.com/api.html#create_database)
+ * @param {string}  [opts.replicate] [default: undefined] 'out/in/sync/both', where sync and both are ===
+ * @param {boolean} [opts.replicateLive] [default: true] activates only if `replicate` is set
+ * @param {boolean} [opts.verbose]
  */
 function Pouchy (opts) {
-  if (!opts) {
-    throw new ReferenceError('db options required')
-  }
+  if (!opts) throw new ReferenceError('db options required')
+  if (opts.verbose) this.verbose = true
 
   var couchdbSafe = opts.couchdbSafe === undefined ? true : opts.couchdbSafe
   var pathParts
@@ -48,7 +47,7 @@ function Pouchy (opts) {
   // assert that url is safe looking
   if (this.url) {
     pathParts = url.parse(this.url).pathname.split('/')
-    // check opts.name, as name may have / in it
+    // assert db name
     this.name = opts.name || pathParts[pathParts.length - 1]
     if (couchdbSafe && this.name !== couchUrlify(this.name.toLowerCase())) {
       throw new Error([
@@ -118,15 +117,19 @@ assign(Pouchy.prototype, {
   },
 
   _handleSyncLikelyComplete: function (emitter) {
+    if (this.verbose) console.log('trying to sync', this.name)
     let waitForSync
-    var resetSyncWaitTime = function (info) {
+    var resetSyncWaitTime = function (evt, info) {
+      if (this.verbose) console.log(this.name, evt, info)
       clearTimeout(maxSyncWait)
       clearTimeout(waitForSync)
-      waitForSync = setTimeout(() => {
+      waitForSync = setTimeout(function () {
+        if (this.verbose) console.log(this.name, 'hasLikelySynced')
+        this._hasLikelySynced = true
         emitter.emit('hasLikelySynced')
         updateEmitters('removeListener')
-      }, 150)
-    }
+      }.bind(this), 150)
+    }.bind(this)
     /* istanbul ignore next */
     var updateEmitters = function (action) {
       emitter[action]('change', function (info) { resetSyncWaitTime('change', info) })
