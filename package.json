@@ -32,7 +32,7 @@
   },
   "homepage": "https://github.com/cdaringe/pouchy#readme",
   "devDependencies": {
-    "browserify": "13.0.0",
+    "browserify": "13.0.1",
     "coveralls": "^2.11.9",
     "git-validate": "^2.1.4",
     "istanbul": "^0.4.3",
@@ -41,7 +41,7 @@
     "standard": "^7.0.0",
     "standard-format": "^2.1.1",
     "tape": "4.5.0",
-    "testem": "1.6.0"
+    "testem": "1.7.1"
   },
   "dependencies": {
     "bluebird": "^3.3.5",
