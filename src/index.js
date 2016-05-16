@@ -138,13 +138,14 @@ assign(Pouchy.prototype, {
     }
 
     // set max wait time before moving on
+    var MAX_SYNC_WAIT_TIMEOUT = 500
     var maxSyncWait = setTimeout(
       function () {
         /* istanbul ignore next */
         if (waitForSync) return
-        resetSyncWaitTime()
+        resetSyncWaitTime('timeout', { timeout: MAX_SYNC_WAIT_TIMEOUT })
       },
-      500
+      MAX_SYNC_WAIT_TIMEOUT
     )
     updateEmitters('addListener')
   },

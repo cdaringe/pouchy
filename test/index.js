@@ -1,5 +1,4 @@
 'use strict'
-// Pouchy.PouchDB.debug.enable('*')
 var test = require('tape')
 var fs = require('fs')
 var cp = require('child_process')
