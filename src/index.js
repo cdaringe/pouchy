@@ -35,6 +35,10 @@ function Pouchy (opts) {
   if (!opts.name && !opts.url && !opts.conn) {
     throw new ReferenceError('db name, url, or conn required to create or access pouchdb')
   }
+  if (opts.url && opts.conn) {
+    throw new ReferenceError('provide only a `url` or `conn` option')
+  }
+
   /* istanbul ignore next */
   if (!this) { throw new ReferenceError('no `this` context.  did you forget `new`?') }
 
@@ -44,16 +48,17 @@ function Pouchy (opts) {
     this.url = url.format(opts.conn)
   }
 
-  // assert that url is safe looking
+  // assert that url is safe for couchdb
   if (this.url) {
     pathParts = url.parse(this.url).pathname.split('/')
     // assert db name
     this.name = opts.name || pathParts[pathParts.length - 1]
     if (couchdbSafe && this.name !== couchUrlify(this.name.toLowerCase())) {
       throw new Error([
-        'provided `url` or `conn` "',
-        ((opts.conn && JSON.stringify(opts.conn)) || this.url),
-        '" may not be couchdb safe'
+        (this.url ? '`url`' : '`conn`'),
+        (this.url ? this.url : JSON.stringify(opts.conn)),
+        'may not be couchdb safe. couchdb safe url:',
+        couchUrlify(this.name.toLowerCase())
       ].join(' '))
     }
   } else {

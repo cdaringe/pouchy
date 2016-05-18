@@ -142,11 +142,11 @@ test('basic sync', function (t) {
     __handled = true
     t.pass('paused handler (retry default)')
     pSync.destroy()
-      .catch(function (err) {
-        t.ok(err, 'pauses/errors on destroy on invalid remote db request')
-      })
-      .then(() => t.end())
-      .catch(t.end)
+    .catch(function (err) {
+      t.ok(err, 'pauses/errors on destroy on invalid remote db request')
+    })
+    .then(() => t.end())
+    .catch(t.end)
   }
   pSync.syncEmitter.on('paused', handleNaughtySyncEvent)
   pSync.syncEmitter.on('error', handleNaughtySyncEvent)
