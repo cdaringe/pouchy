@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Home - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Pouchy.html">Pouchy</a><ul class='methods'><li data-type='method'><a href="Pouchy.html#add">add</a></li><li data-type='method'><a href="Pouchy.html#all">all</a></li><li data-type='method'><a href="Pouchy.html#bulkGet">bulkGet</a></li><li data-type='method'><a href="Pouchy.html#clear">clear</a></li><li data-type='method'><a href="Pouchy.html#createIndex">createIndex</a></li><li data-type='method'><a href="Pouchy.html#createIndicies">createIndicies</a></li><li data-type='method'><a href="Pouchy.html#delete">delete</a></li><li data-type='method'><a href="Pouchy.html#deleteAll">deleteAll</a></li><li data-type='method'><a href="Pouchy.html#deleteDB">deleteDB</a></li><li data-type='method'><a href="Pouchy.html#find">find</a></li><li data-type='method'><a href="Pouchy.html#save">save</a></li><li data-type='method'><a href="Pouchy.html#update">update</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="global.html#event:hasLikelySynced">hasLikelySynced</a></li></ul>
+</nav>
+
+<div id="main">
+    
+
+    
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    
+
+
+    <section class="readme">
+        <article><h1>pouchy</h1><p><a href="https://codeship.com/projects/103658"> <img src="https://codeship.com/projects/723a9160-4203-0133-3599-062894ba1566/status?branch=master" alt="Codeship Status for cdaringe/pouchy"></a> <a href="https://coveralls.io/github/cdaringe/pouchy?branch=master"><img src="https://coveralls.io/repos/github/cdaringe/pouchy/badge.svg?branch=master" alt="Coverage Status"></a></p>
+<h2>what</h2><p>simple <a href="https://github.com/pouchdb/pouchdb">PouchDB</a> wrapper, equipped with a few useful sugar methods.  Most methods provided are <em>very</em> simple PouchDB-native method modifiers, but are targeted to save you frequent boilerplate re-typing!  This library also proxies most of the PouchDB API directly, so you can use it like a Pouch itself!</p>
+<h2>why</h2><p>why use <code>pouchy</code> over <code>pouchdb</code>?</p>
+<ul>
+<li>because managing <code>_id</code> and <code>_rev</code> can be seriously obnoxious with pouchdb (no hard feelings, of course).<ul>
+<li>different pouchdb methods return <code>_id</code> and <code>_rev</code> as differently label attributes.  some methods return <code>id</code> on the top document.  some return <code>_id</code>.  the same happens for <code>rev</code>.</li>
+<li>different methods return <code>_rev</code> nested under <em>other attributes</em>, vs. being at the top of the document.</li>
+<li>pouchy lets you get your documents back <em>in the same way they are represented in the store</em>.  if you are expecting an <code>_id</code> and a <code>_rev</code> in a return result, you'll get those attributes back on the top of your documents, every time.</li>
+</ul>
+</li>
+<li>because you need some frequently used sugar methods that aren't keys-included from pouchdb.  <strong>there are many sugar methods available</strong>, make sure to check out the API docs!<ul>
+<li>e.g. <code>.all()</code>, to get all full documents in your store, in a simple array.</li>
+<li>e.g. <code>.clear()/.deleteAll()</code> to purge your store of its docs.</li>
+</ul>
+</li>
+<li>because you want <code>.find</code> to return simply an array of docs!<ul>
+<li>note: pouchy pre-loads the <code>pouchdb-find</code> plugin, which is super handy and regularly recommended for use.</li>
+</ul>
+</li>
+<li>because you want to pre-define *ouchdb synchronization behavior on construction!  start syncing pronto, declaratively!</li>
+</ul>
+<p>&quot;Hey, are those alone sufficient justification to wrap pouchdb?&quot;</p>
+<p>Yea, it's definitely subjective, but my team and i have answered that powerfully with a &quot;yes, definitely!&quot;</p>
+<h2>api docs</h2><p><a href="cdaringe.github.io/pouchy/">api docs and examples officially live here!</a></p>
+<pre class="prettyprint source lang-js"><code>// basic example
+const p = new Pouchy({
+  name: 'customers',
+  replicate: 'sync',
+  url: 'http://mydomain.org/db/customers'
+})
+p.save({ fruit: ['bananas'] })</code></pre><p>Thanks! <a href="http://cdaringe.com/">cdaringe</a></p>
+<h1>changelog</h1><ul>
+<li>9.0.0<ul>
+<li>fix <code>.all({ include_docs: false })</code> to properly handle <code>.rev/._rev</code></li>
+<li>make docs much better</li>
+</ul>
+</li>
+<li>8.0.5 - fix issues w/ promise/cbs. sorry for 8.0.x-8.0.5 churn!</li>
+<li>8.0.0 - support cb &amp; promise interface.  added bluebird to make this seamless and less verbose</li>
+<li>7.1.0 - add <code>hasLikelySynced</code> event</li>
+<li>7.0.0 - modify replicate API.  dropped <code>'both'</code> sync option, added <code>{}</code> option.  dropped <code>replicateLive</code></li>
+<li>6.3.0 - add <code>destroy</code>, which <code>.cancel</code>s any replication from <code>.syncEmitter</code> (see <code>replicate</code>). deprecate 6.2.0-1. changeEmitter =&gt; syncEmitter (rapid patch, so no major bump)</li>
+<li>6.2.1 - add <code>this.syncEmitter</code> when using the <code>replicate</code> API</li>
+<li>6.1.0 - add <code>bulkGet</code></li>
+<li>6.0.6 - fix issue where <code>_id</code> was still <code>id</code> when doing <code>.all({ include_docs: false })</code></li>
+<li>6.0.4 - fix replication issue where db backend not honored</li>
+<li>6.0.0 - db will store locally via leveldown as <code>name</code> if passed. <code>url</code> will still be used for replication if requested.  prior versions preferred <code>url</code> to the Pouch constructor over name</li>
+<li>5.2.1 - permit / in couchdb db name</li>
+<li>5.2.0 - bump with couch</li>
+<li>5.1.0 - deps bump &amp; add cb interface</li>
+<li>5.0.0 - deps bump only.  <del>all future releases with track major version #s with PouchDB</del></li>
+<li>4.0.0 - major bump with PouchDB</li>
+<li>3.0.0 - remove default <code>changes</code>, and associated <code>on/off</code>. didn't work out-of-the-box anyway.  may return in 4.x</li>
+<li>2.0.1 - Don't modify constructor opts.name</li>
+<li>2.0.0 - Fix synced db <code>fs</code> location. Previously was not honoring <code>path</code> option</li>
+<li>1.0.0 - 2.0.1 pouchdb-wrapper =&gt; pouchy</li>
+</ul></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
