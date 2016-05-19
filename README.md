@@ -41,7 +41,8 @@ p.save({ fruit: ['bananas'] })
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
-- 9.0.x
+- 9.0.2 - fix `bulkGet` when no docs are provided
+- 9.0.0-1
   - fix `.all({ include_docs: false })` to properly handle `.rev/._rev`
   - improve docs!
 - 8.0.5 - fix issues w/ promise/cbs. sorry for 8.0.x-8.0.5 churn!
