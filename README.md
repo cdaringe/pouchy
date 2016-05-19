@@ -10,7 +10,7 @@ simple [PouchDB](https://github.com/pouchdb/pouchdb) wrapper, equipped with a fe
 why use `pouchy` over `pouchdb`?
 
 - because managing `_id` and `_rev` can be seriously obnoxious with pouchdb (no hard feelings, of course).
-  - different pouchdb methods return `_id` and `_rev` as differently label attributes.  some methods return `id` on the top document.  some return `_id`.  the same happens for `rev`.
+  - pouchdb methods return document `_id`s and `_rev`s inconsistently.  some methods return docs with an `id` attribute.  some return docs with `_id`.  the same happens for `rev`.
   - different methods return `_rev` nested under _other attributes_, vs. being at the top of the document.
   - pouchy lets you get your documents back _in the same way they are represented in the store_.  if you are expecting an `_id` and a `_rev` in a return result, you'll get those attributes back on the top of your documents, every time.
 - because you need some frequently used sugar methods that aren't keys-included from pouchdb.  **there are many sugar methods available**, make sure to check out the API docs!
@@ -26,7 +26,7 @@ Yea, it's definitely subjective, but my team and i have answered that powerfully
 
 ## api docs
 
-[api docs and examples officially live here!](cdaringe.github.io/pouchy/)
+[api docs and examples officially live here!](http://cdaringe.github.io/pouchy/)
 
 ```js
 // basic example
@@ -41,9 +41,9 @@ p.save({ fruit: ['bananas'] })
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
-- 9.0.0
+- 9.0.x
   - fix `.all({ include_docs: false })` to properly handle `.rev/._rev`
-  - make docs much better
+  - improve docs!
 - 8.0.5 - fix issues w/ promise/cbs. sorry for 8.0.x-8.0.5 churn!
 - 8.0.0 - support cb & promise interface.  added bluebird to make this seamless and less verbose
 - 7.1.0 - add `hasLikelySynced` event
