@@ -52,7 +52,7 @@
 <h2>why</h2><p>why use <code>pouchy</code> over <code>pouchdb</code>?</p>
 <ul>
 <li>because managing <code>_id</code> and <code>_rev</code> can be seriously obnoxious with pouchdb (no hard feelings, of course).<ul>
-<li>different pouchdb methods return <code>_id</code> and <code>_rev</code> as differently label attributes.  some methods return <code>id</code> on the top document.  some return <code>_id</code>.  the same happens for <code>rev</code>.</li>
+<li>pouchdb methods return document <code>_id</code>s and <code>_rev</code>s inconsistently.  some methods return docs with an <code>id</code> attribute.  some return docs with <code>_id</code>.  the same happens for <code>rev</code>.</li>
 <li>different methods return <code>_rev</code> nested under <em>other attributes</em>, vs. being at the top of the document.</li>
 <li>pouchy lets you get your documents back <em>in the same way they are represented in the store</em>.  if you are expecting an <code>_id</code> and a <code>_rev</code> in a return result, you'll get those attributes back on the top of your documents, every time.</li>
 </ul>
@@ -70,7 +70,7 @@
 </ul>
 <p>&quot;Hey, are those alone sufficient justification to wrap pouchdb?&quot;</p>
 <p>Yea, it's definitely subjective, but my team and i have answered that powerfully with a &quot;yes, definitely!&quot;</p>
-<h2>api docs</h2><p><a href="cdaringe.github.io/pouchy/">api docs and examples officially live here!</a></p>
+<h2>api docs</h2><p><a href="http://cdaringe.github.io/pouchy/">api docs and examples officially live here!</a></p>
 <pre class="prettyprint source lang-js"><code>// basic example
 const p = new Pouchy({
   name: 'customers',
@@ -79,9 +79,9 @@ const p = new Pouchy({
 })
 p.save({ fruit: ['bananas'] })</code></pre><p>Thanks! <a href="http://cdaringe.com/">cdaringe</a></p>
 <h1>changelog</h1><ul>
-<li>9.0.0<ul>
+<li>9.0.x<ul>
 <li>fix <code>.all({ include_docs: false })</code> to properly handle <code>.rev/._rev</code></li>
-<li>make docs much better</li>
+<li>improve docs!</li>
 </ul>
 </li>
 <li>8.0.5 - fix issues w/ promise/cbs. sorry for 8.0.x-8.0.5 churn!</li>
