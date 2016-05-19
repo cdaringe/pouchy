@@ -13,31 +13,28 @@ var designDocRegex = new RegExp('^_design/')
 var couchUrlify = function (str) { return str.replace(/[^/a-z0-9_$()+-]/gi, '') }
 
 /**
+ * @namespace
  * @property Pouchy.PouchDB
  * tap into the PouchDB constructor via Pouchy
- */
-/**
- * @property db
- * reference to PouchDB instance under the pouchy hood!
- */
-/**
- * @property syncEmitter
- * tap into your instance's replication `changes()` so you may listen to events.
- * calling `.destroy` will scrap this emitter. emitter only present when
- * `replicate` options intially provided
  */
 
 /**
  * @event hasLikelySynced
- *  if replicating, you may want to know post-initialization if your DB has finished
- *  a first attempt of synchronization.  this is incredibly helpful if you need to
- *  wait for a full replication to finish, even if you are replicating in `live`
- *  mode, in which case you will never receive a `complete` event!
- *  make sure to `.syncEmitter.on('error', ...)` too when using this event.
+ * @description if replicating, you may want to know post-initialization if your DB has finished
+ * a first attempt of synchronization.  this is incredibly helpful if you need to
+ * wait for a full replication to finish, even if you are replicating in `live`
+ * mode, in which case you will never receive a `complete` event!
+ * make sure to `.syncEmitter.on('error', ...)` too when using this event.
  */
 
 /**
- * @constructor Pouchy
+ * @class
+ * @property {PouchDB} db reference to PouchDB instance under the pouchy hood!
+ * @property {EventEmitter} syncEmitter tap into your instance's replication `changes()` so you may listen to events. calling `.destroy` will scrap this emitter. emitter only present when `replicate` options intially provided
+ * @property {string} name db name, always has one!
+ * @property {boolean} verbose verbose mode, as applicable
+ * @property {string} url url of remote db, as applicable
+ * @property {string} path fully qualified path for local copy of db either _is_ or would be stored (no files written if { pouchConfig: { db: 'memdown' } }, for example.
  * @param {object} opts
  * @param {string}  [opts.name] name of db. recommended for most dbs. calculated from derived url string if `conn` or `url` provided. otherwise, required
  * @param {object}  [opts.conn] creates `url` using the awesome and simple [url.format](https://www.npmjs.com/package/url#url-format-urlobj)
@@ -105,7 +102,9 @@ function Pouchy (opts) {
   if (opts.replicate) this._handleReplication(opts.replicate)
 }
 
-assign(Pouchy.prototype, {
+
+/** @lends Pouchy.prototype */
+var protoMethods = {
   /**
    * @private
    */
@@ -428,8 +427,8 @@ assign(Pouchy.prototype, {
   },
 
   /**
-   * @private
    * proxies to pouchdb.destroy, but does internal tidy first
+   * @private
    * @returns {Promise}
    */
   destroy: function () {
@@ -517,7 +516,8 @@ assign(Pouchy.prototype, {
       .asCallback(cb)
   }
 
-})
+}
+assign(Pouchy.prototype, protoMethods)
 
 // proxy pouch methods, and pouch-find methods
 var pouchMethods = [
