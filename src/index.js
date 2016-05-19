@@ -13,17 +13,41 @@ var designDocRegex = new RegExp('^_design/')
 var couchUrlify = function (str) { return str.replace(/[^/a-z0-9_$()+-]/gi, '') }
 
 /**
+ * @property Pouchy.PouchDB
+ * tap into the PouchDB constructor via Pouchy
+ */
+/**
+ * @property db
+ * reference to PouchDB instance under the pouchy hood!
+ */
+/**
+ * @property syncEmitter
+ * tap into your instance's replication `changes()` so you may listen to events.
+ * calling `.destroy` will scrap this emitter. emitter only present when
+ * `replicate` options intially provided
+ */
+
+/**
+ * @event hasLikelySynced
+ *  if replicating, you may want to know post-initialization if your DB has finished
+ *  a first attempt of synchronization.  this is incredibly helpful if you need to
+ *  wait for a full replication to finish, even if you are replicating in `live`
+ *  mode, in which case you will never receive a `complete` event!
+ *  make sure to `.syncEmitter.on('error', ...)` too when using this event.
+ */
+
+/**
  * @constructor Pouchy
  * @param {object} opts
  * @param {string}  [opts.name] name of db. recommended for most dbs. calculated from derived url string if `conn` or `url` provided. otherwise, required
  * @param {object}  [opts.conn] creates `url` using the awesome and simple [url.format](https://www.npmjs.com/package/url#url-format-urlobj)
  * @param {boolean} [opts.couchdbSafe] [default: true] asserts that `name` provided or `url` provided will work with couchdb.  tests by asserting str conforms to [couch specs](https://wiki.apache.org/couchdb/HTTP_database_API#Naming_and_Addressing), minus the `/`.  This _may complain that some valid urls are invalid_.  Please be aware and disable if necessary.
  * @param {string}  [opts.url] url to remote CouchDB
- * @param {string}  [opts.path] path to store pouch on filesystem, if using on filesystem!  defaults to _PouchDB_ default of cwd
- * @param {object}  [opts.pouchConfig] PouchDB constructor [options](http://pouchdb.com/api.html#create_database)
- * @param {string}  [opts.replicate] [default: undefined] 'out/in/sync/both', where sync and both are ===
+ * @param {string}  [opts.path] path to store pouch on filesystem, if using on filesystem!  defaults to _PouchDB_'s default of `cwd` if not specified
+ * @param {object}  [opts.pouchConfig] PouchDB constructor [options](http://pouchdb.com/api.html#create_database). be mindful of pouchy options you set, because they may comingle :)
+ * @param {string|object}  [opts.replicate] [default: undefined] in object form you can try `{ out/in/sync: ... }` where ... refers to the  [official PouchDB replication options](http://pouchdb.com/api.html#replication). in string form, simply provide 'out/in/sync'. please note that the string shorthand applies default heartbeat/retry options.
  * @param {boolean} [opts.replicateLive] [default: true] activates only if `replicate` is set
- * @param {boolean} [opts.verbose]
+ * @param {boolean} [opts.verbose] yak out text to console. note, this does _not_ enable PouchDB.debug.enable(...) verbosity.  Use Pouchy.PouchDB.debug to set that per your own desires!
  */
 function Pouchy (opts) {
   if (!opts) throw new ReferenceError('db options required')
@@ -82,6 +106,9 @@ function Pouchy (opts) {
 }
 
 assign(Pouchy.prototype, {
+  /**
+   * @private
+   */
   _handleReplication: function (opts) {
     let mode
     let replOpts
@@ -116,11 +143,17 @@ assign(Pouchy.prototype, {
     this._bindEarlyEventDetectors(this.syncEmitter, replOpts)
   },
 
+  /**
+   * @private
+   */
   _bindEarlyEventDetectors: function (emitter, replOpts) {
     /* istanbul ignore else */
     if (replOpts.live) this._handleSyncLikelyComplete(emitter, replOpts)
   },
 
+  /**
+   * @private
+   */
   _handleSyncLikelyComplete: function (emitter) {
     if (this.verbose) console.log('trying to sync', this.name)
     let waitForSync
@@ -137,6 +170,7 @@ assign(Pouchy.prototype, {
     }.bind(this)
     /* istanbul ignore next */
     var updateEmitters = function (action) {
+      emitter[action]('complete', function (info) { resetSyncWaitTime('complete', info) })
       emitter[action]('change', function (info) { resetSyncWaitTime('change', info) })
       emitter[action]('active', function (info) { resetSyncWaitTime('active', info) })
       emitter[action]('paused', function (info) { resetSyncWaitTime('paused', info) })
@@ -155,6 +189,17 @@ assign(Pouchy.prototype, {
     updateEmitters('addListener')
   },
 
+  /**
+   * get all documents from db
+   * @example
+   * p.all().then((docs) => console.log(`total # of docs: ${docs.length}!`))
+   * p.all({ includeDesignDocs: true }).then(function(docs) {
+   *    console.log('this will include design docs as well');
+   * })
+   * @param {object} [opts] defaults to `include_docs: true`. In addition to the usual [PouchDB allDocs options](http://pouchdb.com/api.html#batch_fetch), you may also specify `includeDesignDocs: true` to have CouchDB design documents returned.
+   * @param {function} [cb]
+   * @returns {Promise} resolves to array of documents (excluding any design documents), vs an object with a `docs` array per Pouch allDocs default
+   */
   all: function (opts, cb) {
     if (typeof opts === 'function') {
       cb = opts
@@ -162,13 +207,16 @@ assign(Pouchy.prototype, {
     }
     opts = defaults(opts || {}, { include_docs: true })
     return this.db.allDocs(opts)
-      .then(function getDocs (docs) {
+      .then(function handleReceivedDocs (docs) {
         return docs.rows.reduce(function (r, v) {
           var doc = opts.include_docs ? v.doc : v
           // rework doc format to always have id ==> _id
           if (!opts.include_docs) {
             doc._id = doc.id
+            doc._rev = doc.value.rev
             delete doc.id
+            delete doc.value
+            delete doc.key
           }
           /* istanbul ignore next */
           if (!opts.includeDesignDocs) r.push(doc)
@@ -179,6 +227,23 @@ assign(Pouchy.prototype, {
       .asCallback(cb)
   },
 
+  /**
+   * add a document to the db.
+   * @see .save
+   * @example
+   * // with _id
+   * p.add({ _id: 'my-sauce', bbq: 'sauce' }).then(function(doc) {
+   *   console.log(doc._id, doc._rev, doc.bbq); // 'my-sauce', '1-a76...46c', 'sauce'
+   * });
+   *
+   * // no _id
+   * p.add({ peanut: 'butter' }).then(function(doc) {
+   *   console.log(doc._id, doc._rev, doc.peanut); // '66188...00BF885E', '1-0d74...7ac', 'butter'
+   * });
+   * @param {object} doc to add
+   * @param {function} [cb]
+   * @returns {Promise}
+   */
   add: function () {
     var cb
     var args = toArray(arguments)
@@ -189,6 +254,36 @@ assign(Pouchy.prototype, {
     return this.save.apply(this, args).asCallback(cb)
   },
 
+  /**
+   * The native bulkGet PouchDB API is not very user friendly.  In fact, it's down right wacky!  This method patches PouchDB's `bulkGet` and assumes that _all_ of your requested docs exist.  If they do not, it will error via the usual error control flows.
+   * @example
+   * // A good example of what you can expect is actually right out of the tests!
+   * let dummyDocs = [
+   *   { _id: 'a', data: 'a' },
+   *   { _id: 'b', data: 'b' }
+   * ]
+   * Promise.resolve()
+   * .then(() => p.save(dummyDocs[0])) // add our first doc to the db
+   * .then((doc) => (dummyDocs[0] = doc)) // update our closure doc it knows the _rev
+   * .then(() => p.save(dummyDocs[1]))
+   * .then((doc) => (dummyDocs[1] = doc))
+   * .then(() => {
+   *   // prepare bulkGet query (set of { _id, _rev}'s are required)
+   *   const toFetch = dummyDocs.map(dummy => ({
+   *     _id: dummy._id,
+   *     _rev: dummy._rev
+   *     // or you can provide .id, .rev
+   *   }))
+   *   p.bulkGet(toFetch)
+   *     .then((docs) => {
+   *       t.deepEqual(docs, dummyDocs, 'bulkGet returns sane results')
+   *       t.end()
+   *     })
+   * })
+   * @param {object|array} opts array of {_id, _rev}s, or { docs: [ ... } } where
+   *                            ... is an array of {_id, _rev}s
+   * @param {function} [cb]
+   */
   bulkGet: function (opts, cb) {
     /* istanbul ignore else */
     if (Array.isArray(opts)) opts = { docs: opts }
@@ -217,6 +312,14 @@ assign(Pouchy.prototype, {
       .asCallback(cb)
   },
 
+  /**
+   * easy way to create a db index.
+   * @see createIndicies
+   * @example
+   * p.createIndex('myIndex')
+   * @param {function} [cb]
+   * @returns {Promise}
+   */
   createIndex: function () {
     /* istanbul ignore next */
     var cb
@@ -230,6 +333,23 @@ assign(Pouchy.prototype, {
     return this.createIndicies.apply(this, args).asCallback(cb)
   },
 
+  /**
+   * allow single or bulk creation of indicies. also, doesn't flip out if you've
+   * already set an index.
+   * @example
+   * p.createIndicies('test')
+   * .then((indexResults) => console.dir(indexResults));
+   * // ==>
+   * /*
+   * [{
+   *     id: "_design/idx-28933dfe7bc072c94e2646126133dc0d"
+   *     name: "idx-28933dfe7bc072c94e2646126133dc0d"
+   *     result: "created"
+   * }]
+   * @param {array|string} indices 'an-index' or ['some', 'indicies']
+   * @param {function} cb
+   * @returns {Promise} resolves with index meta.  see `pouchy.createIndex`
+   */
   createIndicies: function (indicies, cb) {
     indicies = Array.isArray(indicies) ? indicies : [indicies]
     return bluebird.resolve()
@@ -243,6 +363,11 @@ assign(Pouchy.prototype, {
       .asCallback(cb)
   },
 
+  /**
+   * @see deleteAll
+   * @param {function} [cb]
+   * @returns {Promise}
+   */
   clear: function () {
     var cb
     var args = toArray(arguments)
@@ -253,6 +378,22 @@ assign(Pouchy.prototype, {
     return this.deleteAll.apply(this, args).asCallback(cb)
   },
 
+  /**
+   * delete a document.
+   * @example
+   * // same as pouch.remove
+   * p.delete(doc).then(() => { console.dir(arguments); });
+   * // ==>
+   * {
+   *     id: "test-doc-1"
+   *     ok: true
+   *     rev: "2-5cf6a4725ed4b9398d609fc8d7af2553"
+   * }
+   * @param {object} doc
+   * @param {object} [opts] pouchdb.remove opts
+   * @param {function} [cb]
+   * @returns {Promise}
+   */
   delete: function (doc, opts, cb) {
     /* istanbul ignore next */
     if (typeof opts === 'function') {
@@ -262,6 +403,11 @@ assign(Pouchy.prototype, {
     return this.db.remove(doc, opts).asCallback(cb)
   },
 
+  /**
+   * clears the db of documents. under the hood, `_deleted` flags are added to docs
+   * @param {function} [cb]
+   * @returns {Promise}
+   */
   deleteAll: function (cb) {
     return this.all()
       .then(function deleteEach (docs) {
@@ -271,11 +417,21 @@ assign(Pouchy.prototype, {
       .asCallback(cb)
   },
 
+  /**
+   * @see pouchdb.destroy
+   * @param {function} [cb]
+   * @returns {Promise}
+   */
   deleteDB: function (cb) {
     /* istanbul ignore next */
     return this.db.destroy().asCallback(cb)
   },
 
+  /**
+   * @private
+   * proxies to pouchdb.destroy, but does internal tidy first
+   * @returns {Promise}
+   */
   destroy: function () {
     var cb
     var args = toArray(arguments)
@@ -290,30 +446,59 @@ assign(Pouchy.prototype, {
     return this.db.destroy.apply(this.db, args).asCallback(cb)
   },
 
+  /**
+   * normal pouchdb.find, but returns simple set of results
+   * @param {object} opts find query opts
+   * @param {function} [cb]
+   * @returns {Promise}
+   */
   find: function (opts, cb) {
     return bluebird.resolve()
-      .then(function _find () { return this.db.find(opts) }.bind(this))
-      .then(function returnDocsArray (rslt) { return rslt.docs })
-      .asCallback(cb)
+    .then(function _find () { return this.db.find(opts) }.bind(this))
+    .then(function returnDocsArray (rslt) { return rslt.docs })
+    .asCallback(cb)
   },
 
-  update: function (doc, opts, cb) {
-    /* istanbul ignore next */
-    if (typeof opts === 'function') {
-      cb = opts
-      opts = {}
-    }
-    opts = opts || {}
+  /**
+   * update a document, and get your sensibly updated doc in return.
+   * @example
+   * p.update({ _id: 'my-doc', _rev: '1-abc123' })
+   * .then((doc) => console.log(doc))
+   * // ==>
+   * {
+   * 	 _id: 'my-doc',
+   * 	 _rev: '2-abc234'
+   * }
+   * @param {object} doc
+   * @param {function} [cb]
+   * @returns {Promise}
+   */
+  update: function (doc, cb) {
     // http://pouchdb.com/api.html#create_document
     // db.put(doc, [docId], [docRev], [options], [callback])
-    return this.db.put(doc, opts._id, opts._rev).then(function (meta) {
+    return this.db.put(doc).then(function (meta) {
       doc._id = meta.id
       doc._rev = meta.rev
       return doc
     })
-      .asCallback(cb)
+    .asCallback(cb)
   },
 
+  /**
+   * Adds or updates a document.  If `_id` is set, a `put` is performed (basic add operation). If no `_id` present, a `post` is performed, in which the doc is added, and large-random-string is assigned as `_id`.
+   * @example
+   * p.save({ beep: 'bop' }).then((doc) => console.log(doc))
+   * // ==>
+   * {
+   *   _id: 'AFEALJW-234LKJASDF-2A;LKFJDA',
+   *   _rev: '1-asdblkue242kjsa0f',
+   *   beep: 'bop'
+   * }
+   * @param {object} doc
+   * @param {object} [opts] `pouch.put/post` options
+   * @param {function} [cb]
+   * @returns {Promise} resolves w/ doc, with updated `_id` and `_rev` properties
+   */
   save: function (doc, opts, cb) {
     if (typeof opts === 'function') {
       cb = opts
@@ -363,8 +548,11 @@ var pouchMethods = [
 // 'find' => see methods above
 ]
 
-pouchMethods.forEach(function (method) {
-  /* istanbul ignore next */
+/**
+ * @private
+ */
+var proxyMethods = function (method) {
+   /* istanbul ignore next */
   if (Pouchy.prototype[method]) { return }
   Pouchy.prototype[method] = function () {
     var cb
@@ -374,13 +562,14 @@ pouchMethods.forEach(function (method) {
     var rtn = this.db[method].apply(this.db, args)
     if (rtn instanceof bluebird || rtn instanceof Promise) {
       return bluebird.resolve()
-        .then(function proxyPouch () { return rtn })
-        .asCallback(cb)
+      .then(function proxyPouch () { return rtn })
+      .asCallback(cb)
     }
     /* istanbul ignore next */
     return rtn
   }
-})
+}
+pouchMethods.forEach(proxyMethods)
 
 Pouchy.PouchDB = PouchDB
 

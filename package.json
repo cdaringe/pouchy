@@ -4,16 +4,17 @@
   "description": "A simple, opinionated interface for the amazing PouchDB",
   "main": "src/index.js",
   "scripts": {
-    "lint": "standard",
+    "test": "nyc --reporter=lcov --check-coverage --functions=90 --branches=80 node test/",
+    "lint": "standard \"src/**/*.js\" \"test/**/*.js\"",
     "lintfix": "standard-format -w",
-    "test": "istanbul cover test/ && npm run clean",
-    "posttest": "istanbul check --statements 90 --functions 90 --branches 80",
-    "clean": "rm -rf ./test-db-* && rm -rf test/ppath && rm -rf test/custompath",
+    "validate": "npm ls",
     "preversion": "git checkout master && git pull && npm ls",
+    "docs": "mkdir -p docs && jsdoc -c .jsdoc.json src/",
+    "deploy-docs": "gh-pages -d docs && rm -rf docs",
+    "postpublish": "npm run docs && npm run deploy-docs",
     "publish-patch": "npm run preversion && npm version patch && git push origin master --tags && npm publish",
     "publish-minor": "npm run preversion && npm version minor && git push origin master --tags && npm publish",
-    "publish-major": "npm run preversion && npm version major && git push origin master --tags && npm publish",
-    "validate": "npm ls"
+    "publish-major": "npm run preversion && npm version major && git push origin master --tags && npm publish"
   },
   "repository": {
     "type": "git",
@@ -32,16 +33,17 @@
   },
   "homepage": "https://github.com/cdaringe/pouchy#readme",
   "devDependencies": {
-    "browserify": "13.0.1",
     "coveralls": "^2.11.9",
-    "git-validate": "^2.1.4",
-    "istanbul": "^0.4.3",
+    "gh-pages": "^0.11.0",
+    "jsdoc": "^3.4.0",
     "leveldown": "^1.4.1",
     "memdown": "^1.1.2",
-    "standard": "^7.0.0",
-    "standard-format": "^2.1.1",
-    "tape": "4.5.0",
-    "testem": "1.7.1"
+    "minami": "^1.1.1",
+    "nyc": "^6.4.4",
+    "shizam": "0.0.4",
+    "standard": "^7.1.0",
+    "standard-format": "^2.2.0",
+    "tape": "^4.5.1"
   },
   "dependencies": {
     "bluebird": "^3.3.5",

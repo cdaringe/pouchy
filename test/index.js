@@ -172,10 +172,10 @@ test('custom replication inputs sync', function (t) {
 
 test('all, add, save, delete', function (t) {
   var docs = [
-    {_id: 'test-doc-1', test: 'will put on `add` with _id'},
-    {id: 'test-doc-2', test: 'will post on `add` without _id'},
-    {_id: 'test-doc-3', test: 'will put on `save` with _id'},
-    {_id: 'test-doc-4', dummyKey: 'dummyVal'}
+    { _id: 'test-doc-1', test: 'will put on `add` with _id' },
+    { id: 'test-doc-2', test: 'will post on `add` without _id' },
+    { _id: 'test-doc-3', test: 'will put on `save` with _id' },
+    { _id: 'test-doc-4', dummyKey: 'dummyVal' }
   ]
   p = pouchyFactory({ name: name + Date.now() })
 
@@ -193,24 +193,16 @@ test('all, add, save, delete', function (t) {
       t.ok(doc._id.length > 15, ".add gen'd long _id via post")
       t.notEqual(doc._id, 'test-doc-2', 'id not === _id')
     })
-    .then(function add3 () {
-      return p.add(docs[2])
-    })
-    .then(function add4 (doc) {
-      return p.add(docs[3])
-    })
-    .then(function getAll () {
-      return p.all()
-    })
-    .then(function checkGetAllPromise (r) {
-      t.equal(r.length, docs.length, 'same number of docs added come out! (promise mode)')
+    .then(() => p.add(docs[2]))
+    .then(() => p.add(docs[3]))
+    .then(() => p.all())
+    .then((r) => {
+      t.equal(r.length, docs.length, 'all, include_docs: true (promise mode)')
       t.equal(r[3].dummyKey, docs[3].dummyKey, 'actual docs returned by .all')
     })
-    .then(function getAll () {
-      return p.all({ include_docs: false })
-    })
-    .then(function checkGetAllPromise (r) {
-      t.equal(r.length, docs.length, 'same number of docs added come out! (promise mode)')
+    .then(() => p.all({ include_docs: false }))
+    .then((r) => {
+      t.equal(r.length, docs.length, 'all, include_docs: false (promise mode)')
     })
     .then(function checkGetAllCallback (r) {
       return new Promise(function (resolve, reject) {
@@ -298,30 +290,24 @@ test('update', function (t) {
   p = pouchyFactory({ name: name + Date.now() })
   var rev
   t.plan(3)
-  return p.add({test: 'update-test'})
-    .then(function (doc) {
-      rev = doc._rev
-      doc.newField = 'new-field'
-      return p.update(doc)
-        .then(function (updatedDoc) {
-          t.notOk(rev === updatedDoc._rev, 'update updates _rev')
-          t.equal('new-field', updatedDoc.newField, 'update actually updates')
-        })
+  return p.add({ test: 'update-test' })
+  .then(function (doc) {
+    rev = doc._rev
+    doc.newField = 'new-field'
+    return p.update(doc)
+    .then(function (updatedDoc) {
+      t.notOk(rev === updatedDoc._rev, 'update updates _rev')
+      t.equal('new-field', updatedDoc.newField, 'update actually updates')
     })
-    .then(function () {
-      return p.clear()
-    })
-    .then(function () {
-      return p.all()
-    })
-    .then(function (docs) {
-      t.equal(0, docs.length, 'docs cleared')
-    })
-    .then(t.end)
-    .catch(function (err) {
-      t.fail(err.message)
-      t.end()
-    })
+  })
+  .then(() => p.clear())
+  .then(() => p.all())
+  .then((docs) => t.equal(0, docs.length, 'docs cleared'))
+  .then(t.end)
+  .catch(function (err) {
+    t.fail(err.message)
+    t.end()
+  })
 })
 
 test('proxies loaded', function (t) {
