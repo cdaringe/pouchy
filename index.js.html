@@ -338,17 +338,18 @@ var protoMethods = {
       delete nDoc._id
       return nDoc
     })
+    if (!opts.docs.length) return bluebird.resolve([]).asCallback(cb)
     return this.db.bulkGet(opts)
-      .then(function (r) {
-        return r.results.map(function (docGroup) {
-          var doc = get(docGroup, 'docs[0].ok')
-          if (!doc) {
-            throw new ReferenceError('doc ' + docGroup.id + 'not found')
-          }
-          return doc
-        })
+    .then(function (r) {
+      return r.results.map(function (docGroup) {
+        var doc = get(docGroup, 'docs[0].ok')
+        if (!doc) {
+          throw new ReferenceError('doc ' + docGroup.id + 'not found')
+        }
+        return doc
       })
-      .asCallback(cb)
+    })
+    .asCallback(cb)
   },
 
   /**
