@@ -1,6 +1,6 @@
 {
   "name": "pouchy",
-  "version": "9.0.2",
+  "version": "9.0.3",
   "dependencies": {
     "abbrev": {
       "version": "1.0.7",
