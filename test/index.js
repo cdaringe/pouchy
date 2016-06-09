@@ -412,16 +412,14 @@ test('memdown', (t) => {
     .catch(t.end)
 })
 
-// test('changes', (t) => {
-//   // var p = pouchyFactory({ name: 'changesdb' })
-//   var p = new Pouchy.PouchDB(path.join(__dirname, './.test-db-dir/changesdb'))
-//   t.plan(1)
-//   p.changes().on('changed', (info) => {
-//     t.pass('info passed')
-//     t.end()
-//   })
-//   p.put({ _id: '123', dummy: 1 })
-// })
+test('contructor proxied method', (t) => {
+  Pouchy.defaults({
+    prefix: '/dummy-prefix',
+    adapter: 'memory'
+  })
+  t.pass('defaults applied')
+  t.end()
+})
 
 test('teardown', function (t) {
   t.plan(1)
