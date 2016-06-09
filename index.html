@@ -79,6 +79,12 @@ const p = new Pouchy({
 })
 p.save({ fruit: ['bananas'] })</code></pre><p>Thanks! <a href="http://cdaringe.com/">cdaringe</a></p>
 <h1>changelog</h1><ul>
+<li>10.0.0 - migrate to PouchDB 5.4.x.  @NOTE, some APIs are not available by default anymore.  See <a href="https://pouchdb.com/custom.html">the custom build</a> blog post on how to add features to your pouch <code>Pouchy.PouchDB.plugin(...)</code>.  The following plugins are available by default:<ul>
+<li>pouchdb-adapter-http</li>
+<li>pouchdb-find</li>
+<li>pouchdb-replication</li>
+</ul>
+</li>
 <li>9.0.2 - fix <code>bulkGet</code> when no docs are provided</li>
 <li>9.0.0-1<ul>
 <li>fix <code>.all({ include_docs: false })</code> to properly handle <code>.rev/._rev</code></li>
