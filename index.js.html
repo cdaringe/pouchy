@@ -565,7 +565,7 @@ var protoMethods = {
 assign(Pouchy.prototype, protoMethods)
 
 // proxy pouch methods, and pouch-find methods
-var pouchMethods = [
+var pouchInstanceMethods = [
   // proxy pouch instance methods
   'put',
   'post',
@@ -582,10 +582,8 @@ var pouchMethods = [
   'query',
   'viewCleanup',
   'info',
-  'plugin',
   'compact',
   'revsDiff',
-  'defaults',
   // proxy pouchdb-find methods
   // 'createIndex' => see methods above
   'getIndexes',
@@ -593,10 +591,16 @@ var pouchMethods = [
 // 'find' => see methods above
 ]
 
+var pouchConstructorMethods = [
+  'debug',
+  'defaults',
+  'plugin'
+]
+
 /**
  * @private
  */
-var proxyMethods = function (method) {
+var proxyInstanceMethods = function (method) {
    /* istanbul ignore next */
   if (Pouchy.prototype[method]) { return }
   Pouchy.prototype[method] = function () {
@@ -614,7 +618,30 @@ var proxyMethods = function (method) {
     return rtn
   }
 }
-pouchMethods.forEach(proxyMethods)
+pouchInstanceMethods.forEach(proxyInstanceMethods)
+
+/**
+ * @private
+ */
+var proxyConstructorMethods = function (method) {
+   /* istanbul ignore next */
+  if (Pouchy[method]) { return }
+  Pouchy[method] = function () {
+    var cb
+    var args = toArray(arguments)
+    /* istanbul ignore next */
+    if (typeof args[args.length - 1] === 'function') cb = args.pop()
+    var rtn = PouchDB[method].apply(PouchDB, args)
+    if (rtn instanceof bluebird || rtn instanceof Promise) {
+      return bluebird.resolve()
+      .then(function proxyPouch () { return rtn })
+      .asCallback(cb)
+    }
+    /* istanbul ignore next */
+    return rtn
+  }
+}
+pouchConstructorMethods.forEach(proxyConstructorMethods)
 
 Pouchy.PouchDB = PouchDB
 
