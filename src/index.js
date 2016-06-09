@@ -1,7 +1,11 @@
 'use strict'
 
-var PouchDB = require('./bluebirdify-pouchdb')
 var bluebird = require('bluebird')
+var PouchDB = require('pouchdb-core')
+.plugin(require('pouchdb-adapter-http'))
+.plugin(require('pouchdb-find'))
+.plugin(require('pouchdb-replication'))
+PouchDB.utils = { promise: bluebird }
 var assign = require('lodash/assign')
 var defaults = require('lodash/defaults')
 var unique = require('lodash/uniq')
@@ -11,6 +15,8 @@ var url = require('url')
 var path = require('path')
 var designDocRegex = new RegExp('^_design/')
 var couchUrlify = function (str) { return str.replace(/[^/a-z0-9_$()+-]/gi, '') }
+
+var MAX_SYNC_WAIT_TIMEOUT = 500
 
 /**
  * @namespace
@@ -102,7 +108,6 @@ function Pouchy (opts) {
   if (opts.replicate) this._handleReplication(opts.replicate)
 }
 
-
 /** @lends Pouchy.prototype */
 var protoMethods = {
   /**
@@ -176,7 +181,6 @@ var protoMethods = {
     }
 
     // set max wait time before moving on
-    var MAX_SYNC_WAIT_TIMEOUT = 500
     var maxSyncWait = setTimeout(
       function () {
         /* istanbul ignore next */
@@ -205,7 +209,7 @@ var protoMethods = {
       opts = {}
     }
     opts = defaults(opts || {}, { include_docs: true })
-    return this.db.allDocs(opts)
+    return bluebird.resolve(this.db.allDocs(opts))
       .then(function handleReceivedDocs (docs) {
         return docs.rows.reduce(function (r, v) {
           var doc = opts.include_docs ? v.doc : v
@@ -250,7 +254,7 @@ var protoMethods = {
     if (typeof args[args.length - 1] === 'function') {
       cb = args.pop()
     }
-    return this.save.apply(this, args).asCallback(cb)
+    return bluebird.resolve(this.save.apply(this, args)).asCallback(cb)
   },
 
   /**
@@ -299,7 +303,7 @@ var protoMethods = {
       return nDoc
     })
     if (!opts.docs.length) return bluebird.resolve([]).asCallback(cb)
-    return this.db.bulkGet(opts)
+    return bluebird.resolve(this.db.bulkGet(opts))
     .then(function (r) {
       return r.results.map(function (docGroup) {
         var doc = get(docGroup, 'docs[0].ok')
@@ -400,7 +404,7 @@ var protoMethods = {
       cb = opts
       opts = {}
     }
-    return this.db.remove(doc, opts).asCallback(cb)
+    return bluebird.resolve(this.db.remove(doc, opts)).asCallback(cb)
   },
 
   /**
@@ -424,7 +428,7 @@ var protoMethods = {
    */
   deleteDB: function (cb) {
     /* istanbul ignore next */
-    return this.db.destroy().asCallback(cb)
+    return bluebird.resolve(this.db.destroy()).asCallback(cb)
   },
 
   /**
@@ -443,7 +447,7 @@ var protoMethods = {
     if (this.syncEmitter) {
       this.syncEmitter.cancel()
     }
-    return this.db.destroy.apply(this.db, args).asCallback(cb)
+    return bluebird.resolve(this.db.destroy.apply(this.db, args)).asCallback(cb)
   },
 
   /**
@@ -476,7 +480,7 @@ var protoMethods = {
   update: function (doc, cb) {
     // http://pouchdb.com/api.html#create_document
     // db.put(doc, [docId], [docRev], [options], [callback])
-    return this.db.put(doc).then(function (meta) {
+    return bluebird.resolve(this.db.put(doc)).then(function (meta) {
       doc._id = meta.id
       doc._rev = meta.rev
       return doc

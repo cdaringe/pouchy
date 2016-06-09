@@ -1,40 +1,42 @@
 'use strict'
-var test = require('tape')
-var fs = require('fs')
-var cp = require('child_process')
-var Pouchy = require('../')
-var path = require('path')
-var testDir = path.join(__dirname, './.test-db-dir')
-var pouchyFactory = function (opts) {
+
+require('perish')
+const server = require('./server')
+const test = require('tape')
+const fs = require('fs')
+const cp = require('child_process')
+const Pouchy = require('../')
+Pouchy.PouchDB
+.plugin(require('pouchdb-adapter-leveldb'))
+.plugin(require('pouchdb-adapter-memory'))
+const path = require('path')
+const testDir = path.join(__dirname, './.test-db-dir')
+const pouchyFactory = function (opts) {
   if (!opts.path) { opts.path = testDir }
   return new Pouchy(opts)
 }
-var couchdbInvalidName = 'TEsT dB'
-var couchdbInvalidUrl = 'https://www.me.org/eeek/invalidPathname'
-var couchdbInvalidConn = {
+const couchdbInvalidName = 'TEsT dB'
+const couchdbInvalidUrl = 'https://www.me.org/eeek/invalidPathname'
+const couchdbInvalidConn = {
   protocol: 'https',
   hostname: 'localhost',
   port: 3001,
   pathname: 'invalidPathname'
 }
-var name = 'test-db-'
-var conn = {
+const name = 'test-db-'
+const conn = {
   protocol: 'https',
   hostname: 'localhost',
   port: 3001,
   pathname: 'validpathname'
 }
-var bb = require('bluebird')
+const bb = require('bluebird')
 bb.config({ warnings: false })
+
 let p
 
-const mkdirp = (dir) => {
-  cp.execSync('mkdir -p ' + dir)
-}
-
-const rmrf = (dir) => {
-  try { cp.execSync('rm -rf ' + dir) } catch (err) {}
-}
+const mkdirp = (dir) => cp.execSync('mkdir -p ' + dir)
+const rmrf = (dir) => { try { cp.execSync('rm -rf ' + dir) } catch (err) {} }
 
 const setup = () => {
   rmrf(testDir)
@@ -44,9 +46,7 @@ const setup = () => {
   }
 }
 
-const teardown = () => {
-  try { rmrf(testDir) } catch (err) {}
-}
+const teardown = () => { try { rmrf(testDir) } catch (err) {} }
 
 test('setup', function (t) {
   setup()
@@ -69,7 +69,7 @@ test('constructor', function (t) {
     t.ok(true, 'enforced name')
   }
 
-  p = new Pouchy({ name: 'nameonly', pouchConfig: { db: require('memdown') } })
+  p = new Pouchy({ name: 'nameonly', pouchConfig: { adapter: 'memory' } })
   t.ok(p, 'name only db ok')
 
   // invalid name
@@ -150,6 +150,41 @@ test('basic sync', function (t) {
   }
   pSync.syncEmitter.on('paused', handleNaughtySyncEvent)
   pSync.syncEmitter.on('error', handleNaughtySyncEvent)
+})
+
+test('advanced sync', function (t) {
+  t.plan(2)
+  const killP2 = () => { try { cp.execSync('rm -rf ./p2') } catch (err) { /* pass */ } }
+  const dbName = 'advancedsync'
+  let p2
+  killP2()
+  server.setup()
+  .then(() => {
+    const p1 = new Pouchy.PouchDB(server.dbURL(dbName))
+    return Promise.resolve()
+    .then(() => p1.put({ _id: 'adv-1', data: 1 }))
+    .then(() => p1.put({ _id: 'adv-2', data: 2 }))
+  })
+  .then(() => {
+    let res
+    const promise = new Promise((resolve) => { res = resolve })
+    p2 = new Pouchy({
+      name: 'p2',
+      replicate: 'sync',
+      url: server.dbURL(dbName)
+    })
+    p2.syncEmitter.on('hasLikelySynced', res)
+    return promise
+  })
+  .then(() => p2.all())
+  .then((docs) => {
+    p2.syncEmitter.cancel()
+    t.equal(docs.length, 2, 'sync cross db ok')
+  })
+  .then(() => server.teardown())
+  .then(() => killP2())
+  .then(() => t.pass('teardown'))
+  .then(t.end, t.end)
 })
 
 test('custom replication inputs sync', function (t) {
@@ -338,10 +373,10 @@ test('memdown', (t) => {
   setup()
   var memdownOpts = {
     name: 'test-memdown',
-    pouchConfig: { db: require('memdown') }
+    pouchConfig: { adapter: 'memory' }
   }
   var leveldownOpts = {
-    name: 'test-memdown',
+    name: 'test-leveldown',
     pouchConfig: { db: require('leveldown') }
   }
   var pLeveldown = pouchyFactory(leveldownOpts)
@@ -358,7 +393,6 @@ test('memdown', (t) => {
     })
     .then(() => {
       var pMemdown = pouchyFactory(memdownOpts)
-      rmrf(pMemdown.db._db_name) // full path to
       pMemdown.save({ _id: '123' })
         // test
         .then(() => {

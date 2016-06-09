@@ -41,6 +41,10 @@ p.save({ fruit: ['bananas'] })
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
+- 10.0.0 - migrate to PouchDB 5.4.x.  @NOTE, some APIs are not available by default anymore.  See [the custom build](https://pouchdb.com/custom.html) blog post on how to add features to your pouch `Pouchy.PouchDB.plugin(...)`.  The following plugins are available by default:
+  - pouchdb-adapter-http
+  - pouchdb-find
+  - pouchdb-replication
 - 9.0.2 - fix `bulkGet` when no docs are provided
 - 9.0.0-1
   - fix `.all({ include_docs: false })` to properly handle `.rev/._rev`
