@@ -626,19 +626,8 @@ pouchInstanceMethods.forEach(proxyInstanceMethods)
 var proxyConstructorMethods = function (method) {
    /* istanbul ignore next */
   if (Pouchy[method]) { return }
-  Pouchy[method] = function () {
-    var cb
-    var args = toArray(arguments)
-    /* istanbul ignore next */
-    if (typeof args[args.length - 1] === 'function') cb = args.pop()
-    var rtn = PouchDB[method].apply(PouchDB, args)
-    if (rtn instanceof bluebird || rtn instanceof Promise) {
-      return bluebird.resolve()
-      .then(function proxyPouch () { return rtn })
-      .asCallback(cb)
-    }
-    /* istanbul ignore next */
-    return rtn
+  Pouchy[method] = function proxyConstructorMethod () {
+    return PouchDB[method].apply(PouchDB, arguments)
   }
 }
 pouchConstructorMethods.forEach(proxyConstructorMethods)
