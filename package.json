@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/cdaringe/pouchy#readme",
   "devDependencies": {
-    "coveralls": "2.11.9",
+    "coveralls": "2.11.10",
     "gh-pages": "0.11.0",
     "jsdoc": "3.4.0",
     "minami": "1.1.1",
