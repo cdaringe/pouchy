@@ -41,6 +41,7 @@ p.save({ fruit: ['bananas'] })
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
+- 10.0.4 - be compatible with latest bluebird `.asCallback`.
 - 10.0.0 - migrate to PouchDB 5.4.x.  @NOTE, some APIs are not available by default anymore.  See [the custom build](https://pouchdb.com/custom.html) blog post on how to add features to your pouch `Pouchy.PouchDB.plugin(...)`.  The following plugins are available by default:
   - pouchdb-adapter-http
   - pouchdb-find
