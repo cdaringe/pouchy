@@ -568,14 +568,15 @@ var proxyInstanceMethods = function (method) {
     var args = toArray(arguments)
     /* istanbul ignore next */
     if (typeof args[args.length - 1] === 'function') cb = args.pop()
-    var rtn = this.db[method].apply(this.db, args)
-    if (rtn instanceof bluebird || rtn instanceof Promise) {
-      return bluebird.resolve()
-      .then(function proxyPouch () { return rtn })
-      .asCallback(cb)
+    var val = this.db[method].apply(this.db, args)
+    var rtn
+    if (val instanceof bluebird || val instanceof Promise) {
+      rtn = bluebird.resolve(val)
+      if (cb) rtn.asCallback(cb)
+      return rtn
     }
     /* istanbul ignore next */
-    return rtn
+    return val
   }
 }
 pouchInstanceMethods.forEach(proxyInstanceMethods)
