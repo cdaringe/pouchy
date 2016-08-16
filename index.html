@@ -79,6 +79,7 @@ const p = new Pouchy({
 })
 p.save({ fruit: ['bananas'] })</code></pre><p>Thanks! <a href="http://cdaringe.com/">cdaringe</a></p>
 <h1>changelog</h1><ul>
+<li>10.0.4 - be compatible with latest bluebird <code>.asCallback</code>.</li>
 <li>10.0.0 - migrate to PouchDB 5.4.x.  @NOTE, some APIs are not available by default anymore.  See <a href="https://pouchdb.com/custom.html">the custom build</a> blog post on how to add features to your pouch <code>Pouchy.PouchDB.plugin(...)</code>.  The following plugins are available by default:<ul>
 <li>pouchdb-adapter-http</li>
 <li>pouchdb-find</li>
