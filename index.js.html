@@ -23,7 +23,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Pouchy.html">Pouchy</a><ul class='methods'><li data-type='method'><a href="Pouchy.html#add">add</a></li><li data-type='method'><a href="Pouchy.html#all">all</a></li><li data-type='method'><a href="Pouchy.html#bulkGet">bulkGet</a></li><li data-type='method'><a href="Pouchy.html#clear">clear</a></li><li data-type='method'><a href="Pouchy.html#createIndex">createIndex</a></li><li data-type='method'><a href="Pouchy.html#createIndicies">createIndicies</a></li><li data-type='method'><a href="Pouchy.html#delete">delete</a></li><li data-type='method'><a href="Pouchy.html#deleteAll">deleteAll</a></li><li data-type='method'><a href="Pouchy.html#deleteDB">deleteDB</a></li><li data-type='method'><a href="Pouchy.html#find">find</a></li><li data-type='method'><a href="Pouchy.html#save">save</a></li><li data-type='method'><a href="Pouchy.html#update">update</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="global.html#event:hasLikelySynced">hasLikelySynced</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Pouchy.html">Pouchy</a><ul class='methods'><li data-type='method'><a href="Pouchy.html#add">add</a></li><li data-type='method'><a href="Pouchy.html#all">all</a></li><li data-type='method'><a href="Pouchy.html#bulkGet">bulkGet</a></li><li data-type='method'><a href="Pouchy.html#clear">clear</a></li><li data-type='method'><a href="Pouchy.html#createIndex">createIndex</a></li><li data-type='method'><a href="Pouchy.html#createIndicies">createIndicies</a></li><li data-type='method'><a href="Pouchy.html#delete">delete</a></li><li data-type='method'><a href="Pouchy.html#deleteAll">deleteAll</a></li><li data-type='method'><a href="Pouchy.html#deleteDB">deleteDB</a></li><li data-type='method'><a href="Pouchy.html#find">find</a></li><li data-type='method'><a href="Pouchy.html#getReplicationOptions">getReplicationOptions</a></li><li data-type='method'><a href="Pouchy.html#save">save</a></li><li data-type='method'><a href="Pouchy.html#update">update</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="global.html#event:hasLikelySynced">hasLikelySynced</a></li></ul>
 </nav>
 
 <div id="main">
@@ -165,6 +165,7 @@ var protoMethods = {
       mode = Object.keys(opts)[0]
       replOpts = opts[mode]
     }
+    this._replicationOpts = replOpts
     switch (mode) {
       /* istanbul ignore next */
       case 'out':
@@ -185,6 +186,14 @@ var protoMethods = {
         ].join(' '))
     }
     this._bindEarlyEventDetectors(this.syncEmitter, replOpts)
+  },
+
+  /**
+   * expose replication options used on db sync!
+   * @returns {object} replication options used (if any) fed into pouchdb `.replicate(...)`
+   */
+  getReplicationOptions() {
+    return this._replicationOpts
   },
 
   /**
@@ -477,17 +486,32 @@ var protoMethods = {
    * @returns {Promise}
    */
   destroy: function () {
-    var cb
+    var chain = bluebird.resolve()
     var args = toArray(arguments)
+    var cb
     /* istanbul ignore next */
     if (typeof args[args.length - 1] === 'function') {
       cb = args.pop()
     }
     /* istanbul ignore else */
     if (this.syncEmitter) {
-      this.syncEmitter.cancel()
+      if (this._replicationOpts &amp;&amp; this._replicationOpts.live) {
+        // early bind the `complete` event listener.  careful not to bind it
+        // inside the .then, otherwise binding happens at the end of the event
+        // loop, which is too late! `.cancel` is a sync call!
+        var isCompleteP = new Promise(function waitForLiveSyncComplete(resolve) {
+          this.syncEmitter.on('complete', resolve)
+        }.bind(this))
+        chain = chain.then(isCompleteP)
+      }
+      this.syncEmitter.cancel() // will trigger complete event per
     }
-    return bluebird.resolve(this.db.destroy.apply(this.db, args)).asCallback(cb)
+    chain = chain.then(function bbPouchyDestroy() {
+      var pDestroyed = this.db.destroy.apply(this.db, args)
+      return bluebird.resolve(pDestroyed)
+    }.bind(this))
+    if (cb) chain.asCallback(cb)
+    return chain
   },
 
   /**

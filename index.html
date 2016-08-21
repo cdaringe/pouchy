@@ -23,7 +23,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Pouchy.html">Pouchy</a><ul class='methods'><li data-type='method'><a href="Pouchy.html#add">add</a></li><li data-type='method'><a href="Pouchy.html#all">all</a></li><li data-type='method'><a href="Pouchy.html#bulkGet">bulkGet</a></li><li data-type='method'><a href="Pouchy.html#clear">clear</a></li><li data-type='method'><a href="Pouchy.html#createIndex">createIndex</a></li><li data-type='method'><a href="Pouchy.html#createIndicies">createIndicies</a></li><li data-type='method'><a href="Pouchy.html#delete">delete</a></li><li data-type='method'><a href="Pouchy.html#deleteAll">deleteAll</a></li><li data-type='method'><a href="Pouchy.html#deleteDB">deleteDB</a></li><li data-type='method'><a href="Pouchy.html#find">find</a></li><li data-type='method'><a href="Pouchy.html#save">save</a></li><li data-type='method'><a href="Pouchy.html#update">update</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="global.html#event:hasLikelySynced">hasLikelySynced</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Pouchy.html">Pouchy</a><ul class='methods'><li data-type='method'><a href="Pouchy.html#add">add</a></li><li data-type='method'><a href="Pouchy.html#all">all</a></li><li data-type='method'><a href="Pouchy.html#bulkGet">bulkGet</a></li><li data-type='method'><a href="Pouchy.html#clear">clear</a></li><li data-type='method'><a href="Pouchy.html#createIndex">createIndex</a></li><li data-type='method'><a href="Pouchy.html#createIndicies">createIndicies</a></li><li data-type='method'><a href="Pouchy.html#delete">delete</a></li><li data-type='method'><a href="Pouchy.html#deleteAll">deleteAll</a></li><li data-type='method'><a href="Pouchy.html#deleteDB">deleteDB</a></li><li data-type='method'><a href="Pouchy.html#find">find</a></li><li data-type='method'><a href="Pouchy.html#getReplicationOptions">getReplicationOptions</a></li><li data-type='method'><a href="Pouchy.html#save">save</a></li><li data-type='method'><a href="Pouchy.html#update">update</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="global.html#event:hasLikelySynced">hasLikelySynced</a></li></ul>
 </nav>
 
 <div id="main">
@@ -49,7 +49,38 @@
     <section class="readme">
         <article><h1>pouchy</h1><p><a href="https://codeship.com/projects/103658"> <img src="https://codeship.com/projects/723a9160-4203-0133-3599-062894ba1566/status?branch=master" alt="Codeship Status for cdaringe/pouchy"></a> <a href="https://coveralls.io/github/cdaringe/pouchy?branch=master"><img src="https://coveralls.io/repos/github/cdaringe/pouchy/badge.svg?branch=master" alt="Coverage Status"></a></p>
 <h2>what</h2><p>simple <a href="https://github.com/pouchdb/pouchdb">PouchDB</a> wrapper, equipped with a few useful sugar methods.  Most methods provided are <em>very</em> simple PouchDB-native method modifiers, but are targeted to save you frequent boilerplate re-typing!  This library also proxies most of the PouchDB API directly, so you can use it like a Pouch itself!</p>
-<h2>why</h2><p>why use <code>pouchy</code> over <code>pouchdb</code>?</p>
+<h2>how</h2><p>api docs and examples officially live <a href="http://cdaringe.github.io/pouchy/">here!</a></p>
+<p>however, here are some basic examples:</p>
+<pre class="prettyprint source lang-js"><code>// local, node database
+const Pouchy = require('pouchy')
+const level = require('pouchdb-adapter-leveldb')
+Pouchy.plugin(level)
+
+const fruit = new Pouchy({ name: 'fruit' })
+fruit
+  .save({ type: 'orange', tastes: 'delicious' })
+  .then((orange) => console.log(orange))
+
+/**
+  {
+    type: 'orange',
+    tastes: 'delicious',
+    _id: 'EA1F2B55-2482-89C6-907E-6F938C59F734',
+    _rev: '1-f60b9b7d775a89d280e1f4c07122b863'
+  }
+*/</code></pre><pre class="prettyprint source lang-js"><code>// local & remote replicated database!
+const Pouchy = require('pouchy')
+const memory = require('pouchdb-adapter-memory')
+Pouchy.plugin(memory)
+
+const customers = new Pouchy({
+  name: 'customers',
+  replicate: 'sync',
+  url: 'http://mydomain.org/db/customers'
+})
+customers.save({ firstName: 'bill', lastName: 'brasky' })
+// wait for it... and couchdb/pouchdb-server @ http://mydomain.org/db/customers
+// will receive bill brasky!</code></pre><h2>why</h2><p>why use <code>pouchy</code> over <code>pouchdb</code>?</p>
 <ul>
 <li>because managing <code>_id</code> and <code>_rev</code> can be seriously obnoxious with pouchdb (no hard feelings, of course).<ul>
 <li>pouchdb methods return document <code>_id</code>s and <code>_rev</code>s inconsistently.  some methods return docs with an <code>id</code> attribute.  some return docs with <code>_id</code>.  the same happens for <code>rev</code>.</li>
@@ -70,15 +101,13 @@
 </ul>
 <p>&quot;Hey, are those alone sufficient justification to wrap pouchdb?&quot;</p>
 <p>Yea, it's definitely subjective, but my team and i have answered that powerfully with a &quot;yes, definitely!&quot;</p>
-<h2>api docs</h2><p><a href="http://cdaringe.github.io/pouchy/">api docs and examples officially live here!</a></p>
-<pre class="prettyprint source lang-js"><code>// basic example
-const p = new Pouchy({
-  name: 'customers',
-  replicate: 'sync',
-  url: 'http://mydomain.org/db/customers'
-})
-p.save({ fruit: ['bananas'] })</code></pre><p>Thanks! <a href="http://cdaringe.com/">cdaringe</a></p>
+<p>Thanks! <a href="http://cdaringe.com/">cdaringe</a></p>
 <h1>changelog</h1><ul>
+<li>10.1.0<ul>
+<li>expose replication options via <code>getReplicationOptions</code></li>
+<li>on <code>destroy</code>, <em>actually</em> destroy gracefully.  that means, don't resolve the promise/callback until <code>live</code> dbs have all http requests fully settled. see <a href="https://github.com/pouchdb/express-pouchdb/issues/316#issuecomment-241247448">here</a> for more info.</li>
+</ul>
+</li>
 <li>10.0.4 - be compatible with latest bluebird <code>.asCallback</code>.</li>
 <li>10.0.0 - migrate to PouchDB 5.4.x.  @NOTE, some APIs are not available by default anymore.  See <a href="https://pouchdb.com/custom.html">the custom build</a> blog post on how to add features to your pouch <code>Pouchy.PouchDB.plugin(...)</code>.  The following plugins are available by default:<ul>
 <li>pouchdb-adapter-http</li>
