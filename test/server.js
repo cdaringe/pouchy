@@ -83,13 +83,10 @@ module.exports = {
   },
 
   teardown: function () {
-    return bluebird.delay(200)
-    .then(() => {
-      return new Promise((resolve, reject) => {
-        return this.server.stop((err) => {
-          if (err) { diehard(err.message) }
-          return resolve()
-        })
+    return new Promise((resolve, reject) => {
+      return this.server.stop((err) => {
+        if (err) { diehard(err.message) }
+        return resolve()
       })
     })
   }

@@ -177,10 +177,8 @@ test('advanced sync', function (t) {
     return promise
   })
   .then(() => p2.all())
-  .then((docs) => {
-    p2.syncEmitter.cancel()
-    t.equal(docs.length, 2, 'sync cross db ok')
-  })
+  .then((docs) => t.equal(docs.length, 2, 'sync cross db ok'))
+  .then(() => p2.destroy())
   .then(() => server.teardown())
   .then(() => killP2())
   .then(() => t.pass('teardown'))

@@ -125,6 +125,7 @@ var protoMethods = {
       mode = Object.keys(opts)[0]
       replOpts = opts[mode]
     }
+    this._replicationOpts = replOpts
     switch (mode) {
       /* istanbul ignore next */
       case 'out':
@@ -145,6 +146,14 @@ var protoMethods = {
         ].join(' '))
     }
     this._bindEarlyEventDetectors(this.syncEmitter, replOpts)
+  },
+
+  /**
+   * expose replication options used on db sync!
+   * @returns {object} replication options used (if any) fed into pouchdb `.replicate(...)`
+   */
+  getReplicationOptions() {
+    return this._replicationOpts
   },
 
   /**
@@ -437,17 +446,32 @@ var protoMethods = {
    * @returns {Promise}
    */
   destroy: function () {
-    var cb
+    var chain = bluebird.resolve()
     var args = toArray(arguments)
+    var cb
     /* istanbul ignore next */
     if (typeof args[args.length - 1] === 'function') {
       cb = args.pop()
     }
     /* istanbul ignore else */
     if (this.syncEmitter) {
-      this.syncEmitter.cancel()
+      if (this._replicationOpts && this._replicationOpts.live) {
+        // early bind the `complete` event listener.  careful not to bind it
+        // inside the .then, otherwise binding happens at the end of the event
+        // loop, which is too late! `.cancel` is a sync call!
+        var isCompleteP = new Promise(function waitForLiveSyncComplete(resolve) {
+          this.syncEmitter.on('complete', resolve)
+        }.bind(this))
+        chain = chain.then(isCompleteP)
+      }
+      this.syncEmitter.cancel() // will trigger complete event per
     }
-    return bluebird.resolve(this.db.destroy.apply(this.db, args)).asCallback(cb)
+    chain = chain.then(function bbPouchyDestroy() {
+      var pDestroyed = this.db.destroy.apply(this.db, args)
+      return bluebird.resolve(pDestroyed)
+    }.bind(this))
+    if (cb) chain.asCallback(cb)
+    return chain
   },
 
   /**

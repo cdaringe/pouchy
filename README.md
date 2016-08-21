@@ -1,9 +1,53 @@
 # pouchy
+
 [ ![Codeship Status for cdaringe/pouchy](https://codeship.com/projects/723a9160-4203-0133-3599-062894ba1566/status?branch=master)](https://codeship.com/projects/103658) [![Coverage Status](https://coveralls.io/repos/github/cdaringe/pouchy/badge.svg?branch=master)](https://coveralls.io/github/cdaringe/pouchy?branch=master)
 
 ## what
 
 simple [PouchDB](https://github.com/pouchdb/pouchdb) wrapper, equipped with a few useful sugar methods.  Most methods provided are _very_ simple PouchDB-native method modifiers, but are targeted to save you frequent boilerplate re-typing!  This library also proxies most of the PouchDB API directly, so you can use it like a Pouch itself!
+
+## how
+
+api docs and examples officially live [here!](http://cdaringe.github.io/pouchy/)
+
+however, here are some basic examples:
+
+```js
+// local, node database
+const Pouchy = require('pouchy')
+const level = require('pouchdb-adapter-leveldb')
+Pouchy.plugin(level)
+
+const fruit = new Pouchy({ name: 'fruit' })
+fruit
+  .save({ type: 'orange', tastes: 'delicious' })
+  .then((orange) => console.log(orange))
+
+/**
+  {
+    type: 'orange',
+    tastes: 'delicious',
+    _id: 'EA1F2B55-2482-89C6-907E-6F938C59F734',
+    _rev: '1-f60b9b7d775a89d280e1f4c07122b863'
+  }
+*/
+```
+
+```js
+// local & remote replicated database!
+const Pouchy = require('pouchy')
+const memory = require('pouchdb-adapter-memory')
+Pouchy.plugin(memory)
+
+const customers = new Pouchy({
+  name: 'customers',
+  replicate: 'sync',
+  url: 'http://mydomain.org/db/customers'
+})
+customers.save({ firstName: 'bill', lastName: 'brasky' })
+// wait for it... and couchdb/pouchdb-server @ http://mydomain.org/db/customers
+// will receive bill brasky!
+```
 
 ## why
 
@@ -24,23 +68,12 @@ why use `pouchy` over `pouchdb`?
 
 Yea, it's definitely subjective, but my team and i have answered that powerfully with a "yes, definitely!"
 
-## api docs
-
-[api docs and examples officially live here!](http://cdaringe.github.io/pouchy/)
-
-```js
-// basic example
-const p = new Pouchy({
-  name: 'customers',
-  replicate: 'sync',
-  url: 'http://mydomain.org/db/customers'
-})
-p.save({ fruit: ['bananas'] })
-```
-
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
+- 10.1.0
+  - expose replication options via `getReplicationOptions`
+  - on `destroy`, _actually_ destroy gracefully.  that means, don't resolve the promise/callback until `live` dbs have all http requests fully settled. see [here](https://github.com/pouchdb/express-pouchdb/issues/316#issuecomment-241247448) for more info.
 - 10.0.4 - be compatible with latest bluebird `.asCallback`.
 - 10.0.0 - migrate to PouchDB 5.4.x.  @NOTE, some APIs are not available by default anymore.  See [the custom build](https://pouchdb.com/custom.html) blog post on how to add features to your pouch `Pouchy.PouchDB.plugin(...)`.  The following plugins are available by default:
   - pouchdb-adapter-http
