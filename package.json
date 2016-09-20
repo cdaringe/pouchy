@@ -48,7 +48,7 @@
     "tape": "4.6.0"
   },
   "dependencies": {
-    "bluebird": "3.4.5",
+    "bluebird": "3.4.6",
     "lodash": "4.16.0",
     "path": "0.12.7",
     "pouchdb-adapter-http": "^5.4.1",
