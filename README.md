@@ -71,6 +71,8 @@ Yea, it's definitely subjective, but my team and i have answered that powerfully
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
+- 11.0.0
+  - pouchdb 6.0.5!
 - 10.1.0
   - expose replication options via `getReplicationOptions`
   - on `destroy`, _actually_ destroy gracefully.  that means, don't resolve the promise/callback until `live` dbs have all http requests fully settled. see [here](https://github.com/pouchdb/express-pouchdb/issues/316#issuecomment-241247448) for more info.
