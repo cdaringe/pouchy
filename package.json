@@ -51,7 +51,7 @@
     "bluebird": "3.4.6",
     "lodash": "4.16.0",
     "path": "0.12.7",
-    "pouchdb-adapter-http": "^5.4.1",
+    "pouchdb-adapter-http": "^6.0.5",
     "pouchdb-core": "^5.4.1",
     "pouchdb-find": "^0.10.0",
     "pouchdb-replication": "^5.4.1",
