@@ -44,7 +44,7 @@
     "shizam": "0.0.5",
     "spawn-pouchdb-server": "^3.3.1",
     "standard": "8.1.0",
-    "standard-format": "2.2.2",
+    "standard-format": "2.2.3",
     "tape": "4.6.0"
   },
   "dependencies": {
