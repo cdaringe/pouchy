@@ -39,7 +39,7 @@
     "minami": "1.1.1",
     "nyc": "8.3.0",
     "perish": "0.0.3",
-    "pouchdb-adapter-leveldb": "^5.4.1",
+    "pouchdb-adapter-leveldb": "^6.0.4",
     "pouchdb-adapter-memory": "^5.4.1",
     "shizam": "0.0.5",
     "spawn-pouchdb-server": "^3.3.1",
