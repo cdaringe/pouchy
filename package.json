@@ -45,7 +45,7 @@
     "spawn-pouchdb-server": "^3.3.1",
     "standard": "8.6.0",
     "standard-format": "2.2.3",
-    "tape": "4.6.2"
+    "tape": "4.6.3"
   },
   "dependencies": {
     "bluebird": "3.4.6",
