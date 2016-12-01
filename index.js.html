@@ -192,7 +192,7 @@ var protoMethods = {
    * expose replication options used on db sync!
    * @returns {object} replication options used (if any) fed into pouchdb `.replicate(...)`
    */
-  getReplicationOptions() {
+  getReplicationOptions: function() {
     return this._replicationOpts
   },
 
@@ -209,7 +209,7 @@ var protoMethods = {
    */
   _handleSyncLikelyComplete: function (emitter) {
     if (this.verbose) console.log('trying to sync', this.name)
-    let waitForSync
+    var waitForSync;
     var resetSyncWaitTime = function (evt, info) {
       if (this.verbose) console.log(this.name, evt, info)
       clearTimeout(maxSyncWait)
@@ -342,7 +342,7 @@ var protoMethods = {
     opts.docs = opts.docs.map(function (doc) {
       // because PouchDB can't make up it's mind, we need
       // to map back to id and rev here
-      let nDoc = assign({}, doc)
+      var nDoc = assign({}, doc)
       /* istanbul ignore else */
       if (nDoc._id) nDoc.id = nDoc._id
       /* istanbul ignore else */
