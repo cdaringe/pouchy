@@ -8,7 +8,7 @@
     "lint": "standard \"src/**/*.js\" \"test/**/*.js\"",
     "lintfix": "standard-format -w",
     "validate": "yarn ls",
-    "preversion": "git checkout master && git pull && npm ls",
+    "preversion": "git checkout master && git pull && yarn ls",
     "docs": "mkdir -p docs && jsdoc -c .jsdoc.json src/",
     "deploy-docs": "gh-pages -d docs && rm -rf docs",
     "postpublish": "npm run docs && npm run deploy-docs",
