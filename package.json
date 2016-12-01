@@ -7,7 +7,7 @@
     "test": "nyc --reporter=lcov --check-coverage --functions=90 --branches=80 node test/",
     "lint": "standard \"src/**/*.js\" \"test/**/*.js\"",
     "lintfix": "standard-format -w",
-    "validate": "npm ls",
+    "validate": "yarn ls",
     "preversion": "git checkout master && git pull && npm ls",
     "docs": "mkdir -p docs && jsdoc -c .jsdoc.json src/",
     "deploy-docs": "gh-pages -d docs && rm -rf docs",

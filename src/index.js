@@ -114,8 +114,8 @@ var protoMethods = {
    * @private
    */
   _handleReplication: function (opts) {
-    let mode
-    let replOpts
+    var mode
+    var replOpts
     /* istanbul ignore next */
     if (!this.url) throw new ReferenceError('url or conn object required to replicate')
     if (typeof opts === 'string') {

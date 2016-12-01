@@ -73,6 +73,8 @@ Yea, it's definitely subjective, but my team and i have answered that powerfully
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
+- 11.0.2
+  - drop es6 content. es5 friendly-ify!
 - 11.0.0
   - pouchdb 6.0.5!
 - 10.1.0
