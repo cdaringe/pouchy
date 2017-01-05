@@ -40,7 +40,7 @@
     "nyc": "10.0.0",
     "perish": "1.0.0",
     "pouchdb-adapter-leveldb": "^6.0.5",
-    "pouchdb-adapter-memory": "^6.0.5",
+    "pouchdb-adapter-memory": "^6.1.1",
     "shizam": "0.0.5",
     "spawn-pouchdb-server": "^3.3.1",
     "standard": "8.6.0",
