@@ -37,7 +37,7 @@
     "gh-pages": "0.11.0",
     "jsdoc": "3.4.3",
     "minami": "1.1.1",
-    "nyc": "10.0.0",
+    "nyc": "10.1.0",
     "perish": "1.0.0",
     "pouchdb-adapter-leveldb": "^6.0.5",
     "pouchdb-adapter-memory": "^6.0.5",
