@@ -4,7 +4,9 @@
   "description": "A simple, opinionated interface for the amazing PouchDB",
   "main": "src/index.js",
   "scripts": {
-    "test": "nyc --reporter=lcov --check-coverage --functions=90 --branches=80 node test/",
+    "test": "npm run test-node && npm run test-browser",
+    "test-node": "nyc --reporter=lcov --check-coverage --functions=90 --branches=80 node test/node",
+    "test-browser": "browserify test/browser/index.js | tape-run",
     "lint": "standard \"src/**/*.js\" \"test/**/*.js\"",
     "preversion": "git checkout master && git pull",
     "docs": "mkdir -p docs && jsdoc -c .jsdoc.json src/",

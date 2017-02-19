@@ -22,10 +22,10 @@
       "outDir": null
     },
     {
-      "name": "Test",
+      "name": "Test - Node",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceRoot}/test/index.js",
+      "program": "${workspaceRoot}/test/node/index.js",
       "stopOnEntry": false,
       "args": [],
       "cwd": "${workspaceRoot}",
