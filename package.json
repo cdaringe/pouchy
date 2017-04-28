@@ -57,7 +57,7 @@
     "pouchdb-adapter-http": "^6.0.5",
     "pouchdb-core": "^6.0.6",
     "pouchdb-find": "^0.10.0",
-    "pouchdb-replication": "^6.0.5",
+    "pouchdb-replication": "^6.1.1",
     "url": "0.11.0"
   },
   "pre-commit": [
