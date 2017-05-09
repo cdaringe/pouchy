@@ -48,7 +48,7 @@
     "standard": "9.0.0",
     "standard-format": "^2.2.4",
     "tape": "4.6.3",
-    "tape-run": "^2.2.1"
+    "tape-run": "^3.0.0"
   },
   "dependencies": {
     "bluebird": "3.5.0",
