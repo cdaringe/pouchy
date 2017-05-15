@@ -43,7 +43,7 @@
     "perish": "1.0.1",
     "pouchdb-adapter-leveldb": "^6.0.5",
     "pouchdb-adapter-memory": "^6.0.5",
-    "shizam": "0.0.5",
+    "shizam": "0.0.7",
     "spawn-pouchdb-server": "^3.3.1",
     "standard": "10.0.2",
     "standard-format": "^2.2.4",
