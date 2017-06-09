@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Home - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -23,7 +24,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Pouchy.html">Pouchy</a><ul class='methods'><li data-type='method'><a href="Pouchy.html#add">add</a></li><li data-type='method'><a href="Pouchy.html#all">all</a></li><li data-type='method'><a href="Pouchy.html#bulkGet">bulkGet</a></li><li data-type='method'><a href="Pouchy.html#clear">clear</a></li><li data-type='method'><a href="Pouchy.html#createIndex">createIndex</a></li><li data-type='method'><a href="Pouchy.html#createIndicies">createIndicies</a></li><li data-type='method'><a href="Pouchy.html#delete">delete</a></li><li data-type='method'><a href="Pouchy.html#deleteAll">deleteAll</a></li><li data-type='method'><a href="Pouchy.html#deleteDB">deleteDB</a></li><li data-type='method'><a href="Pouchy.html#find">find</a></li><li data-type='method'><a href="Pouchy.html#getReplicationOptions">getReplicationOptions</a></li><li data-type='method'><a href="Pouchy.html#save">save</a></li><li data-type='method'><a href="Pouchy.html#update">update</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="global.html#event:hasLikelySynced">hasLikelySynced</a></li></ul>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Pouchy.html">Pouchy</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#add">add</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#all">all</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#bulkGet">bulkGet</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#clear">clear</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#createIndex">createIndex</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#createIndicies">createIndicies</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#delete">delete</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#deleteAll">deleteAll</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#deleteDB">deleteDB</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#destroy">destroy</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#find">find</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#get">get</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#getReplicationOptions">getReplicationOptions</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#save">save</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#update">update</a></span></li><li class="nav-heading">Events</li><li class="nav-heading"><span class="nav-item-type type-event">E</span><span class="nav-item-name"><a href="global.html#event:hasLikelySynced">hasLikelySynced</a></span></li>
 </nav>
 
 <div id="main">
@@ -104,6 +105,15 @@ customers.save({ firstName: 'bill', lastName: 'brasky' })
 <p>Yea, it's definitely subjective, but my team and i have answered that powerfully with a &quot;yes, definitely!&quot;</p>
 <p>Thanks! <a href="http://cdaringe.com/">cdaringe</a></p>
 <h1>changelog</h1><ul>
+<li>12.0.0<ul>
+<li>refactor all of the things!<ul>
+<li>better handle all <code>rev/id</code> ==&gt; <code>_rev/_id</code> mapping</li>
+<li><strong>if <code>rev</code> or <code>id</code> exist on docs returned from pouch exist, but no <code>_rev</code> or <code>_id</code> exist, that particular kv pair will be moved to the <code>_</code>-prefixed key and the non prefixed key will be removed</strong>.</li>
+</ul>
+</li>
+<li>more tests!</li>
+</ul>
+</li>
 <li>11.0.2<ul>
 <li>drop es6 content. es5 friendly-ify!</li>
 </ul>
@@ -162,7 +172,7 @@ customers.save({ firstName: 'bill', lastName: 'brasky' })
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> using the Minami theme.
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>
