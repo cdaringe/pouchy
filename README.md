@@ -73,6 +73,11 @@ Yea, it's definitely subjective, but my team and i have answered that powerfully
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
+- 12.0.0
+  - refactor all of the things!
+    - better handle all `rev/id` ==> `_rev/_id` mapping
+    - **if `rev` or `id` exist on docs returned from pouch exist, but no `_rev` or `_id` exist, that particular kv pair will be moved to the `_`-prefixed key and the non prefixed key will be removed**.
+  - more tests!
 - 11.0.2
   - drop es6 content. es5 friendly-ify!
 - 11.0.0

@@ -2,6 +2,12 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "node",
+      "request": "launch",
+      "name": "Test Node",
+      "program": "${workspaceRoot}/test/node/index.js"
+    },
+    {
       "name": "Launch",
       "type": "node",
       "request": "launch",

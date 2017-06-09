@@ -33,7 +33,6 @@ const config = {
 const pdbs = require('spawn-pouchdb-server')
 const cp = require('child_process')
 const cloneDeep = require('lodash/cloneDeep')
-const bluebird = require('bluebird')
 
 /**
  * @function diehard

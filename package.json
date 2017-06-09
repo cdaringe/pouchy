@@ -4,9 +4,9 @@
   "description": "A simple, opinionated interface for the amazing PouchDB",
   "main": "src/index.js",
   "scripts": {
-    "test": "yarn run test-node && yarn run test-browser",
-    "test-node": "nyc --reporter=lcov --check-coverage --functions=90 --branches=80 node test/node",
-    "test-browser": "browserify test/browser/index.js | tape-run",
+    "test": "run-p test:*",
+    "test:node": "BLUEBIRD_WARNINGS=0 nyc --reporter=lcov --check-coverage --functions=90 --branches=80 node test/node",
+    "test:browser": "browserify test/browser/index.js | tape-run",
     "lint": "standard \"src/**/*.js\" \"test/**/*.js\"",
     "preversion": "git checkout master && git pull",
     "docs": "mkdir -p docs && jsdoc -c .jsdoc.json src/",
@@ -15,7 +15,10 @@
     "publish-patch": "npm run preversion && npm version patch && git push origin master --tags && npm publish",
     "publish-minor": "npm run preversion && npm version minor && git push origin master --tags && npm publish",
     "publish-major": "npm run preversion && npm version major && git push origin master --tags && npm publish",
-    "lintfix": "standard-format -w"
+    "docs:build": "mkdir -p docs && jsdoc -c .jsdoc.json src/",
+    "docs:clean": "rm -rf docs *.html bundle.js",
+    "docs:deploy": "gh-pages -d docs",
+    "precommit": "run-s lint"
   },
   "repository": {
     "type": "git",
@@ -35,32 +38,38 @@
   "homepage": "https://github.com/cdaringe/pouchy#readme",
   "devDependencies": {
     "browserify": "^14.1.0",
-    "coveralls": "2.11.16",
-    "gh-pages": "0.12.0",
+    "coveralls": "^2.13.1",
+    "fs-extra": "^3.0.1",
+    "gh-pages": "^1.0.0",
+    "husky": "^0.13.4",
     "jsdoc": "3.4.3",
-    "minami": "1.1.1",
-    "nyc": "10.1.2",
+    "minami": "^1.2.3",
+    "npm-run-all": "^4.0.2",
+    "nyc": "^11.0.2",
     "perish": "1.0.1",
     "pouchdb-adapter-leveldb": "^6.0.5",
     "pouchdb-adapter-memory": "^6.0.5",
-    "shizam": "0.0.5",
+    "pouchdb-adapter-websql": "^6.1.2",
+    "run-p": "^0.0.0",
+    "run-s": "^0.0.0",
+    "shizam": "^0.0.12",
     "spawn-pouchdb-server": "^3.3.1",
-    "standard": "8.6.0",
+    "standard": "^10.0.2",
     "standard-format": "^2.2.4",
     "tape": "4.6.3",
-    "tape-run": "^2.2.1"
+    "tape-run": "^3.0.0"
   },
   "dependencies": {
-    "bluebird": "3.4.7",
+    "bluebird": "^3.5.0",
     "lodash": "^4.17.4",
     "path": "0.12.7",
     "pouchdb-adapter-http": "^6.0.5",
     "pouchdb-core": "^6.0.6",
-    "pouchdb-find": "^0.10.0",
+    "pouchdb-find": "^6.2.0",
     "pouchdb-replication": "^6.0.5",
     "url": "0.11.0"
   },
-  "pre-commit": [
-    "lint"
-  ]
+  "browser": {
+    "path": "./src/browser/path.js"
+  }
 }

@@ -1,22 +1,18 @@
 'use strict'
 
 var bluebird = require('bluebird')
+var path = require('path')
 var PouchDB = require('pouchdb-core')
 .plugin(require('pouchdb-adapter-http'))
 .plugin(require('pouchdb-find'))
 .plugin(require('pouchdb-replication'))
 PouchDB.utils = { promise: bluebird }
-var assign = require('lodash/assign')
-var defaults = require('lodash/defaults')
-var unique = require('lodash/uniq')
-var toArray = require('lodash/toArray')
-var get = require('lodash/get')
-var url = require('url')
-var path = require('path')
-var designDocRegex = new RegExp('^_design/')
-var couchUrlify = function (str) { return str.replace(/[^/a-z0-9_$()+-]/gi, '') }
+var privateMethods = require('./private')
+var publicMethods = require('./public')
 
-var MAX_SYNC_WAIT_TIMEOUT = 500
+var assign = require('lodash/assign')
+var isNil = require('lodash/isNil')
+var toArray = require('lodash/toArray')
 
 /**
  * @namespace
@@ -26,8 +22,9 @@ var MAX_SYNC_WAIT_TIMEOUT = 500
 
 /**
  * @event hasLikelySynced
- * @description if replicating, you may want to know post-initialization if your DB has finished
- * a first attempt of synchronization.  this is incredibly helpful if you need to
+ * @description if your database is replicating, you may want to know
+ * if your newly instantiated DB instance has finished a first attempt of
+ * synchronization.  this is incredibly helpful if you need to
  * wait for a full replication to finish, even if you are replicating in `live`
  * mode, in which case you will never receive a `complete` event!
  * make sure to `.syncEmitter.on('error', ...)` too when using this event.
@@ -53,507 +50,27 @@ var MAX_SYNC_WAIT_TIMEOUT = 500
  * @param {boolean} [opts.verbose] yak out text to console. note, this does _not_ enable PouchDB.debug.enable(...) verbosity.  Use Pouchy.PouchDB.debug to set that per your own desires!
  */
 function Pouchy (opts) {
-  if (!opts) throw new ReferenceError('db options required')
-  if (opts.verbose) this.verbose = true
-
-  var couchdbSafe = opts.couchdbSafe === undefined ? true : opts.couchdbSafe
-  var pathParts
-
-  if (!opts.name && !opts.url && !opts.conn) {
-    throw new ReferenceError('db name, url, or conn required to create or access pouchdb')
-  }
-  if (opts.url && opts.conn) {
-    throw new ReferenceError('provide only a `url` or `conn` option')
-  }
-
-  /* istanbul ignore next */
-  if (!this) { throw new ReferenceError('no `this` context.  did you forget `new`?') }
-
-  if (opts.url) {
-    this.url = opts.url
-  } else if (opts.conn) {
-    this.url = url.format(opts.conn)
-  }
-
-  // assert that url is safe for couchdb
-  if (this.url) {
-    pathParts = url.parse(this.url).pathname.split('/')
-    // assert db name
-    this.name = opts.name || pathParts[pathParts.length - 1]
-    if (couchdbSafe && this.name !== couchUrlify(this.name.toLowerCase())) {
-      throw new Error([
-        (this.url ? '`url`' : '`conn`'),
-        (this.url ? this.url : JSON.stringify(opts.conn)),
-        'may not be couchdb safe. couchdb safe url:',
-        couchUrlify(this.name.toLowerCase())
-      ].join(' '))
-    }
-  } else {
-    this.name = couchUrlify(opts.name).toLowerCase()
-    if (couchdbSafe && this.name !== opts.name) {
-      throw new Error([
-        'provided name', '"' + opts.name + '"',
-        'may not be couchdb safe. couchdb safe url:',
-        this.name
-      ].join(' '))
-    }
-  }
-
-  this.path = path.resolve(opts.path || '', this.name)
-  this.db = new PouchDB(
-    opts.name ? this.path : this.url,
-    opts.pouchConfig
-  )
-
+  this._validatePouchyOpts(opts)
+  this.isEnforcingCouchDbSafe = isNil(opts.couchdbSafe) ? true : opts.couchdbSafe
+  this.verbose = isNil(opts.verbose) ? false : opts.verbose
+  this.url = this._getUrlFromOpts(opts)
+  this.hasLocalDb = !!opts.name
+  this.name = this.hasLocalDb
+    ? this._setDbNameFromOpts(opts)
+    : this._setDbNameFromUri(this.url)
+  if (this.isEnforcingCouchDbSafe) this._validateDbName()
+  if (this.hasLocalDb) this.path = path.resolve(opts.path || '', this.name)
+  this.db = new PouchDB(opts.name ? this.path : this.url, opts.pouchConfig)
   if (opts.replicate) this._handleReplication(opts.replicate)
 }
 
-/** @lends Pouchy.prototype */
-var protoMethods = {
-  /**
-   * @private
-   */
-  _handleReplication: function (opts) {
-    var mode
-    var replOpts
-    /* istanbul ignore next */
-    if (!this.url) throw new ReferenceError('url or conn object required to replicate')
-    if (typeof opts === 'string') {
-      mode = opts
-      replOpts = { live: true, retry: true }
-    } else {
-      mode = Object.keys(opts)[0]
-      replOpts = opts[mode]
-    }
-    this._replicationOpts = replOpts
-    switch (mode) {
-      /* istanbul ignore next */
-      case 'out':
-        this.syncEmitter = this.db.replicate.to(this.url, replOpts)
-        break
-      /* istanbul ignore next */
-      case 'in':
-        this.syncEmitter = this.db.replicate.from(this.url, replOpts)
-        break
-      case 'sync':
-        this.syncEmitter = this.db.sync(this.url, replOpts)
-        break
-      default:
-        /* istanbul ignore next */
-        throw new Error([
-          "in/out replication direction must be specified, got '",
-          mode + "'"
-        ].join(' '))
-    }
-    this._bindEarlyEventDetectors(this.syncEmitter, replOpts)
-  },
-
-  /**
-   * expose replication options used on db sync!
-   * @returns {object} replication options used (if any) fed into pouchdb `.replicate(...)`
-   */
-  getReplicationOptions: function() {
-    return this._replicationOpts
-  },
-
-  /**
-   * @private
-   */
-  _bindEarlyEventDetectors: function (emitter, replOpts) {
-    /* istanbul ignore else */
-    if (replOpts.live) this._handleSyncLikelyComplete(emitter, replOpts)
-  },
-
-  /**
-   * @private
-   */
-  _handleSyncLikelyComplete: function (emitter) {
-    if (this.verbose) console.log('trying to sync', this.name)
-    var waitForSync;
-    var resetSyncWaitTime = function (evt, info) {
-      if (this.verbose) console.log(this.name, evt, info)
-      clearTimeout(maxSyncWait)
-      clearTimeout(waitForSync)
-      waitForSync = setTimeout(function () {
-        if (this.verbose) console.log(this.name, 'hasLikelySynced')
-        this._hasLikelySynced = true
-        emitter.emit('hasLikelySynced')
-        updateEmitters('removeListener')
-      }.bind(this), 150)
-    }.bind(this)
-    /* istanbul ignore next */
-    var updateEmitters = function (action) {
-      emitter[action]('complete', function (info) { resetSyncWaitTime('complete', info) })
-      emitter[action]('change', function (info) { resetSyncWaitTime('change', info) })
-      emitter[action]('active', function (info) { resetSyncWaitTime('active', info) })
-      emitter[action]('paused', function (info) { resetSyncWaitTime('paused', info) })
-    }
-
-    // set max wait time before moving on
-    var maxSyncWait = setTimeout(
-      function () {
-        /* istanbul ignore next */
-        if (waitForSync) return
-        resetSyncWaitTime('timeout', { timeout: MAX_SYNC_WAIT_TIMEOUT })
-      },
-      MAX_SYNC_WAIT_TIMEOUT
-    )
-    updateEmitters('addListener')
-  },
-
-  /**
-   * get all documents from db
-   * @example
-   * p.all().then((docs) => console.log(`total # of docs: ${docs.length}!`))
-   * p.all({ includeDesignDocs: true }).then(function(docs) {
-   *    console.log('this will include design docs as well');
-   * })
-   * @param {object} [opts] defaults to `include_docs: true`. In addition to the usual [PouchDB allDocs options](http://pouchdb.com/api.html#batch_fetch), you may also specify `includeDesignDocs: true` to have CouchDB design documents returned.
-   * @param {function} [cb]
-   * @returns {Promise} resolves to array of documents (excluding any design documents), vs an object with a `docs` array per Pouch allDocs default
-   */
-  all: function (opts, cb) {
-    if (typeof opts === 'function') {
-      cb = opts
-      opts = {}
-    }
-    opts = defaults(opts || {}, { include_docs: true })
-    return bluebird.resolve(this.db.allDocs(opts))
-      .then(function handleReceivedDocs (docs) {
-        return docs.rows.reduce(function (r, v) {
-          var doc = opts.include_docs ? v.doc : v
-          // rework doc format to always have id ==> _id
-          if (!opts.include_docs) {
-            doc._id = doc.id
-            doc._rev = doc.value.rev
-            delete doc.id
-            delete doc.value
-            delete doc.key
-          }
-          /* istanbul ignore next */
-          if (!opts.includeDesignDocs) r.push(doc)
-          else if (opts.includeDesignDocs && doc._id.match(designDocRegex)) r.push(doc)
-          return r
-        }, [])
-      })
-      .asCallback(cb)
-  },
-
-  /**
-   * add a document to the db.
-   * @see .save
-   * @example
-   * // with _id
-   * p.add({ _id: 'my-sauce', bbq: 'sauce' }).then(function(doc) {
-   *   console.log(doc._id, doc._rev, doc.bbq); // 'my-sauce', '1-a76...46c', 'sauce'
-   * });
-   *
-   * // no _id
-   * p.add({ peanut: 'butter' }).then(function(doc) {
-   *   console.log(doc._id, doc._rev, doc.peanut); // '66188...00BF885E', '1-0d74...7ac', 'butter'
-   * });
-   * @param {object} doc to add
-   * @param {function} [cb]
-   * @returns {Promise}
-   */
-  add: function () {
-    var cb
-    var args = toArray(arguments)
-    /* istanbul ignore next */
-    if (typeof args[args.length - 1] === 'function') {
-      cb = args.pop()
-    }
-    return bluebird.resolve(this.save.apply(this, args)).asCallback(cb)
-  },
-
-  /**
-   * The native bulkGet PouchDB API is not very user friendly.  In fact, it's down right wacky!  This method patches PouchDB's `bulkGet` and assumes that _all_ of your requested docs exist.  If they do not, it will error via the usual error control flows.
-   * @example
-   * // A good example of what you can expect is actually right out of the tests!
-   * let dummyDocs = [
-   *   { _id: 'a', data: 'a' },
-   *   { _id: 'b', data: 'b' }
-   * ]
-   * Promise.resolve()
-   * .then(() => p.save(dummyDocs[0])) // add our first doc to the db
-   * .then((doc) => (dummyDocs[0] = doc)) // update our closure doc it knows the _rev
-   * .then(() => p.save(dummyDocs[1]))
-   * .then((doc) => (dummyDocs[1] = doc))
-   * .then(() => {
-   *   // prepare bulkGet query (set of { _id, _rev}'s are required)
-   *   const toFetch = dummyDocs.map(dummy => ({
-   *     _id: dummy._id,
-   *     _rev: dummy._rev
-   *     // or you can provide .id, .rev
-   *   }))
-   *   p.bulkGet(toFetch)
-   *     .then((docs) => {
-   *       t.deepEqual(docs, dummyDocs, 'bulkGet returns sane results')
-   *       t.end()
-   *     })
-   * })
-   * @param {object|array} opts array of {_id, _rev}s, or { docs: [ ... } } where
-   *                            ... is an array of {_id, _rev}s
-   * @param {function} [cb]
-   */
-  bulkGet: function (opts, cb) {
-    /* istanbul ignore else */
-    if (Array.isArray(opts)) opts = { docs: opts }
-    opts.docs = opts.docs.map(function (doc) {
-      // because PouchDB can't make up it's mind, we need
-      // to map back to id and rev here
-      var nDoc = assign({}, doc)
-      /* istanbul ignore else */
-      if (nDoc._id) nDoc.id = nDoc._id
-      /* istanbul ignore else */
-      if (nDoc._rev) nDoc.rev = nDoc._rev
-      delete nDoc._rev
-      delete nDoc._id
-      return nDoc
-    })
-    if (!opts.docs.length) return bluebird.resolve([]).asCallback(cb)
-    return bluebird.resolve(this.db.bulkGet(opts))
-    .then(function (r) {
-      return r.results.map(function (docGroup) {
-        var doc = get(docGroup, 'docs[0].ok')
-        if (!doc) {
-          throw new ReferenceError('doc ' + docGroup.id + 'not found')
-        }
-        return doc
-      })
-    })
-    .asCallback(cb)
-  },
-
-  /**
-   * easy way to create a db index.
-   * @see createIndicies
-   * @example
-   * p.createIndex('myIndex')
-   * @param {function} [cb]
-   * @returns {Promise}
-   */
-  createIndex: function () {
-    /* istanbul ignore next */
-    var cb
-    /* istanbul ignore next */
-    var args = toArray(arguments)
-    /* istanbul ignore next */
-    if (typeof args[args.length - 1] === 'function') {
-      cb = args.pop()
-    }
-    /* istanbul ignore next */
-    return this.createIndicies.apply(this, args).asCallback(cb)
-  },
-
-  /**
-   * allow single or bulk creation of indicies. also, doesn't flip out if you've
-   * already set an index.
-   * @example
-   * p.createIndicies('test')
-   * .then((indexResults) => console.dir(indexResults));
-   * // ==>
-   * /*
-   * [{
-   *     id: "_design/idx-28933dfe7bc072c94e2646126133dc0d"
-   *     name: "idx-28933dfe7bc072c94e2646126133dc0d"
-   *     result: "created"
-   * }]
-   * @param {array|string} indices 'an-index' or ['some', 'indicies']
-   * @param {function} cb
-   * @returns {Promise} resolves with index meta.  see `pouchy.createIndex`
-   */
-  createIndicies: function (indicies, cb) {
-    indicies = Array.isArray(indicies) ? indicies : [indicies]
-    return bluebird.resolve()
-      .then(function _createIndicies () {
-        return this.db.createIndex({
-          index: { fields: unique(indicies) }
-        })
-      }.bind(this))
-      /* istanbul ignore next */
-      .catch(function handleFailCreateIndicies (err) { if (err.status !== 409) throw err })
-      .asCallback(cb)
-  },
-
-  /**
-   * @see deleteAll
-   * @param {function} [cb]
-   * @returns {Promise}
-   */
-  clear: function () {
-    var cb
-    var args = toArray(arguments)
-    /* istanbul ignore next */
-    if (typeof args[args.length - 1] === 'function') {
-      cb = args.pop()
-    }
-    return this.deleteAll.apply(this, args).asCallback(cb)
-  },
-
-  /**
-   * delete a document.
-   * @example
-   * // same as pouch.remove
-   * p.delete(doc).then(() => { console.dir(arguments); });
-   * // ==>
-   * {
-   *     id: "test-doc-1"
-   *     ok: true
-   *     rev: "2-5cf6a4725ed4b9398d609fc8d7af2553"
-   * }
-   * @param {object} doc
-   * @param {object} [opts] pouchdb.remove opts
-   * @param {function} [cb]
-   * @returns {Promise}
-   */
-  delete: function (doc, opts, cb) {
-    /* istanbul ignore next */
-    if (typeof opts === 'function') {
-      cb = opts
-      opts = {}
-    }
-    return bluebird.resolve(this.db.remove(doc, opts)).asCallback(cb)
-  },
-
-  /**
-   * clears the db of documents. under the hood, `_deleted` flags are added to docs
-   * @param {function} [cb]
-   * @returns {Promise}
-   */
-  deleteAll: function (cb) {
-    return this.all()
-      .then(function deleteEach (docs) {
-        docs = docs.map(function (doc) { return this.delete(doc) }.bind(this))
-        return Promise.all(docs)
-      }.bind(this))
-      .asCallback(cb)
-  },
-
-  /**
-   * @see pouchdb.destroy
-   * @param {function} [cb]
-   * @returns {Promise}
-   */
-  deleteDB: function (cb) {
-    /* istanbul ignore next */
-    return bluebird.resolve(this.db.destroy()).asCallback(cb)
-  },
-
-  /**
-   * proxies to pouchdb.destroy, but does internal tidy first
-   * @private
-   * @returns {Promise}
-   */
-  destroy: function () {
-    var chain = bluebird.resolve()
-    var args = toArray(arguments)
-    var cb
-    /* istanbul ignore next */
-    if (typeof args[args.length - 1] === 'function') {
-      cb = args.pop()
-    }
-    /* istanbul ignore else */
-    if (this.syncEmitter) {
-      if (this._replicationOpts && this._replicationOpts.live) {
-        // early bind the `complete` event listener.  careful not to bind it
-        // inside the .then, otherwise binding happens at the end of the event
-        // loop, which is too late! `.cancel` is a sync call!
-        var isCompleteP = new Promise(function waitForLiveSyncComplete(resolve) {
-          this.syncEmitter.on('complete', resolve)
-        }.bind(this))
-        chain = chain.then(isCompleteP)
-      }
-      this.syncEmitter.cancel() // will trigger complete event per
-    }
-    chain = chain.then(function bbPouchyDestroy() {
-      var pDestroyed = this.db.destroy.apply(this.db, args)
-      return bluebird.resolve(pDestroyed)
-    }.bind(this))
-    if (cb) chain.asCallback(cb)
-    return chain
-  },
-
-  /**
-   * normal pouchdb.find, but returns simple set of results
-   * @param {object} opts find query opts
-   * @param {function} [cb]
-   * @returns {Promise}
-   */
-  find: function (opts, cb) {
-    return bluebird.resolve()
-    .then(function _find () { return this.db.find(opts) }.bind(this))
-    .then(function returnDocsArray (rslt) { return rslt.docs })
-    .asCallback(cb)
-  },
-
-  /**
-   * update a document, and get your sensibly updated doc in return.
-   * @example
-   * p.update({ _id: 'my-doc', _rev: '1-abc123' })
-   * .then((doc) => console.log(doc))
-   * // ==>
-   * {
-   * 	 _id: 'my-doc',
-   * 	 _rev: '2-abc234'
-   * }
-   * @param {object} doc
-   * @param {function} [cb]
-   * @returns {Promise}
-   */
-  update: function (doc, cb) {
-    // http://pouchdb.com/api.html#create_document
-    // db.put(doc, [docId], [docRev], [options], [callback])
-    return bluebird.resolve(this.db.put(doc)).then(function (meta) {
-      doc._id = meta.id
-      doc._rev = meta.rev
-      return doc
-    })
-    .asCallback(cb)
-  },
-
-  /**
-   * Adds or updates a document.  If `_id` is set, a `put` is performed (basic add operation). If no `_id` present, a `post` is performed, in which the doc is added, and large-random-string is assigned as `_id`.
-   * @example
-   * p.save({ beep: 'bop' }).then((doc) => console.log(doc))
-   * // ==>
-   * {
-   *   _id: 'AFEALJW-234LKJASDF-2A;LKFJDA',
-   *   _rev: '1-asdblkue242kjsa0f',
-   *   beep: 'bop'
-   * }
-   * @param {object} doc
-   * @param {object} [opts] `pouch.put/post` options
-   * @param {function} [cb]
-   * @returns {Promise} resolves w/ doc, with updated `_id` and `_rev` properties
-   */
-  save: function (doc, opts, cb) {
-    if (typeof opts === 'function') {
-      cb = opts
-      opts = {}
-    }
-    // http://pouchdb.com/api.html#create_document
-    // db.post(doc, [docId], [docRev], [options], [callback])
-    var method = doc.hasOwnProperty('_id') && (doc._id || doc._id === 0) ? 'put' : 'post'
-    return bluebird.resolve(this.db[method](doc))
-      .then(function (meta) {
-        delete meta.status
-        doc._id = meta.id
-        doc._rev = meta.rev
-        return doc
-      })
-      .asCallback(cb)
-  }
-
-}
-assign(Pouchy.prototype, protoMethods)
+assign(Pouchy.prototype, privateMethods, publicMethods)
 
 // proxy pouch methods, and pouch-find methods
 var pouchInstanceMethods = [
   // proxy pouch instance methods
   'put',
   'post',
-  'get',
   'remove',
   'bulkDocs',
   'allDocs',
@@ -584,13 +101,12 @@ var pouchConstructorMethods = [
 /**
  * @private
  */
+/* istanbul ignore next */
 var proxyInstanceMethods = function (method) {
-   /* istanbul ignore next */
   if (Pouchy.prototype[method]) { return }
   Pouchy.prototype[method] = function () {
-    var cb
     var args = toArray(arguments)
-    /* istanbul ignore next */
+    var cb
     if (typeof args[args.length - 1] === 'function') cb = args.pop()
     var val = this.db[method].apply(this.db, args)
     var rtn
@@ -599,7 +115,6 @@ var proxyInstanceMethods = function (method) {
       if (cb) rtn.asCallback(cb)
       return rtn
     }
-    /* istanbul ignore next */
     return val
   }
 }
