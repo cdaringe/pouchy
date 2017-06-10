@@ -4,7 +4,7 @@
   "description": "A simple, opinionated interface for the amazing PouchDB",
   "main": "src/index.js",
   "scripts": {
-    "test": "run-p test:*",
+    "test": "npm-run-all -p test:*",
     "test:node": "BLUEBIRD_WARNINGS=0 nyc --reporter=lcov --check-coverage --functions=90 --branches=80 node test/node",
     "test:browser": "browserify test/browser/index.js | tape-run",
     "lint": "standard \"src/**/*.js\" \"test/**/*.js\"",
@@ -52,8 +52,6 @@
     "pouchdb-adapter-leveldb": "^6.0.5",
     "pouchdb-adapter-memory": "^6.0.5",
     "pouchdb-adapter-websql": "^6.1.2",
-    "run-p": "^0.0.0",
-    "run-s": "^0.0.0",
     "snyk": "^1.30.1",
     "spawn-pouchdb-server": "^3.3.1",
     "standard": "^10.0.2",
