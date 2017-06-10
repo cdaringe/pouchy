@@ -6,7 +6,7 @@
 
 ## what
 
-simple [PouchDB](https://github.com/pouchdb/pouchdb) wrapper, equipped with a few useful sugar methods.  Most methods provided are _very_ simple PouchDB-native method modifiers, but are targeted to save you frequent boilerplate re-typing!  This library also proxies most of the PouchDB API directly, so you can use it like a Pouch itself!
+simple, enhanced [PouchDB](https://github.com/pouchdb/pouchdb).  `Pouchy` wraps & extends `PouchDB` and provides various sorely needed sugar methods.  further, it assists by standardizing the returned document format.  most methods provided are _very_ simple PouchDB-native method modifiers, but are targeted to save you frequent boilerplate re-typing!  this library also proxies most of the PouchDB API directly, so you can use it like a Pouch itself!
 
 ## how
 
@@ -22,8 +22,8 @@ Pouchy.plugin(level)
 
 const fruit = new Pouchy({ name: 'fruit' })
 fruit
-  .save({ type: 'orange', tastes: 'delicious' })
-  .then((orange) => console.log(orange))
+.save({ type: 'orange', tastes: 'delicious' })
+.then((orange) => console.log(orange))
 
 /**
   {

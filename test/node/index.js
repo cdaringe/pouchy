@@ -127,7 +127,6 @@ test('sync', t => {
   })
 })
 
-
 test('prefers db folder named after opts.name vs url /pathname', t => {
   var name = 'test_db'
   var opts = {

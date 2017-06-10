@@ -10,7 +10,7 @@ var MAX_SYNC_WAIT_TIMEOUT = 500
 /** @lends Pouchy.prototype */
 module.exports = {
   _validatePouchyOpts: function _validatePouchyOpts (opts) {
-    if (!opts || !opts.name && !opts.url && !opts.conn) {
+    if (!opts || (!opts.name && (!opts.url && !opts.conn))) {
       throw new ReferenceError([
         'missing pouchy database paramters.  please see: ' + POUCHY_API_DOCS_URI + '\n',
         '\tif you are creating a local database (browser or node), provide a `name` key.\n',
@@ -62,7 +62,7 @@ module.exports = {
     this._bindEarlyEventDetectors(this.syncEmitter, replOpts)
   },
 
-  _getUrlFromOpts (opts) {
+  _getUrlFromOpts: function _getUrlFromOpts (opts) {
     if (!isNil(opts.url)) return opts.url
     if (!isNil(opts.conn)) return url.format(opts.conn)
     return null
