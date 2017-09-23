@@ -6,7 +6,11 @@
 
 ## what
 
-simple, enhanced [PouchDB](https://github.com/pouchdb/pouchdb).  `Pouchy` wraps & extends `PouchDB` and provides various sorely needed sugar methods.  further, it assists by standardizing the returned document format.  most methods provided are _very_ simple PouchDB-native method modifiers, but are targeted to save you frequent boilerplate re-typing!  this library also proxies most of the PouchDB API directly, so you can use it like a Pouch itself!
+> [_"Pouchy is the sugar API for PouchDB that I've been hoping someone would write"_](https://twitter.com/nolanlawson/status/647224028529299456)
+> @nolanlawson
+
+
+simple, enhanced [PouchDB](https://github.com/pouchdb/pouchdb).  `Pouchy` wraps & extends `PouchDB` and provides various sorely needed sugar methods.  further, it assists by standardizing the returned document format.  most methods provided are _very_ simple PouchDB-native method modifiers, but are targeted to save you frequent boilerplate re-typing!  this library also proxies the PouchDB API directly, so you can use it like a PouchDB instance itself!
 
 ## how
 
