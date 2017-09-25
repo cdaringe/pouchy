@@ -190,7 +190,7 @@ var publicMethods = {
    * @returns {Promise}
    */
   delete: function (doc, opts) {
-    return this.db.remove(doc, opts)
+    return this.db.remove(doc, opts || {}) // https://github.com/pouchdb/pouchdb/pull/6766
   },
 
   /**
