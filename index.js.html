@@ -43,10 +43,15 @@
 
 var bluebird = require('bluebird')
 var path = require('path')
-var PouchDB = require('pouchdb-core')
-.plugin(require('pouchdb-adapter-http'))
-.plugin(require('pouchdb-find'))
-.plugin(require('pouchdb-replication'))
+var adapterHttp = require('pouchdb-adapter-http')
+var adapterFind = require('pouchdb-find')
+var adapterReplication = require('pouchdb-replication')
+var PouchDbCore = require('pouchdb-core')
+var PouchDB = PouchDbCore.default || PouchDbCore
+PouchDB
+.plugin(adapterHttp.default || adapterHttp)
+.plugin(adapterFind.default || adapterFind)
+.plugin(adapterReplication.default || adapterReplication)
 PouchDB.utils = { promise: bluebird }
 var privateMethods = require('./private')
 var publicMethods = require('./public')
