@@ -6,3 +6,6 @@ patch:
   'npm:ms:20170412':
     - pouchdb-core > pouchdb-debug > debug > ms:
         patched: '2017-05-26T00:54:04.749Z'
+  'npm:debug:20170905':
+    - pouchdb-core > pouchdb-debug > debug:
+        patched: '2017-09-29T00:54:07.800Z'
