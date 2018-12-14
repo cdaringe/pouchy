@@ -57,9 +57,9 @@
   },
   "dependencies": {
     "bluebird": "3.5.0",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.5",
     "path": "0.12.7",
-    "pouchdb-adapter-http": "^6.3.4",
+    "pouchdb-adapter-http": "^6.4.2",
     "pouchdb-core": "^6.3.4",
     "pouchdb-find": "^6.3.4",
     "pouchdb-replication": "^6.3.4",
