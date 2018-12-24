@@ -86,8 +86,7 @@ var publicMethods = {
    */
   all: function (opts, cb) {
     opts = defaults(opts || {}, { include_docs: true })
-    return this.db.allDocs(opts)
-    .then(function handleReceivedDocs (docs) {
+    return this.db.allDocs(opts).then(function handleReceivedDocs (docs) {
       return docs.rows.reduce(function simplifyAllDocSet (r, v) {
         var doc = opts.include_docs ? v.doc : v
         // rework doc format to always have id ==> _id
@@ -100,7 +99,9 @@ var publicMethods = {
         }
         /* istanbul ignore next */
         if (!opts.includeDesignDocs) r.push(doc)
-        else if (opts.includeDesignDocs &amp;&amp; doc._id.match(designDocRegex)) r.push(doc)
+        else if (opts.includeDesignDocs &amp;&amp; doc._id.match(designDocRegex)) {
+          r.push(doc)
+        }
         return r
       }, [])
     })
@@ -142,7 +143,9 @@ var publicMethods = {
     if (!opts) throw new Error('missing bulkGet opts')
     if (Array.isArray(opts)) opts = { docs: opts }
     if (!Array.isArray(opts.docs)) {
-      throw new Error('bulkGet requires array of doc filters. please see couchdb bulkGet')
+      throw new Error(
+        'bulkGet requires array of doc filters. please see couchdb bulkGet'
+      )
     }
     opts.docs = opts.docs.map(function remapIdRev (doc) {
       // we need to map back to id and rev here
@@ -155,8 +158,7 @@ var publicMethods = {
       return doc
     })
     if (!opts.docs.length) return Promise.resolve([])
-    return this.db.bulkGet(opts)
-    .then(function mapBulkGetResultsToRoot (r) {
+    return this.db.bulkGet(opts).then(function mapBulkGetResultsToRoot (r) {
       return r.results.map(function tidyBulkGetDocs (docGroup) {
         var doc = get(docGroup, 'docs[0].ok')
         if (!doc) throw new ReferenceError('doc ' + docGroup.id + 'not found')
@@ -197,12 +199,15 @@ var publicMethods = {
    */
   createIndicies: function (indicies) {
     indicies = Array.isArray(indicies) ? indicies : [indicies]
-    return this.db.createIndex({ index: { fields: unique(indicies) } })
-    /* istanbul ignore next */
-    .catch(function handleFailCreateIndicies (err) {
-      /* istanbul ignore next */
-      if (err.status !== 409) throw err
-    })
+    return (
+      this.db
+        .createIndex({ index: { fields: unique(indicies) } })
+        /* istanbul ignore next */
+        .catch(function handleFailCreateIndicies (err) {
+          /* istanbul ignore next */
+          if (err.status !== 409) throw err
+        })
+    )
   },
 
   /**
@@ -240,9 +245,10 @@ var publicMethods = {
    * @returns {Promise}
    */
   deleteAll: function (cb) {
-    var deleteSingleDoc = function deleteSingleDoc (doc) { return this.delete(doc) }.bind(this)
-    return this.all()
-    .then(function deleteEach (docs) {
+    var deleteSingleDoc = function deleteSingleDoc (doc) {
+      return this.delete(doc)
+    }.bind(this)
+    return this.all().then(function deleteEach (docs) {
       return Promise.all(docs.map(deleteSingleDoc))
     })
   },
@@ -270,16 +276,20 @@ var publicMethods = {
         // early bind the `complete` event listener.  careful not to bind it
         // inside the .then, otherwise binding happens at the end of the event
         // loop, which is too late! `.cancel` is a sync call!
-        var isCompleteP = new Promise(function waitForLiveSyncComplete (resolve) {
-          this.syncEmitter.on('complete', resolve)
-        }.bind(this))
+        var isCompleteP = new Promise(
+          function waitForLiveSyncComplete (resolve) {
+            this.syncEmitter.on('complete', resolve)
+          }.bind(this)
+        )
         chain = chain.then(isCompleteP)
       }
       this.syncEmitter.cancel() // will trigger complete event per
     }
-    chain = chain.then(function bbPouchyDestroy () {
-      return this.db.destroy.apply(this.db, arguments)
-    }.bind(this))
+    chain = chain.then(
+      function bbPouchyDestroy () {
+        return this.db.destroy.apply(this.db, arguments)
+      }.bind(this)
+    )
     return chain
   },
 
@@ -290,8 +300,9 @@ var publicMethods = {
    * @returns {Promise}
    */
   find: function _find (opts, cb) {
-    return this.db.find(opts)
-    .then(function returnDocsArray (rslt) { return rslt.docs })
+    return this.db.find(opts).then(function returnDocsArray (rslt) {
+      return rslt.docs
+    })
   },
 
   /**
@@ -322,8 +333,7 @@ var publicMethods = {
   update: function (doc, cb) {
     // http://pouchdb.com/api.html#create_document
     // db.put(doc, [docId], [docRev], [options], [callback])
-    return this.db.put(doc)
-    .then(function (meta) {
+    return this.db.put(doc).then(function (meta) {
       doc._id = meta.id
       doc._rev = meta.rev
       return doc
@@ -349,14 +359,14 @@ var publicMethods = {
     // http://pouchdb.com/api.html#create_document
     // db.post(doc, [docId], [docRev], [options], [callback])
     /* istanbul ignore next */
-    var method = doc.hasOwnProperty('_id') &amp;&amp; (doc._id || doc._id === 0) ? 'put' : 'post'
-    return this.db[method](doc)
-      .then(function tidySaveResults (meta) {
-        delete meta.status
-        doc._id = meta.id
-        doc._rev = meta.rev
-        return doc
-      })
+    var method =
+      doc.hasOwnProperty('_id') &amp;&amp; (doc._id || doc._id === 0) ? 'put' : 'post'
+    return this.db[method](doc).then(function tidySaveResults (meta) {
+      delete meta.status
+      doc._id = meta.id
+      doc._rev = meta.rev
+      return doc
+    })
   }
 }
 
@@ -366,8 +376,8 @@ function publicMethodFactory (method) {
     var cb
     if (typeof args[args.length - 1] === 'function') cb = args.pop()
     var res = bluebird
-    .resolve(publicMethods[method].apply(this, args))
-    .then(res => toUnderscorePrefix(res))
+      .resolve(publicMethods[method].apply(this, args))
+      .then(res => toUnderscorePrefix(res))
     return cb ? res.asCallback(cb) : res
   }
 }
