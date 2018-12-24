@@ -10,11 +10,11 @@
 
 simple, enhanced [PouchDB](https://github.com/pouchdb/pouchdb).  `Pouchy` wraps & extends `PouchDB` and provides various sorely needed sugar methods.  further, it assists by standardizing the returned document format.  most methods provided are _very_ simple PouchDB-native method modifiers, but are targeted to save you frequent boilerplate re-typing!  this library also proxies the PouchDB API directly, so you can use it like a PouchDB instance itself!
 
-## how
+## usage
 
-api docs and examples officially live [here!](http://cdaringe.github.io/pouchy/)
+api docs and examples officially live [here](http://cdaringe.github.io/pouchy/).
 
-however, here are some basic examples:
+here are some basic examples:
 
 ```js
 // local, node database
@@ -23,9 +23,8 @@ const level = require('pouchdb-adapter-leveldb')
 Pouchy.plugin(level)
 
 const fruit = new Pouchy({ name: 'fruit' })
-fruit
-.save({ type: 'orange', tastes: 'delicious' })
-.then((orange) => console.log(orange))
+const orange = await fruit.save({ type: 'orange', tastes: 'delicious' })
+console.log(orange)
 
 /**
   {
@@ -75,6 +74,8 @@ Yea, it's definitely subjective, but my team and i have answered that powerfully
 Thanks! [cdaringe](http://cdaringe.com/)
 
 # changelog
+
+- 12.3.+ - switched to semantic-release. please view the "Releases" GitHub tab
 - 12.0.0
   - refactor all of the things!
     - better handle all `rev/id` ==> `_rev/_id` mapping
