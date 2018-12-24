@@ -39,16 +39,17 @@ const cloneDeep = require('lodash/cloneDeep')
  * @description handle setup/teardown errors mercilessly.  kill the process
  * and abandon tests
  */
-const diehard = (err) => {
+const diehard = err => {
   console.error(err.message)
   console.error(err.stack)
   process.exit(1)
 }
 
 module.exports = {
-
   dbURL: function (dbname) {
-    if (!dbname) { throw new ReferenceError('dbname required') }
+    if (!dbname) {
+      throw new ReferenceError('dbname required')
+    }
     return url.format({
       protocol: 'http',
       hostname: 'localhost',
@@ -66,7 +67,9 @@ module.exports = {
   setup: function () {
     return new Promise((resolve, reject) => {
       try {
-        cp.execSync(`lsof -i :${config.port} | awk 'NR!=1 {print $2}' | xargs kill`)
+        cp.execSync(
+          `lsof -i :${config.port} | awk 'NR!=1 {print $2}' | xargs kill`
+        )
       } catch (err) {
         // return rej(err) // permit failure
       }
@@ -74,7 +77,9 @@ module.exports = {
       // spawn-pouchdb-server mutates user input >:(
       // https://github.com/hoodiehq/spawn-pouchdb-server/pull/33
       pdbs(cloneDeep(config), (err, srv) => {
-        if (err) { diehard(err) }
+        if (err) {
+          diehard(err)
+        }
         this.server = srv
         return resolve(srv)
       })
@@ -83,8 +88,10 @@ module.exports = {
 
   teardown: function () {
     return new Promise((resolve, reject) => {
-      return this.server.stop((err) => {
-        if (err) { diehard(err.message) }
+      return this.server.stop(err => {
+        if (err) {
+          diehard(err.message)
+        }
         return resolve()
       })
     })
