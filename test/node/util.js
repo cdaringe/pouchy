@@ -7,9 +7,9 @@ var fs = require('fs-extra')
 
 // load node test plugins
 bb.config({ warnings: false })
-Pouchy.PouchDB
-.plugin(require('pouchdb-adapter-leveldb'))
-.plugin(require('pouchdb-adapter-memory'))
+Pouchy.PouchDB.plugin(require('pouchdb-adapter-leveldb')).plugin(
+  require('pouchdb-adapter-memory')
+)
 
 var util = {
   factory (opts) {
@@ -24,10 +24,11 @@ var util = {
     return this.mkdir(dir).then(() => fs.remove(dir))
   },
   setup () {
-    return this.rmrf(this.testDir)
-    .then(() => this.mkdir(this.testDir))
+    return this.rmrf(this.testDir).then(() => this.mkdir(this.testDir))
   },
-  teardown () { return this.rmrf(this.testDir) },
+  teardown () {
+    return this.rmrf(this.testDir)
+  },
   testDir: path.join(__dirname, './_test-db-dir')
 }
 

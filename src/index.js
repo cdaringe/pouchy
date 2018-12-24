@@ -7,10 +7,9 @@ var adapterFind = require('pouchdb-find')
 var adapterReplication = require('pouchdb-replication')
 var PouchDbCore = require('pouchdb-core')
 var PouchDB = PouchDbCore.default || PouchDbCore
-PouchDB
-.plugin(adapterHttp.default || adapterHttp)
-.plugin(adapterFind.default || adapterFind)
-.plugin(adapterReplication.default || adapterReplication)
+PouchDB.plugin(adapterHttp.default || adapterHttp)
+  .plugin(adapterFind.default || adapterFind)
+  .plugin(adapterReplication.default || adapterReplication)
 PouchDB.utils = { promise: bluebird }
 var privateMethods = require('./private')
 var publicMethods = require('./public')
@@ -56,7 +55,9 @@ var toArray = require('lodash/toArray')
  */
 function Pouchy (opts) {
   this._validatePouchyOpts(opts)
-  this.isEnforcingCouchDbSafe = isNil(opts.couchdbSafe) ? true : opts.couchdbSafe
+  this.isEnforcingCouchDbSafe = isNil(opts.couchdbSafe)
+    ? true
+    : opts.couchdbSafe
   this.verbose = isNil(opts.verbose) ? false : opts.verbose
   this.url = this._getUrlFromOpts(opts)
   this.hasLocalDb = !!opts.name
@@ -94,21 +95,19 @@ var pouchInstanceMethods = [
   // 'createIndex' => see methods above
   'getIndexes',
   'deleteIndex'
-// 'find' => see methods above
+  // 'find' => see methods above
 ]
 
-var pouchConstructorMethods = [
-  'debug',
-  'defaults',
-  'plugin'
-]
+var pouchConstructorMethods = ['debug', 'defaults', 'plugin']
 
 /**
  * @private
  */
 /* istanbul ignore next */
 var proxyInstanceMethods = function (method) {
-  if (Pouchy.prototype[method]) { return }
+  if (Pouchy.prototype[method]) {
+    return
+  }
   Pouchy.prototype[method] = function () {
     var args = toArray(arguments)
     var cb
@@ -129,8 +128,10 @@ pouchInstanceMethods.forEach(proxyInstanceMethods)
  * @private
  */
 var proxyConstructorMethods = function (method) {
-   /* istanbul ignore next */
-  if (Pouchy[method]) { return }
+  /* istanbul ignore next */
+  if (Pouchy[method]) {
+    return
+  }
   Pouchy[method] = function proxyConstructorMethod () {
     return PouchDB[method].apply(PouchDB, arguments)
   }

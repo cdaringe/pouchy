@@ -15,6 +15,6 @@ module.exports = {
   'serve_files_ignore': [],
   'before_tests': 'node scripts/bundle.js',
   'after_tests': 'rm -f bundle.js .source.*html',
-  'launch_in_dev': ['Node', 'PhantomJS'],
-  'launch_in_ci': ['Node', 'PhantomJS', 'Chrome']
+  'launch_in_dev': ['Node'],
+  'launch_in_ci': ['Node', 'Chrome']
 }

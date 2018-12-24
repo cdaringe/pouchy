@@ -4,21 +4,21 @@
   "description": "A simple, opinionated interface for the amazing PouchDB",
   "main": "src/index.js",
   "scripts": {
-    "test": "npm-run-all -p test:*",
-    "test:node": "BLUEBIRD_WARNINGS=0 nyc --reporter=lcov --check-coverage --functions=90 --branches=80 node test/node",
-    "test:browser": "testem ci -P 10",
-    "lint": "standard \"src/**/*.js\" \"test/**/*.js\"",
-    "preversion": "git checkout master && git pull",
-    "postpublish": "run-s docs:build docs:publish docs:clean",
-    "publish-patch": "npm run preversion && npm version patch && git push origin master --tags && npm publish",
-    "publish-minor": "npm run preversion && npm version minor && git push origin master --tags && npm publish",
-    "publish-major": "npm run preversion && npm version major && git push origin master --tags && npm publish",
     "docs:build": "jsdock build",
     "docs:clean": "jsdock clean",
     "docs:publish": "jsdock publish",
-    "precommit": "run-s lint",
+    "format": "prettier-standard '{src,test,scripts}/**/*.{js,jsx,ts,tsx}'",
+    "lint": "standard",
+    "postpublish": "run-s docs:build docs:publish docs:clean",
+    "prepublish": "npm run snyk-protect",
+    "preversion": "git checkout master && git pull",
+    "publish-major": "npm run preversion && npm version major && git push origin master --tags && npm publish",
+    "publish-minor": "npm run preversion && npm version minor && git push origin master --tags && npm publish",
+    "publish-patch": "npm run preversion && npm version patch && git push origin master --tags && npm publish",
     "snyk-protect": "snyk protect",
-    "prepublish": "npm run snyk-protect"
+    "test:browser": "testem ci -P 10",
+    "test:node": "BLUEBIRD_WARNINGS=0 nyc --reporter=lcov --check-coverage --functions=90 --branches=80 node test/node",
+    "test": "npm-run-all -p test:*"
   },
   "repository": {
     "type": "git",
@@ -37,19 +37,22 @@
   },
   "homepage": "https://github.com/cdaringe/pouchy#readme",
   "devDependencies": {
-    "babel-preset-es2015": "^6.24.1",
+    "@babel/core": "^7.2.2",
+    "babel-preset-env": "^1.7.0",
     "babelify": "^10.0.0",
     "browserify": "^16.2.3",
     "coveralls": "3.0.2",
     "fs-extra": "^7.0.1",
-    "husky": "1.2.1",
+    "husky": "^1.2.1",
     "jsdock": "^1.0.3",
+    "lint-staged": "^8.1.0",
     "npm-run-all": "^4.0.2",
     "nyc": "^13.1.0",
     "perish": "1.0.2",
     "pouchdb-adapter-leveldb": "^7.0.0",
     "pouchdb-adapter-memory": "^7.0.0",
     "pouchdb-adapter-websql": "^7.0.0",
+    "prettier-standard": "^8.0.1",
     "spawn-pouchdb-server": "^3.3.1",
     "standard": "^12.0.1",
     "tape": "4.9.1",
@@ -63,12 +66,26 @@
     "pouchdb-core": "^7.0.0",
     "pouchdb-find": "^7.0.0",
     "pouchdb-replication": "^7.0.0",
-    "url": "0.11.0",
-    "snyk": "^1.41.1"
+    "snyk": "^1.41.1",
+    "url": "0.11.0"
   },
   "browser": {
     "perish": "./src/browser/perish.js",
     "path": "./src/browser/path.js"
   },
-  "snyk": true
+  "snyk": true,
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "linters": {
+      "{src,test,scripts}/**/*.{js,jsx,ts,tsx}": [
+        "yarn lint",
+        "yarn format",
+        "git add"
+      ]
+    }
+  }
 }
