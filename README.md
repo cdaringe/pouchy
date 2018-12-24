@@ -1,13 +1,11 @@
 # pouchy
 
-[ ![Codeship Status for cdaringe/pouchy](https://codeship.com/projects/723a9160-4203-0133-3599-062894ba1566/status?branch=master)](https://codeship.com/projects/103658) [![Coverage Status](https://coveralls.io/repos/github/cdaringe/pouchy/badge.svg?branch=master)](https://coveralls.io/github/cdaringe/pouchy?branch=master)
-
-[![NPM](https://nodei.co/npm/pouchy.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/pouchy/) [![Greenkeeper badge](https://badges.greenkeeper.io/cdaringe/pouchy.svg)](https://greenkeeper.io/)
-
-## what
-
 > [_"Pouchy is the sugar API for PouchDB that I've been hoping someone would write"_](https://twitter.com/nolanlawson/status/647224028529299456)
 > @nolanlawson
+
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release) [![Greenkeeper badge](https://badges.greenkeeper.io/cdaringe/pouchy.svg)](https://greenkeeper.io/) [![CircleCI](https://circleci.com/gh/cdaringe/pouchy.svg?style=svg)](https://circleci.com/gh/cdaringe/pouchy) [![Coverage Status](https://coveralls.io/repos/github/cdaringe/pouchy/badge.svg?branch=master)](https://coveralls.io/github/cdaringe/pouchy?branch=master)
+
+[![NPM](https://nodei.co/npm/pouchy.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/pouchy/)
 
 
 simple, enhanced [PouchDB](https://github.com/pouchdb/pouchdb).  `Pouchy` wraps & extends `PouchDB` and provides various sorely needed sugar methods.  further, it assists by standardizing the returned document format.  most methods provided are _very_ simple PouchDB-native method modifiers, but are targeted to save you frequent boilerplate re-typing!  this library also proxies the PouchDB API directly, so you can use it like a PouchDB instance itself!
