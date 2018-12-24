@@ -1,0 +1,52 @@
+version: 2
+jobs:
+  build:
+    machine: true
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-nvm-{{ checksum ".nvmrc" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-nvm-
+      - run:
+          name: Install node via .nvmrc
+          command: |
+            set +e
+            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.6/install.sh | bash
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install
+            nvm use
+            nvm alias default $(cat .nvmrc)
+
+            # Each step uses the same `$BASH_ENV`, so need to modify it
+            echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
+            echo "[ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"" >> $BASH_ENV
+      - save_cache:
+          paths:
+            - /opt/circleci/.nvm
+          key: v1-nvm-{{ checksum ".nvmrc" }}
+      - run:
+          name: install yarn
+          command: npm install -g yarn
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+      - run:
+          name: install
+          command: NODE_ENV=development yarn
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+      # build
+      - run: yarn build
+      # test
+      - run: yarn test
+      - run: export COVERALLS_SERVICE_NAME=codeship cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+      - run:
+          name: release
+          command: npm run semantic-release || true
