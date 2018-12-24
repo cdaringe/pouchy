@@ -42,11 +42,9 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-      # build
-      - run: yarn build
       # test
       - run: yarn test
-      - run: export COVERALLS_SERVICE_NAME=codeship cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+      - run: cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
       - run:
           name: release
           command: npm run semantic-release || true
