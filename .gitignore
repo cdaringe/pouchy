@@ -32,3 +32,5 @@ docs
 .nyc_output
 ./*.html
 *.html
+build
+bundle.js
