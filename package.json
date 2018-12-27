@@ -4,13 +4,15 @@
   "description": "A simple, opinionated interface for the amazing PouchDB",
   "main": "src/index.js",
   "scripts": {
-    "docs:build": "jsdock build",
-    "docs:clean": "jsdock clean",
-    "docs:publish": "jsdock publish",
-    "format": "prettier-standard '{src,test,scripts}/**/*.{js,jsx,ts,tsx}'",
-    "lint": "standard",
-    "postpublish": "run-s docs:build docs:publish docs:clean",
-    "prepublish": "npm run snyk-protect",
+    "build": "tsc",
+    "docs:build": "typedoc --name Pouchy --exclude '**/__test__/**,**/browser/**' --readme ./readme.md --out docs/ src/",
+    "predocs:build": "rm -rf docs",
+    "docs:publish": "gh-pages -d docs",
+    "lint": "standard src/**/*.ts",
+    "format": "echo \"restore when https://github.com/sheerun/prettier-standard/issues/75 closes: prettier-standard '{src,test,scripts}/**/*.{js,jsx,ts,tsx}\"",
+    "lint-staged": "lint-staged",
+    "precommit": "run-p lint-staged snyk-protect",
+    "postpublish": "run-s docs:build docs:publish",
     "preversion": "git checkout master && git pull",
     "publish-major": "npm run preversion && npm version major && git push origin master --tags && npm publish",
     "publish-minor": "npm run preversion && npm version minor && git push origin master --tags && npm publish",
@@ -18,7 +20,7 @@
     "semantic-release": "semantic-release",
     "snyk-protect": "snyk protect",
     "test:browser": "testem ci -P 10",
-    "test:node": "BLUEBIRD_WARNINGS=0 nyc --reporter=lcov --check-coverage --functions=90 --branches=80 node test/node",
+    "test:node": "BLUEBIRD_WARNINGS=0 nyc -x '**/__test__/**' --reporter=lcov --check-coverage --functions=90 --branches=80 node build/__test__/node",
     "test": "npm-run-all -p test:*"
   },
   "repository": {
@@ -39,11 +41,22 @@
   "homepage": "https://github.com/cdaringe/pouchy#readme",
   "devDependencies": {
     "@babel/core": "^7.2.2",
-    "babel-preset-env": "^1.7.0",
+    "@babel/polyfill": "^7.2.5",
+    "@babel/preset-env": "^7.2.3",
+    "@types/blue-tape": "^0.1.32",
+    "@types/bluebird": "^3.5.25",
+    "@types/fs-extra": "^5.0.4",
+    "@types/lodash": "^4.14.119",
+    "@types/pouchdb": "^6.3.2",
+    "@types/pouchdb-adapter-leveldb": "^6.1.2",
+    "@types/tape": "^4.2.33",
     "babelify": "^10.0.0",
+    "blue-tape": "^1.0.0",
     "browserify": "^16.2.3",
     "coveralls": "3.0.2",
+    "eslint-plugin-typescript": "^0.14.0",
     "fs-extra": "^7.0.1",
+    "gh-pages": "^2.0.1",
     "husky": "^1.2.1",
     "jsdock": "^1.0.3",
     "lint-staged": "^8.1.0",
@@ -53,15 +66,18 @@
     "pouchdb-adapter-leveldb": "^7.0.0",
     "pouchdb-adapter-memory": "^7.0.0",
     "pouchdb-adapter-websql": "^7.0.0",
-    "prettier-standard": "^8.0.1",
     "semantic-release": "^15.13.1",
     "spawn-pouchdb-server": "^3.3.1",
     "standard": "^12.0.1",
     "tape": "4.9.1",
-    "testem": "^2.14.0"
+    "testem": "^2.14.0",
+    "typedoc": "^0.13.0",
+    "typedoc-plugin-external-module-name": "^1.1.3",
+    "typescript": "~3.1.1",
+    "typescript-eslint-parser": "^21.0.2"
   },
   "dependencies": {
-    "bluebird": "3.5.3",
+    "bluebird": "^3.5.3",
     "lodash": "^4.17.4",
     "path": "0.12.7",
     "pouchdb-adapter-http": "^7.0.0",
@@ -72,22 +88,31 @@
     "url": "0.11.0"
   },
   "browser": {
-    "perish": "./src/browser/perish.js",
-    "path": "./src/browser/path.js"
+    "perish": "./build/browser/perish.js",
+    "path": "./build/browser/path.js"
   },
   "snyk": true,
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "yarn precommit"
     }
   },
   "lint-staged": {
     "linters": {
       "{src,test,scripts}/**/*.{js,jsx,ts,tsx}": [
-        "yarn lint",
         "yarn format",
         "git add"
       ]
     }
+  },
+  "standard": {
+    "parser": "typescript-eslint-parser",
+    "plugins": [
+      "typescript"
+    ],
+    "ignore": [
+      "build",
+      "bundle.js"
+    ]
   }
 }

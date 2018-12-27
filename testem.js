@@ -1,20 +1,16 @@
 module.exports = {
-  'launchers': {
-    'Node': {
-      'command': 'node tests.js',
-      'protocol': 'tap'
+  launchers: {
+    Node: {
+      command: 'node tests.js',
+      protocol: 'tap'
     }
   },
-  'framework': 'tap',
-  'src_files_ignore': [
-    'bundle.js'
-  ],
-  'serve_files': [
-    'bundle.js'
-  ],
-  'serve_files_ignore': [],
-  'before_tests': 'node scripts/bundle.js',
-  'after_tests': 'rm -f bundle.js .source.*html',
-  'launch_in_dev': ['Node'],
-  'launch_in_ci': ['Node', 'Chrome']
+  framework: 'tap',
+  src_files_ignore: ['bundle.js'],
+  serve_files: ['bundle.js'],
+  serve_files_ignore: [],
+  before_tests: 'node scripts/bundle.js',
+  // 'after_tests': 'rm -f bundle.js .source.*html',
+  launch_in_dev: ['Chrome'],
+  launch_in_ci: ['Chrome']
 }

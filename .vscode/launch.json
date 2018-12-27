@@ -5,7 +5,11 @@
       "type": "node",
       "request": "launch",
       "name": "Test Node",
-      "program": "${workspaceRoot}/test/node/index.js"
+      "program": "${workspaceRoot}/build/__test__/node/index.js",
+      "runtimeVersion": "8.14.1",
+      "skipFiles": [
+        "<node_internals>/**/*.js"
+      ]
     },
     {
       "name": "Launch",

@@ -3,12 +3,23 @@
 > [_"Pouchy is the sugar API for PouchDB that I've been hoping someone would write"_](https://twitter.com/nolanlawson/status/647224028529299456)
 > @nolanlawson
 
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release) [![Greenkeeper badge](https://badges.greenkeeper.io/cdaringe/pouchy.svg)](https://greenkeeper.io/) [![CircleCI](https://circleci.com/gh/cdaringe/pouchy.svg?style=svg)](https://circleci.com/gh/cdaringe/pouchy) [![Coverage Status](https://coveralls.io/repos/github/cdaringe/pouchy/badge.svg?branch=master)](https://coveralls.io/github/cdaringe/pouchy?branch=master)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release) [![Greenkeeper badge](https://badges.greenkeeper.io/cdaringe/pouchy.svg)](https://greenkeeper.io/) [![CircleCI](https://circleci.com/gh/cdaringe/pouchy.svg?style=svg)](https://circleci.com/gh/cdaringe/pouchy) [![Coverage Status](https://coveralls.io/repos/github/cdaringe/pouchy/badge.svg?branch=master)](https://coveralls.io/github/cdaringe/pouchy?branch=master) [![TypeScript package](https://img.shields.io/badge/typings-included-blue.svg)](https://www.typescriptlang.org)
 
 [![NPM](https://nodei.co/npm/pouchy.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/pouchy/)
 
 
 simple, enhanced [PouchDB](https://github.com/pouchdb/pouchdb).  `Pouchy` wraps & extends `PouchDB` and provides various sorely needed sugar methods.  further, it assists by standardizing the returned document format.  most methods provided are _very_ simple PouchDB-native method modifiers, but are targeted to save you frequent boilerplate re-typing!  this library also proxies the PouchDB API directly, so you can use it like a PouchDB instance itself!
+
+## install
+
+`yarn add pouchy`
+
+if you need node support to flush databases to disk, versus using pouchy as an
+api client to remote couch/pouches, add your preferred adapters too. e.g.:
+
+`yarn add pouchy pouchdb-adapter-leveldb`
+
+the **@next** branch is a large re-write of pouchy, adding TypeScript support and improving some interfaces. a proper release will come in a couple weeks after feedback is gathered!
 
 ## usage
 
@@ -16,10 +27,10 @@ api docs and examples officially live [here](http://cdaringe.github.io/pouchy/).
 
 here are some basic examples:
 
-```js
+```ts
 // local, node database
-const Pouchy = require('pouchy')
-const level = require('pouchdb-adapter-leveldb')
+import Pouchy from 'pouchy'
+import level from 'pouchdb-adapter-leveldb'
 Pouchy.plugin(level)
 
 const fruit = new Pouchy({ name: 'fruit' })
@@ -38,8 +49,8 @@ console.log(orange)
 
 ```js
 // local & remote replicated database!
-const Pouchy = require('pouchy')
-const memory = require('pouchdb-adapter-memory')
+import Pouchy from 'pouchy'
+import memory from 'pouchdb-adapter-memory'
 Pouchy.plugin(memory)
 
 const customers = new Pouchy({
@@ -56,7 +67,7 @@ customers.save({ firstName: 'bill', lastName: 'brasky' })
 
 why use `pouchy` over `pouchdb`?
 
-- because managing `_id` and `_rev` can be seriously obnoxious with pouchdb (no hard feelings, of course).
+- because managing `_id` and `_rev` can be obnoxious with pouchdb (no hard feelings, of course).
   - pouchdb methods return document `_id`s and `_rev`s inconsistently.  some methods return docs with an `id` attribute.  some return docs with `_id`.  the same happens for `rev`.
   - different methods return `_rev` nested under _other attributes_, vs. being at the top of the document.
   - pouchy lets you get your documents back _in the same way they are represented in the store_.  if you are expecting an `_id` and a `_rev` in a return result, you'll get those attributes back on the top of your documents, every time.
@@ -66,10 +77,6 @@ why use `pouchy` over `pouchdb`?
 - because you want `.find` to return simply an array of docs!
   - note: pouchy pre-loads the `pouchdb-find` plugin, which is super handy and regularly recommended for use.
 - because you want to pre-define \*ouchdb synchronization behavior on construction!  start syncing pronto, declaratively!
-
-"Hey, are those alone sufficient justification to wrap pouchdb?"
-
-Yea, it's definitely subjective, but my team and i have answered that powerfully with a "yes, definitely!"
 
 Thanks! [cdaringe](http://cdaringe.com/)
 
