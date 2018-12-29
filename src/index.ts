@@ -35,7 +35,6 @@ export type SavedPouchDoc = {
 type FirstArgument < T > = T extends (arg1: infer U, ...args: any[]) => any ? U : any
 
 export const couchUrlify = (url: string) => url.replace(/[^/a-z0-9_$()+-]/gi, '')
-export const DESIGN_DOC_REGEX = new RegExp('^_design/')
 export const POUCHY_API_DOCS_URI = 'https://cdaringe.github.io/pouchy'
 
 export type PouchyOptions = {
@@ -249,7 +248,7 @@ export class Pouchy<Content={}> {
    * @example
    * const docs = await p.all({ includeDesignDocs: true })
    */
-  async all (allOpts?: FirstArgument<PouchDB.Database<Content>['allDocs']> & { includeDesignDocs?: boolean }): Promise<(Content & SavedPouchDoc)[]> {
+  async all (allOpts?: FirstArgument<PouchDB.Database<Content>['allDocs']>): Promise<(Content & SavedPouchDoc)[]> {
     const opts = defaults(allOpts || {}, { include_docs: true })
     const docs = await this.db.allDocs(opts)
     return docs.rows.reduce(function simplifyAllDocSet (r, v) {
@@ -262,10 +261,7 @@ export class Pouchy<Content={}> {
         delete doc.value
         delete doc.key
       }
-      /* istanbul ignore next */
-      if (!opts.includeDesignDocs) { (r as any).push(doc) } else if (opts.includeDesignDocs && doc._id.match(DESIGN_DOC_REGEX)) {
-        (r as any).push(doc)
-      }
+      ;(r as any).push(doc)
       return r
     }, [])
   }
