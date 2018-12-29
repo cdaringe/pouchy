@@ -1,185 +1,282 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html class="default no-js">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Home - Documentation</title>
-
-    <script src="scripts/prettify/prettify.js"></script>
-    <script src="scripts/prettify/lang-css.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Pouchy</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
 </head>
 <body>
-
-<input type="checkbox" id="nav-trigger" class="nav-trigger" />
-<label for="nav-trigger" class="navicon-button x">
-  <div class="navicon"></div>
-</label>
-
-<label for="nav-trigger" class="overlay"></label>
-
-<nav>
-    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Pouchy.html">Pouchy</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#add">add</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#all">all</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#bulkGet">bulkGet</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#clear">clear</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#createIndex">createIndex</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#createIndicies">createIndicies</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#delete">delete</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#deleteAll">deleteAll</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#deleteDB">deleteDB</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#destroy">destroy</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#find">find</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#get">get</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#getReplicationOptions">getReplicationOptions</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#save">save</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Pouchy.html#update">update</a></span></li><li class="nav-heading">Events</li><li class="nav-heading"><span class="nav-item-type type-event">E</span><span class="nav-item-name"><a href="global.html#event:hasLikelySynced">hasLikelySynced</a></span></li>
-</nav>
-
-<div id="main">
-    
-
-    
-
-
-
-    
-
-
-
-
-
-
-
-
-
-    
-
-
-    <section class="readme">
-        <article><h1>pouchy</h1><blockquote>
-<p><a href="https://twitter.com/nolanlawson/status/647224028529299456"><em>&quot;Pouchy is the sugar API for PouchDB that I've been hoping someone would write&quot;</em></a>
-@nolanlawson</p>
-</blockquote>
-<p><a href="https://standardjs.com"><img src="https://img.shields.io/badge/code_style-standard-brightgreen.svg" alt="JavaScript Style Guide"></a> <a href="https://github.com/semantic-release/semantic-release"><img src="https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg" alt="semantic-release"></a> <a href="https://greenkeeper.io/"><img src="https://badges.greenkeeper.io/cdaringe/pouchy.svg" alt="Greenkeeper badge"></a> <a href="https://circleci.com/gh/cdaringe/pouchy"><img src="https://circleci.com/gh/cdaringe/pouchy.svg?style=svg" alt="CircleCI"></a> <a href="https://coveralls.io/github/cdaringe/pouchy?branch=master"><img src="https://coveralls.io/repos/github/cdaringe/pouchy/badge.svg?branch=master" alt="Coverage Status"></a></p>
-<p><a href="https://nodei.co/npm/pouchy/"><img src="https://nodei.co/npm/pouchy.png?downloads=true&amp;downloadRank=true&amp;stars=true" alt="NPM"></a></p>
-<p>simple, enhanced <a href="https://github.com/pouchdb/pouchdb">PouchDB</a>.  <code>Pouchy</code> wraps &amp; extends <code>PouchDB</code> and provides various sorely needed sugar methods.  further, it assists by standardizing the returned document format.  most methods provided are <em>very</em> simple PouchDB-native method modifiers, but are targeted to save you frequent boilerplate re-typing!  this library also proxies the PouchDB API directly, so you can use it like a PouchDB instance itself!</p>
-<h2>usage</h2><p>api docs and examples officially live <a href="http://cdaringe.github.io/pouchy/">here</a>.</p>
-<p>here are some basic examples:</p>
-<pre class="prettyprint source lang-js"><code>// local, node database
-const Pouchy = require('pouchy')
-const level = require('pouchdb-adapter-leveldb')
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">Pouchy</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1> Pouchy</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<h1 id="pouchy">pouchy</h1>
+				<blockquote>
+					<p><a href="https://twitter.com/nolanlawson/status/647224028529299456"><em>&quot;Pouchy is the sugar API for PouchDB that I&#39;ve been hoping someone would write&quot;</em></a>
+					@nolanlawson</p>
+				</blockquote>
+				<p><a href="https://standardjs.com"><img src="https://img.shields.io/badge/code_style-standard-brightgreen.svg" alt="JavaScript Style Guide"></a> <a href="https://github.com/semantic-release/semantic-release"><img src="https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg" alt="semantic-release"></a> <a href="https://greenkeeper.io/"><img src="https://badges.greenkeeper.io/cdaringe/pouchy.svg" alt="Greenkeeper badge"></a> <a href="https://circleci.com/gh/cdaringe/pouchy"><img src="https://circleci.com/gh/cdaringe/pouchy.svg?style=svg" alt="CircleCI"></a> <a href="https://coveralls.io/github/cdaringe/pouchy?branch=master"><img src="https://coveralls.io/repos/github/cdaringe/pouchy/badge.svg?branch=master" alt="Coverage Status"></a> <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/typings-included-blue.svg" alt="TypeScript package"></a></p>
+				<p><a href="https://nodei.co/npm/pouchy/"><img src="https://nodei.co/npm/pouchy.png?downloads=true&downloadRank=true&stars=true" alt="NPM"></a></p>
+				<p>simple, enhanced <a href="https://github.com/pouchdb/pouchdb">PouchDB</a>.  <code>Pouchy</code> wraps &amp; extends <code>PouchDB</code> and provides various sorely needed sugar methods.  further, it assists by standardizing the returned document format.  most methods provided are <em>very</em> simple PouchDB-native method modifiers, but are targeted to save you frequent boilerplate re-typing!  this library also proxies the PouchDB API directly, so you can use it like a PouchDB instance itself!</p>
+				<h2 id="install">install</h2>
+				<p><code>yarn add pouchy</code></p>
+				<p>if you need node support to flush databases to disk, versus using pouchy as an
+				api client to remote couch/pouches, add your preferred adapters too. e.g.:</p>
+				<p><code>yarn add pouchy pouchdb-adapter-leveldb</code></p>
+				<p>the <strong>@next</strong> branch is a large re-write of pouchy, adding TypeScript support and improving some interfaces. a proper release will come in a couple weeks after feedback is gathered!</p>
+				<h2 id="usage">usage</h2>
+				<p>api docs and examples officially live <a href="http://cdaringe.github.io/pouchy/">here</a>.</p>
+				<p>here are some basic examples:</p>
+				<pre><code class="language-ts"><span class="hljs-comment">// local, node database</span>
+<span class="hljs-keyword">import</span> Pouchy <span class="hljs-keyword">from</span> <span class="hljs-string">'pouchy'</span>
+<span class="hljs-keyword">import</span> level <span class="hljs-keyword">from</span> <span class="hljs-string">'pouchdb-adapter-leveldb'</span>
 Pouchy.plugin(level)
 
-const fruit = new Pouchy({ name: 'fruit' })
-const orange = await fruit.save({ type: 'orange', tastes: 'delicious' })
-console.log(orange)
+<span class="hljs-keyword">const</span> fruit = <span class="hljs-keyword">new</span> Pouchy({ name: <span class="hljs-string">'fruit'</span> })
+<span class="hljs-keyword">const</span> orange = <span class="hljs-keyword">await</span> fruit.save({ <span class="hljs-keyword">type</span>: <span class="hljs-string">'orange'</span>, tastes: <span class="hljs-string">'delicious'</span> })
+<span class="hljs-built_in">console</span>.log(orange)
 
-/**
+<span class="hljs-comment">/**
   {
     type: 'orange',
     tastes: 'delicious',
     _id: 'EA1F2B55-2482-89C6-907E-6F938C59F734',
     _rev: '1-f60b9b7d775a89d280e1f4c07122b863'
   }
-*/</code></pre><pre class="prettyprint source lang-js"><code>// local & remote replicated database!
-const Pouchy = require('pouchy')
-const memory = require('pouchdb-adapter-memory')
+*/</span></code></pre>
+				<pre><code class="language-js"><span class="hljs-comment">// local &amp; remote replicated database!</span>
+<span class="hljs-keyword">import</span> Pouchy <span class="hljs-keyword">from</span> <span class="hljs-string">'pouchy'</span>
+<span class="hljs-keyword">import</span> memory <span class="hljs-keyword">from</span> <span class="hljs-string">'pouchdb-adapter-memory'</span>
 Pouchy.plugin(memory)
 
-const customers = new Pouchy({
-  name: 'customers',
-  replicate: 'sync',
-  url: 'http://mydomain.org/db/customers'
+<span class="hljs-keyword">const</span> customers = <span class="hljs-keyword">new</span> Pouchy({
+  <span class="hljs-attr">name</span>: <span class="hljs-string">'customers'</span>,
+  <span class="hljs-attr">replicate</span>: <span class="hljs-string">'sync'</span>,
+  <span class="hljs-attr">url</span>: <span class="hljs-string">'http://mydomain.org/db/customers'</span>
 })
-customers.save({ firstName: 'bill', lastName: 'brasky' })
-// wait for it... and couchdb/pouchdb-server @ http://mydomain.org/db/customers
-// will receive bill brasky!</code></pre><h2>why</h2><p>why use <code>pouchy</code> over <code>pouchdb</code>?</p>
-<ul>
-<li>because managing <code>_id</code> and <code>_rev</code> can be seriously obnoxious with pouchdb (no hard feelings, of course).<ul>
-<li>pouchdb methods return document <code>_id</code>s and <code>_rev</code>s inconsistently.  some methods return docs with an <code>id</code> attribute.  some return docs with <code>_id</code>.  the same happens for <code>rev</code>.</li>
-<li>different methods return <code>_rev</code> nested under <em>other attributes</em>, vs. being at the top of the document.</li>
-<li>pouchy lets you get your documents back <em>in the same way they are represented in the store</em>.  if you are expecting an <code>_id</code> and a <code>_rev</code> in a return result, you'll get those attributes back on the top of your documents, every time.</li>
-</ul>
-</li>
-<li>because you need some frequently used sugar methods that aren't keys-included from pouchdb.  <strong>there are many sugar methods available</strong>, make sure to check out the API docs!<ul>
-<li>e.g. <code>.all()</code>, to get all full documents in your store, in a simple array.</li>
-<li>e.g. <code>.clear()/.deleteAll()</code> to purge your store of its docs.</li>
-</ul>
-</li>
-<li>because you want <code>.find</code> to return simply an array of docs!<ul>
-<li>note: pouchy pre-loads the <code>pouchdb-find</code> plugin, which is super handy and regularly recommended for use.</li>
-</ul>
-</li>
-<li>because you want to pre-define *ouchdb synchronization behavior on construction!  start syncing pronto, declaratively!</li>
-</ul>
-<p>&quot;Hey, are those alone sufficient justification to wrap pouchdb?&quot;</p>
-<p>Yea, it's definitely subjective, but my team and i have answered that powerfully with a &quot;yes, definitely!&quot;</p>
-<p>Thanks! <a href="http://cdaringe.com/">cdaringe</a></p>
-<h1>changelog</h1><ul>
-<li>12.3.+ - switched to semantic-release. please view the &quot;Releases&quot; GitHub tab</li>
-<li>12.0.0<ul>
-<li>refactor all of the things!<ul>
-<li>better handle all <code>rev/id</code> ==&gt; <code>_rev/_id</code> mapping</li>
-<li><strong>if <code>rev</code> or <code>id</code> exist on docs returned from pouch exist, but no <code>_rev</code> or <code>_id</code> exist, that particular kv pair will be moved to the <code>_</code>-prefixed key and the non prefixed key will be removed</strong>.</li>
-</ul>
-</li>
-<li>more tests!</li>
-</ul>
-</li>
-<li>11.0.2<ul>
-<li>drop es6 content. es5 friendly-ify!</li>
-</ul>
-</li>
-<li>11.0.0<ul>
-<li>pouchdb 6.0.5!</li>
-</ul>
-</li>
-<li>10.1.0<ul>
-<li>expose replication options via <code>getReplicationOptions</code></li>
-<li>on <code>destroy</code>, <em>actually</em> destroy gracefully.  that means, don't resolve the promise/callback until <code>live</code> dbs have all http requests fully settled. see <a href="https://github.com/pouchdb/express-pouchdb/issues/316#issuecomment-241247448">here</a> for more info.</li>
-</ul>
-</li>
-<li>10.0.4 - be compatible with latest bluebird <code>.asCallback</code>.</li>
-<li>10.0.0 - migrate to PouchDB 5.4.x.  @NOTE, some APIs are not available by default anymore.  See <a href="https://pouchdb.com/custom.html">the custom build</a> blog post on how to add features to your pouch <code>Pouchy.PouchDB.plugin(...)</code>.  The following plugins are available by default:<ul>
-<li>pouchdb-adapter-http</li>
-<li>pouchdb-find</li>
-<li>pouchdb-replication</li>
-</ul>
-</li>
-<li>9.0.2 - fix <code>bulkGet</code> when no docs are provided</li>
-<li>9.0.0-1<ul>
-<li>fix <code>.all({ include_docs: false })</code> to properly handle <code>.rev/._rev</code></li>
-<li>improve docs!</li>
-</ul>
-</li>
-<li>8.0.5 - fix issues w/ promise/cbs. sorry for 8.0.x-8.0.5 churn!</li>
-<li>8.0.0 - support cb &amp; promise interface.  added bluebird to make this seamless and less verbose</li>
-<li>7.1.0 - add <code>hasLikelySynced</code> event</li>
-<li>7.0.0 - modify replicate API.  dropped <code>'both'</code> sync option, added <code>{}</code> option.  dropped <code>replicateLive</code></li>
-<li>6.3.0 - add <code>destroy</code>, which <code>.cancel</code>s any replication from <code>.syncEmitter</code> (see <code>replicate</code>). deprecate 6.2.0-1. changeEmitter =&gt; syncEmitter (rapid patch, so no major bump)</li>
-<li>6.2.1 - add <code>this.syncEmitter</code> when using the <code>replicate</code> API</li>
-<li>6.1.0 - add <code>bulkGet</code></li>
-<li>6.0.6 - fix issue where <code>_id</code> was still <code>id</code> when doing <code>.all({ include_docs: false })</code></li>
-<li>6.0.4 - fix replication issue where db backend not honored</li>
-<li>6.0.0 - db will store locally via leveldown as <code>name</code> if passed. <code>url</code> will still be used for replication if requested.  prior versions preferred <code>url</code> to the Pouch constructor over name</li>
-<li>5.2.1 - permit / in couchdb db name</li>
-<li>5.2.0 - bump with couch</li>
-<li>5.1.0 - deps bump &amp; add cb interface</li>
-<li>5.0.0 - deps bump only.  <del>all future releases with track major version #s with PouchDB</del></li>
-<li>4.0.0 - major bump with PouchDB</li>
-<li>3.0.0 - remove default <code>changes</code>, and associated <code>on/off</code>. didn't work out-of-the-box anyway.  may return in 4.x</li>
-<li>2.0.1 - Don't modify constructor opts.name</li>
-<li>2.0.0 - Fix synced db <code>fs</code> location. Previously was not honoring <code>path</code> option</li>
-<li>1.0.0 - 2.0.1 pouchdb-wrapper =&gt; pouchy</li>
-</ul></article>
-    </section>
-
-
-
-
-
-
+customers.save({ <span class="hljs-attr">firstName</span>: <span class="hljs-string">'bill'</span>, <span class="hljs-attr">lastName</span>: <span class="hljs-string">'brasky'</span> })
+<span class="hljs-comment">// wait for it... and couchdb/pouchdb-server @ http://mydomain.org/db/customers</span>
+<span class="hljs-comment">// will receive bill brasky!</span></code></pre>
+				<h2 id="why">why</h2>
+				<p>why use <code>pouchy</code> over <code>pouchdb</code>?</p>
+				<ul>
+					<li>because managing <code>_id</code> and <code>_rev</code> can be obnoxious with pouchdb (no hard feelings, of course).<ul>
+							<li>pouchdb methods return document <code>_id</code>s and <code>_rev</code>s inconsistently.  some methods return docs with an <code>id</code> attribute.  some return docs with <code>_id</code>.  the same happens for <code>rev</code>.</li>
+							<li>different methods return <code>_rev</code> nested under <em>other attributes</em>, vs. being at the top of the document.</li>
+							<li>pouchy lets you get your documents back <em>in the same way they are represented in the store</em>.  if you are expecting an <code>_id</code> and a <code>_rev</code> in a return result, you&#39;ll get those attributes back on the top of your documents, every time.</li>
+						</ul>
+					</li>
+					<li>because you need some frequently used sugar methods that aren&#39;t keys-included from pouchdb.  <strong>there are many sugar methods available</strong>, make sure to check out the API docs!<ul>
+							<li>e.g. <code>.all()</code>, to get all full documents in your store, in a simple array.</li>
+							<li>e.g. <code>.clear()/.deleteAll()</code> to purge your store of its docs.</li>
+						</ul>
+					</li>
+					<li>because you want <code>.find</code> to return simply an array of docs!<ul>
+							<li>note: pouchy pre-loads the <code>pouchdb-find</code> plugin, which is super handy and regularly recommended for use.</li>
+						</ul>
+					</li>
+					<li>because you want to pre-define *ouchdb synchronization behavior on construction!  start syncing pronto, declaratively!</li>
+				</ul>
+				<p>Thanks! <a href="http://cdaringe.com/">cdaringe</a></p>
+				<h1 id="changelog">changelog</h1>
+				<ul>
+					<li>12.3.+ - switched to semantic-release. please view the &quot;Releases&quot; GitHub tab</li>
+					<li>12.0.0<ul>
+							<li>refactor all of the things!<ul>
+									<li>better handle all <code>rev/id</code> ==&gt; <code>_rev/_id</code> mapping</li>
+									<li><strong>if <code>rev</code> or <code>id</code> exist on docs returned from pouch exist, but no <code>_rev</code> or <code>_id</code> exist, that particular kv pair will be moved to the <code>_</code>-prefixed key and the non prefixed key will be removed</strong>.</li>
+								</ul>
+							</li>
+							<li>more tests!</li>
+						</ul>
+					</li>
+					<li>11.0.2<ul>
+							<li>drop es6 content. es5 friendly-ify!</li>
+						</ul>
+					</li>
+					<li>11.0.0<ul>
+							<li>pouchdb 6.0.5!</li>
+						</ul>
+					</li>
+					<li>10.1.0<ul>
+							<li>expose replication options via <code>getReplicationOptions</code></li>
+							<li>on <code>destroy</code>, <em>actually</em> destroy gracefully.  that means, don&#39;t resolve the promise/callback until <code>live</code> dbs have all http requests fully settled. see <a href="https://github.com/pouchdb/express-pouchdb/issues/316#issuecomment-241247448">here</a> for more info.</li>
+						</ul>
+					</li>
+					<li>10.0.4 - be compatible with latest bluebird <code>.asCallback</code>.</li>
+					<li>10.0.0 - migrate to PouchDB 5.4.x.  @NOTE, some APIs are not available by default anymore.  See <a href="https://pouchdb.com/custom.html">the custom build</a> blog post on how to add features to your pouch <code>Pouchy.PouchDB.plugin(...)</code>.  The following plugins are available by default:<ul>
+							<li>pouchdb-adapter-http</li>
+							<li>pouchdb-find</li>
+							<li>pouchdb-replication</li>
+						</ul>
+					</li>
+					<li>9.0.2 - fix <code>bulkGet</code> when no docs are provided</li>
+					<li>9.0.0-1<ul>
+							<li>fix <code>.all({ include_docs: false })</code> to properly handle <code>.rev/._rev</code></li>
+							<li>improve docs!</li>
+						</ul>
+					</li>
+					<li>8.0.5 - fix issues w/ promise/cbs. sorry for 8.0.x-8.0.5 churn!</li>
+					<li>8.0.0 - support cb &amp; promise interface.  added bluebird to make this seamless and less verbose</li>
+					<li>7.1.0 - add <code>hasLikelySynced</code> event</li>
+					<li>7.0.0 - modify replicate API.  dropped <code>&#39;both&#39;</code> sync option, added <code>{}</code> option.  dropped <code>replicateLive</code></li>
+					<li>6.3.0 - add <code>destroy</code>, which <code>.cancel</code>s any replication from <code>.syncEmitter</code> (see <code>replicate</code>). deprecate 6.2.0-1. changeEmitter =&gt; syncEmitter (rapid patch, so no major bump)</li>
+					<li>6.2.1 - add <code>this.syncEmitter</code> when using the <code>replicate</code> API</li>
+					<li>6.1.0 - add <code>bulkGet</code></li>
+					<li>6.0.6 - fix issue where <code>_id</code> was still <code>id</code> when doing <code>.all({ include_docs: false })</code></li>
+					<li>6.0.4 - fix replication issue where db backend not honored</li>
+					<li>6.0.0 - db will store locally via leveldown as <code>name</code> if passed. <code>url</code> will still be used for replication if requested.  prior versions preferred <code>url</code> to the Pouch constructor over name</li>
+					<li>5.2.1 - permit / in couchdb db name</li>
+					<li>5.2.0 - bump with couch</li>
+					<li>5.1.0 - deps bump &amp; add cb interface</li>
+					<li>5.0.0 - deps bump only.  <del>all future releases with track major version #s with PouchDB</del></li>
+					<li>4.0.0 - major bump with PouchDB</li>
+					<li>3.0.0 - remove default <code>changes</code>, and associated <code>on/off</code>. didn&#39;t work out-of-the-box anyway.  may return in 4.x</li>
+					<li>2.0.1 - Don&#39;t modify constructor opts.name</li>
+					<li>2.0.0 - Fix synced db <code>fs</code> location. Previously was not honoring <code>path</code> option</li>
+					<li>1.0.0 - 2.0.1 pouchdb-wrapper =&gt; pouchy</li>
+				</ul>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/pouchy.html">Pouchy</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/document_key_prefixer.html">document-<wbr>key-<wbr>prefixer</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
 </div>
-
-<br class="clear">
-
-<footer>
-    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> using the Minami theme.
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
 </footer>
-
-<script>prettyPrint();</script>
-<script src="scripts/linenumber.js"></script>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
 </body>
 </html>
