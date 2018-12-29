@@ -32,8 +32,8 @@ here are some basic examples:
 import Pouchy from 'pouchy'
 import level from 'pouchdb-adapter-leveldb'
 Pouchy.plugin(level)
-
-const fruit = new Pouchy({ name: 'fruit' })
+type Fruit = { type: string, tastes: string }
+const fruit = new Pouchy<Fruit>({ name: 'fruit' })
 const orange = await fruit.save({ type: 'orange', tastes: 'delicious' })
 console.log(orange)
 
