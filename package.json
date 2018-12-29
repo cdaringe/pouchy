@@ -69,7 +69,7 @@
     "semantic-release": "^15.13.1",
     "spawn-pouchdb-server": "^3.3.1",
     "standard": "^12.0.1",
-    "tape": "4.9.1",
+    "tape": "4.9.2",
     "testem": "^2.14.0",
     "typedoc": "^0.13.0",
     "typedoc-plugin-external-module-name": "^1.1.3",
