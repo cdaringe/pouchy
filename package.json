@@ -84,7 +84,7 @@
     "pouchdb-core": "^7.0.0",
     "pouchdb-find": "^7.0.0",
     "pouchdb-replication": "^7.0.0",
-    "snyk": "^1.41.1",
+    "snyk": "^1.124.1",
     "url": "0.11.0"
   },
   "browser": {
