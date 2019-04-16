@@ -61,7 +61,7 @@
     "jsdock": "^1.0.3",
     "lint-staged": "^8.1.3",
     "npm-run-all": "^4.0.2",
-    "nyc": "^13.1.0",
+    "nyc": "^14.0.0",
     "perish": "1.0.2",
     "pouchdb-adapter-leveldb": "^7.0.0",
     "pouchdb-adapter-memory": "^7.0.0",
