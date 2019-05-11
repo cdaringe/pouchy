@@ -55,7 +55,7 @@
     "browserify": "^16.2.3",
     "coveralls": "3.0.3",
     "eslint-plugin-typescript": "^0.14.0",
-    "fs-extra": "^7.0.1",
+    "fs-extra": "^8.0.0",
     "gh-pages": "^2.0.1",
     "husky": "^2.0.0",
     "jsdock": "^1.0.3",
