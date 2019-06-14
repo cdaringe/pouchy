@@ -64,7 +64,7 @@
     "nyc": "^13.1.0",
     "perish": "1.0.2",
     "pouchdb-adapter-leveldb": "^7.1.1",
-    "pouchdb-adapter-memory": "^7.0.0",
+    "pouchdb-adapter-memory": "^7.1.1",
     "pouchdb-adapter-websql": "^7.0.0",
     "semantic-release": "^15.13.1",
     "spawn-pouchdb-server": "^3.3.1",
