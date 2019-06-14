@@ -81,7 +81,7 @@
     "lodash": "^4.17.4",
     "path": "0.12.7",
     "pouchdb-adapter-http": "^7.1.0",
-    "pouchdb-core": "^7.0.0",
+    "pouchdb-core": "^7.1.0",
     "pouchdb-find": "^7.0.0",
     "pouchdb-replication": "^7.0.0",
     "snyk": "^1.124.1",
