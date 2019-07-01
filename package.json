@@ -57,7 +57,7 @@
     "eslint-plugin-typescript": "^0.14.0",
     "fs-extra": "^8.0.0",
     "gh-pages": "^2.0.1",
-    "husky": "^2.0.0",
+    "husky": "^3.0.0",
     "jsdock": "^1.0.3",
     "lint-staged": "^9.0.0",
     "npm-run-all": "^4.0.2",
