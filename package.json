@@ -21,7 +21,8 @@
     "snyk-protect": "snyk protect",
     "test:browser": "testem ci -P 10",
     "test:node": "BLUEBIRD_WARNINGS=0 nyc -x '**/__test__/**' --reporter=lcov --check-coverage --functions=90 --branches=80 node build/__test__/node",
-    "test": "npm-run-all -p test:*"
+    "test": "npm-run-all -p test:*",
+    "prepublish": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -84,7 +85,7 @@
     "pouchdb-core": "^7.0.0",
     "pouchdb-find": "^7.0.0",
     "pouchdb-replication": "^7.0.0",
-    "snyk": "^1.124.1",
+    "snyk": "^1.192.0",
     "url": "0.11.0"
   },
   "browser": {
