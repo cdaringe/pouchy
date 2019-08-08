@@ -52,7 +52,7 @@
     "@types/tape": "^4.2.33",
     "babelify": "^10.0.0",
     "blue-tape": "^1.0.0",
-    "browserify": "^16.2.3",
+    "browserify": "16.3.0",
     "coveralls": "3.0.5",
     "eslint-plugin-typescript": "^0.14.0",
     "fs-extra": "^8.0.0",
