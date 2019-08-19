@@ -68,7 +68,7 @@
     "pouchdb-adapter-websql": "^7.0.0",
     "semantic-release": "^15.13.1",
     "spawn-pouchdb-server": "^3.3.1",
-    "standard": "^13.0.1",
+    "standard": "^14.0.0",
     "tape": "4.11.0",
     "testem": "^2.14.0",
     "typedoc": "^0.14.0",
