@@ -63,9 +63,8 @@ test('sync', t => {
       handled = true
       t.pass('paused handler (retry default)')
       return db.destroy().catch((err: any) => {
-        t.equals(
-          err.code,
-          'ENOTFOUND',
+        t.ok(
+          ['ENOTFOUND', 'ECONNRESET'].some(code => code === err.code),
           'pauses/errors on destroy on invalid remote db request'
         )
         deferred.resolve()
@@ -86,9 +85,8 @@ test('sync', t => {
       try {
         await db.destroy()
       } catch (err) {
-        t.equals(
-          err.code,
-          'ENOTFOUND',
+        t.ok(
+          ['ENOTFOUND', 'ECONNRESET'].some(code => code === err.code),
           'errors on destroy on invalid remote db request'
         )
         deferred.resolve()

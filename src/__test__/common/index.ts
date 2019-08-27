@@ -83,19 +83,19 @@ export default function (opts: any) {
   })
 
   test('get, all, add, save, delete', async t => {
-    let docs: (TestDbData & MaybeSavedPouchDoc)[] = [
+    const docs: (TestDbData & MaybeSavedPouchDoc)[] = [
       { _id: 'test-doc-1', test: 'will put on `add` with _id' },
       { id: 'test-doc-2', test: 'will post on `add` without _id' },
       { _id: 'test-doc-3', test: 'will put on `save` with _id' },
       { _id: 'test-doc-4', test: 'dummyVal' }
     ]
     p = pouchyFactory({ name: 'testdb-' + Date.now() })
-    let added1 = await p.add(docs[0]) // add1
+    const added1 = await p.add(docs[0]) // add1
     t.equal(docs[0]._id, added1._id, '.add kept _id via put')
     docs[0] = added1
-    let docGet0 = await p.get(docs[0]._id!)
+    const docGet0 = await p.get(docs[0]._id!)
     t.equals(docs[0]._id, docGet0._id, 'basic get')
-    let added2 = await p.add(docs[1])
+    const added2 = await p.add(docs[1])
     docs[1] = added2
     t.notEqual(added2._id, 'test-doc-2', 'id === _id')
     await Promise.all([p.add(docs[2]), p.add(docs[3])])

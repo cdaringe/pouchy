@@ -7,9 +7,7 @@ import Pouchy, { PouchyOptions } from '../../' // eslint-disable-line
 import level from 'pouchdb-adapter-leveldb'
 // load node test plugins
 bb.config({ warnings: false })
-Pouchy.PouchDB.plugin(level).plugin(
-  require('pouchdb-adapter-memory')
-)
+Pouchy.PouchDB.plugin(level).plugin(require('pouchdb-adapter-memory'))
 
 export const factory = function (opts: PouchyOptions) {
   if (!opts.path) opts.path = testDir

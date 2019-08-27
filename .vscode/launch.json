@@ -35,7 +35,7 @@
       "name": "Test - Node",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceRoot}/test/node/index.js",
+      "program": "${workspaceRoot}/build/__test__/node/index.js",
       "stopOnEntry": false,
       "args": [],
       "cwd": "${workspaceRoot}",
@@ -48,7 +48,7 @@
         "NODE_ENV": "development"
       },
       "externalConsole": false,
-      "sourceMaps": false,
+      "sourceMaps": true,
       "outDir": null
     },
     {

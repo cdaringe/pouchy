@@ -14,8 +14,7 @@ import PouchDB from 'pouchdb-core'
 import unique from 'lodash/uniq'
 import url, { UrlObject } from 'url'
 
-PouchDB
-  .plugin(adapterHttp)
+PouchDB.plugin(adapterHttp)
   .plugin(adapterFind)
   .plugin(adapterReplication)
 
@@ -32,9 +31,12 @@ export type SavedPouchDoc = {
 /**
  * @private
  */
-type FirstArgument < T > = T extends (arg1: infer U, ...args: any[]) => any ? U : any
+type FirstArgument<T> = T extends (arg1: infer U, ...args: any[]) => any
+  ? U
+  : any
 
-export const couchUrlify = (url: string) => url.replace(/[^/a-z0-9_$()+-]/gi, '')
+export const couchUrlify = (url: string) =>
+  url.replace(/[^/a-z0-9_$()+-]/gi, '')
 export const POUCHY_API_DOCS_URI = 'https://cdaringe.github.io/pouchy'
 
 export type PouchyOptions = {
@@ -49,16 +51,18 @@ export type PouchyOptions = {
    * 'out/in/sync'. please note that the string shorthand applies default
    * heartbeat/retry options.
    */
-  replicate?: string | {
-    out?: PouchDB.Replication.ReplicateOptions
-    in?: PouchDB.Replication.ReplicateOptions
-    sync?: PouchDB.Replication.ReplicateOptions
-  }
+  replicate?:
+    | string
+    | {
+        out?: PouchDB.Replication.ReplicateOptions
+        in?: PouchDB.Replication.ReplicateOptions
+        sync?: PouchDB.Replication.ReplicateOptions
+      }
   replicateLive?: boolean // default: true.  activates only if `replicate` is set
   url?: string // url to remote CouchDB. user may use the `conn` option instead as well
 }
 
-export class Pouchy<Content={}> {
+export class Pouchy<Content = {}> {
   static PouchDB = PouchDB
   static plugin = PouchDB.plugin
   static defaults = PouchDB.defaults
@@ -67,7 +71,11 @@ export class Pouchy<Content={}> {
   // tap into your instance's replication `changes()` so you may listen to events.
   // calling `.destroy` will scrap this emitter. emitter only present when
   // `replicate` options intially provided
-  public syncEmitter: PouchDB.Replication.Replication<Content> | PouchDB.Replication.Sync<Content> | null = null
+  public syncEmitter:
+    | PouchDB.Replication.Replication<Content>
+    | PouchDB.Replication.Sync<Content>
+    | null = null
+
   public db: PouchDB.Database<Content> // internal PouchDB instance
   public hasLocalDb: boolean
   public isEnforcingCouchDbSafe: boolean
@@ -90,8 +98,13 @@ export class Pouchy<Content={}> {
       ? this._setDbNameFromOpts(opts)
       : this._setDbNameFromUri(this.url!)
     if (this.isEnforcingCouchDbSafe) this._validateDbName()
-    this.path = this.hasLocalDb ? path.resolve(opts.path || '', this.name) : null
-    this.db = new PouchDB<Content>(opts.name ? this.path! : this.url!, opts.pouchConfig)
+    this.path = this.hasLocalDb
+      ? path.resolve(opts.path || '', this.name)
+      : null
+    this.db = new PouchDB<Content>(
+      opts.name ? this.path! : this.url!,
+      opts.pouchConfig
+    )
     if (opts.replicate) this._handleReplication(opts.replicate)
   }
 
@@ -103,8 +116,8 @@ export class Pouchy<Content={}> {
       throw new ReferenceError(
         [
           'missing pouchy database paramters.  please see: ' +
-          POUCHY_API_DOCS_URI +
-          '\n',
+            POUCHY_API_DOCS_URI +
+            '\n',
           '\tif you are creating a local database (browser or node), provide a `name` key.\n',
           '\tif you are just using pouchy to access a remote database, provide a `url` or `conn` key\n',
           '\tif you are creating a database to replicate with a remote database, provide a',
@@ -184,13 +197,15 @@ export class Pouchy<Content={}> {
    * @private
    */
   _setDbNameFromUri (uri: string) {
-    const pathname = url.parse(uri).pathname
+    const pathname = url.parse(uri).pathname // eslint-disable-line
     /* istanbul ignore next */
     if (!pathname && !this.name) {
-      throw new Error([
-        'unable to infer database name from uri. try adding a pathname',
-        'to the uri (e.g. host.org/my-db-name) or pass a `name` option'
-      ].join(' '))
+      throw new Error(
+        [
+          'unable to infer database name from uri. try adding a pathname',
+          'to the uri (e.g. host.org/my-db-name) or pass a `name` option'
+        ].join(' ')
+      )
     }
     var pathParts = (pathname || '').split('/')
     this.name = this.name || pathParts[pathParts.length - 1]
@@ -248,7 +263,9 @@ export class Pouchy<Content={}> {
    * @example
    * const docs = await p.all({ includeDesignDocs: true })
    */
-  async all (allOpts?: FirstArgument<PouchDB.Database<Content>['allDocs']>): Promise<(Content & SavedPouchDoc)[]> {
+  async all (
+    allOpts?: FirstArgument<PouchDB.Database<Content>['allDocs']>
+  ): Promise<(Content & SavedPouchDoc)[]> {
     const opts = defaults(allOpts || {}, { include_docs: true })
     const docs = await this.db.allDocs(opts)
     return docs.rows.reduce(function simplifyAllDocSet (r, v) {
@@ -301,9 +318,13 @@ export class Pouchy<Content={}> {
    *                            ... is an array of {_id, _rev}s
    * @param {function} [cb]
    */
-  async getMany (docMetas: { _id: string, _rev?: string| undefined }[]): Promise<(Content & SavedPouchDoc)[]> {
+  async getMany (
+    docMetas: { _id: string; _rev?: string | undefined }[]
+  ): Promise<(Content & SavedPouchDoc)[]> {
     /* istanbul ignore else */
-    if (!docMetas || !Array.isArray(docMetas)) throw new Error('getMany: missing doc metadatas')
+    if (!docMetas || !Array.isArray(docMetas)) {
+      throw new Error('getMany: missing doc metadatas')
+    }
     const opts = {
       docs: docMetas.map(function remapIdRev (lastDoc: any) {
         const doc = { ...lastDoc }
@@ -321,7 +342,9 @@ export class Pouchy<Content={}> {
     const r = await this.db.bulkGet(opts)
     return r.results.map(function tidyBulkGetDocs (docGroup) {
       var doc = get(docGroup, 'docs[0].ok')
-      if (!doc) { throw new ReferenceError('doc ' + docGroup.id + 'not found') }
+      if (!doc) {
+        throw new ReferenceError('doc ' + docGroup.id + 'not found')
+      }
       return doc
     })
   }
@@ -402,14 +425,16 @@ export class Pouchy<Content={}> {
    */
   async destroy () {
     /* istanbul ignore next */
-    if (this.syncEmitter && !(<any> this.syncEmitter).canceled) {
+    if (this.syncEmitter && !(<any>this.syncEmitter).canceled) {
       let isSyncCancelledP = Promise.resolve()
       if (this._replicationOpts && this._replicationOpts.live) {
         // early bind the `complete` event listener.  careful not to bind it
         // inside the .then, otherwise binding happens at the end of the event
         // loop, which is too late! `.cancel` is a sync call!
         isSyncCancelledP = new Promise((resolve, reject) => {
-          if (!this.syncEmitter) return reject(new Error('syncEmitter not found'))
+          if (!this.syncEmitter) {
+            return reject(new Error('syncEmitter not found'))
+          }
           this.syncEmitter.on('complete' as any, () => {
             resolve()
           })
@@ -424,7 +449,9 @@ export class Pouchy<Content={}> {
   /**
    * Similar to standard pouchdb.find, but returns simple set of results
    */
-  async findMany (opts: FirstArgument<PouchDB.Find.FindRequest<Content>>): Promise<(Content & SavedPouchDoc)[]> {
+  async findMany (
+    opts: FirstArgument<PouchDB.Find.FindRequest<Content>>
+  ): Promise<(Content & SavedPouchDoc)[]> {
     const rslt = await this.db.find(opts)
     return rslt.docs
   }
@@ -444,7 +471,9 @@ export class Pouchy<Content={}> {
    * @param {function} [cb]
    * @returns {Promise}
    */
-  async update (doc: FirstArgument<PouchDB.Database<Content>['put']>): Promise<Content & SavedPouchDoc> {
+  async update (
+    doc: FirstArgument<PouchDB.Database<Content>['put']>
+  ): Promise<Content & SavedPouchDoc> {
     // http://pouchdb.com/api.html#create_document
     // db.put(doc, [docId], [docRev], [options], [callback])
     const meta = await this.db.put(doc)
@@ -465,15 +494,21 @@ export class Pouchy<Content={}> {
    *   beep: 'bop'
    * }
    */
-  async save (doc: Content & MaybeSavedPouchDoc): Promise<Content & SavedPouchDoc> {
+  async save (
+    doc: Content & MaybeSavedPouchDoc
+  ): Promise<Content & SavedPouchDoc> {
     // http://pouchdb.com/api.html#create_document
     // db.post(doc, [docId], [docRev], [options], [callback])
     /* istanbul ignore next */
     var method =
-      doc.hasOwnProperty('_id') && (doc._id || (doc as any)._id === 0) ? 'put' : 'post'
-    const meta = method === 'put'
-      ? await this.db.put(doc as any)
-      : await this.db.post(doc as any)
+      Object.prototype.hasOwnProperty.call(doc, '_id') &&
+      (doc._id || (doc as any)._id === 0)
+        ? 'put'
+        : 'post'
+    const meta =
+      method === 'put'
+        ? await this.db.put(doc as any)
+        : await this.db.post(doc as any)
     delete (meta as any).status
     doc._id = meta.id
     doc._rev = meta.rev
@@ -489,11 +524,17 @@ export class Pouchy<Content={}> {
   /**
    * database name
    */
-  name: string;
+  name: string
 
   /* istanbul ignore next */
   /** Fetch all documents matching the given options. */
-  allDocs <Model> (options?: PouchDB.Core.AllDocsWithKeyOptions | PouchDB.Core.AllDocsWithKeysOptions | PouchDB.Core.AllDocsWithinRangeOptions | PouchDB.Core.AllDocsOptions) {
+  allDocs<Model> (
+    options?:
+      | PouchDB.Core.AllDocsWithKeyOptions
+      | PouchDB.Core.AllDocsWithKeysOptions
+      | PouchDB.Core.AllDocsWithinRangeOptions
+      | PouchDB.Core.AllDocsOptions
+  ) {
     return {} as Promise<PouchDB.Core.AllDocsResponse<Content & Model>>
   }
 
@@ -505,8 +546,10 @@ export class Pouchy<Content={}> {
    * which should match the ID and revision of the document on which to base your updates.
    * Finally, to delete a document, include a _deleted parameter with the value true.
    */
-  bulkDocs<Model> (docs: Array<PouchDB.Core.PutDocument<Content & Model>>,
-    options?: PouchDB.Core.BulkDocsOptions) {
+  bulkDocs<Model> (
+    docs: Array<PouchDB.Core.PutDocument<Content & Model>>,
+    options?: PouchDB.Core.BulkDocsOptions
+  ) {
     return {} as Promise<Array<SavedPouchDoc>>
   }
 
@@ -518,9 +561,14 @@ export class Pouchy<Content={}> {
 
   /* istanbul ignore next */
   /** Fetch a document */
-  get<Model> (docId: PouchDB.Core.DocumentId,
+  get<Model> (
+    docId: PouchDB.Core.DocumentId,
     options?: PouchDB.Core.GetOptions
-  ) { return {} as Promise<PouchDB.Core.Document<Content & Model> & PouchDB.Core.GetMeta> }
+  ) {
+    return {} as Promise<
+      PouchDB.Core.Document<Content & Model> & PouchDB.Core.GetMeta
+    >
+  }
 
   /* istanbul ignore next */
   /**
@@ -532,8 +580,12 @@ export class Pouchy<Content={}> {
    *
    * @see {@link https://pouchdb.com/2014/06/17/12-pro-tips-for-better-code-with-pouchdb.html|PouchDB Pro Tips}
    */
-  post<Model> (doc: PouchDB.Core.PostDocument<Content & Model>,
-    options?: PouchDB.Core.Options) { return {} as Promise<PouchDB.Core.Response> }
+  post<Model> (
+    doc: PouchDB.Core.PostDocument<Content & Model>,
+    options?: PouchDB.Core.Options
+  ) {
+    return {} as Promise<PouchDB.Core.Response>
+  }
 
   /* istanbul ignore next */
   /**
@@ -545,17 +597,24 @@ export class Pouchy<Content={}> {
    * If you try to store non-JSON data (for instance Date objects) you may
    * see inconsistent results.
    */
-  put<Model> (doc: PouchDB.Core.PutDocument<Content & Model>,
-    options?: PouchDB.Core.PutOptions) { return {} as Promise<PouchDB.Core.Response> }
+  put<Model> (
+    doc: PouchDB.Core.PutDocument<Content & Model>,
+    options?: PouchDB.Core.PutOptions
+  ) {
+    return {} as Promise<PouchDB.Core.Response>
+  }
 
   /* istanbul ignore next */
   /** Remove a doc from the database */
-  remove (doc: PouchDB.Core.RemoveDocument,
-    options?: PouchDB.Core.Options) { return {} as Promise<PouchDB.Core.Response> }
+  remove (doc: PouchDB.Core.RemoveDocument, options?: PouchDB.Core.Options) {
+    return {} as Promise<PouchDB.Core.Response>
+  }
 
   /* istanbul ignore next */
   /** Get database information */
-  info () { return {} as Promise<PouchDB.Core.DatabaseInfo> }
+  info () {
+    return {} as Promise<PouchDB.Core.DatabaseInfo>
+  }
 
   /* istanbul ignore next */
   /**
@@ -566,47 +625,68 @@ export class Pouchy<Content={}> {
    * a 'complete' event when all the changes have been processed, and an 'error' event when an error occurs.
    * Calling cancel() will unsubscribe all event listeners automatically.
    */
-  changes<Model> (options?: PouchDB.Core.ChangesOptions) { return {} as PouchDB.Core.Changes<Content & Model> }
+  changes<Model> (options?: PouchDB.Core.ChangesOptions) {
+    return {} as PouchDB.Core.Changes<Content & Model>
+  }
 
   /* istanbul ignore next */
   /** Close the database */
-  close () { return {} as Promise<void> }
+  close () {
+    return {} as Promise<void>
+  }
 
   /* istanbul ignore next */
   /**
-  * Attaches a binary object to a document.
-  * This method will update an existing document to add the attachment, so it requires a rev if the document already exists.
-  * If the document doesn’t already exist, then this method will create an empty document containing the attachment.
-  */
-  putAttachment (docId: PouchDB.Core.DocumentId,
+   * Attaches a binary object to a document.
+   * This method will update an existing document to add the attachment, so it requires a rev if the document already exists.
+   * If the document doesn’t already exist, then this method will create an empty document containing the attachment.
+   */
+  putAttachment (
+    docId: PouchDB.Core.DocumentId,
     attachmentId: PouchDB.Core.AttachmentId,
     attachment: PouchDB.Core.AttachmentData,
-    type: string) { return {} as Promise<PouchDB.Core.Response> }
+    type: string
+  ) {
+    return {} as Promise<PouchDB.Core.Response>
+  }
 
   /* istanbul ignore next */
   /** Get attachment data */
-  getAttachment (docId: PouchDB.Core.DocumentId,
+  getAttachment (
+    docId: PouchDB.Core.DocumentId,
     attachmentId: PouchDB.Core.AttachmentId,
-    options?: { rev?: PouchDB.Core.RevisionId}) { return {} as Promise<Blob | Buffer> }
+    options?: { rev?: PouchDB.Core.RevisionId }
+  ) {
+    return {} as Promise<Blob | Buffer>
+  }
 
   /* istanbul ignore next */
   /** Delete an attachment from a doc. You must supply the rev of the existing doc. */
-  removeAttachment (docId: PouchDB.Core.DocumentId,
+  removeAttachment (
+    docId: PouchDB.Core.DocumentId,
     attachmentId: PouchDB.Core.AttachmentId,
-    rev: PouchDB.Core.RevisionId) { return {} as Promise<PouchDB.Core.RemoveAttachmentResponse> }
+    rev: PouchDB.Core.RevisionId
+  ) {
+    return {} as Promise<PouchDB.Core.RemoveAttachmentResponse>
+  }
 
   /* istanbul ignore next */
   /** Given a set of document/revision IDs, returns the document bodies (and, optionally, attachment data) for each ID/revision pair specified. */
-  bulkGet<Model> (options: PouchDB.Core.BulkGetOptions) { return {} as Promise<PouchDB.Core.BulkGetResponse<Content & Model>> }
+  bulkGet<Model> (options: PouchDB.Core.BulkGetOptions) {
+    return {} as Promise<PouchDB.Core.BulkGetResponse<Content & Model>>
+  }
 
   /* istanbul ignore next */
   /** Given a set of document/revision IDs, returns the subset of those that do not correspond to revisions stored in the database */
-  revsDiff (diff: PouchDB.Core.RevisionDiffOptions) { return {} as Promise<PouchDB.Core.RevisionDiffResponse> }
+  revsDiff (diff: PouchDB.Core.RevisionDiffOptions) {
+    return {} as Promise<PouchDB.Core.RevisionDiffResponse>
+  }
   /**
    * END POUCHDB IMPLEMENTATIONS FOR MIXIN SUPPORT
    * END POUCHDB IMPLEMENTATIONS FOR MIXIN SUPPORT
    * END POUCHDB IMPLEMENTATIONS FOR MIXIN SUPPORT
-   */ }
+   */
+}
 
 /**
  * @private
@@ -622,16 +702,22 @@ for (const key of Object.getOwnPropertyNames(Pouchy.prototype)) {
     typeof value !== 'function' ||
     (value && value.name === 'Pouchy') ||
     (value && value.name && value.name[0] === '_')
-  ) continue
+  ) {
+    continue
+  }
   nonTransformingPrototype[key] = value
-  ;(Pouchy.prototype as any)[key] = async function transformResponse (...args: any[]) {
+  ;(Pouchy.prototype as any)[key] = async function transformResponse (
+    ...args: any[]
+  ) {
     let res = nonTransformingPrototype[key].call(this, ...args)
     if (res && res.then && res.catch) res = await res
     if (typeof args[args.length - 1] === 'function') {
-      throw new Error([
-        'the pouchy-pouchdb callback interface has been removed.',
-        'please use the promise interface.'
-      ].join(' '))
+      throw new Error(
+        [
+          'the pouchy-pouchdb callback interface has been removed.',
+          'please use the promise interface.'
+        ].join(' ')
+      )
     }
     return toUnderscorePrefix(res)
   }
@@ -659,16 +745,20 @@ for (const key of pouchProxyMethods) {
   if (!value) throw new Error(`pouchdb method "${key}" not found`)
   /* istanbul ignore next */
   if (typeof value !== 'function') continue
-  ;(Pouchy.prototype as any)[key] = async function proxyAndTransform (...args: any[]) {
+  ;(Pouchy.prototype as any)[key] = async function proxyAndTransform (
+    ...args: any[]
+  ) {
     const pouchMethod: Function = PouchDB.prototype[key]
     let res = pouchMethod.call(this.db, ...args)
     if (res && res.then && res.catch) res = await res
     /* istanbul ignore next */
     if (typeof args[args.length - 1] === 'function') {
-      throw new Error([
-        'the pouchy-pouchdb callback interface has been removed.',
-        'please use the promise interface.'
-      ].join(' '))
+      throw new Error(
+        [
+          'the pouchy-pouchdb callback interface has been removed.',
+          'please use the promise interface.'
+        ].join(' ')
+      )
     }
     return toUnderscorePrefix(res)
   }

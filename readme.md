@@ -19,8 +19,6 @@ api client to remote couch/pouches, add your preferred adapters too. e.g.:
 
 `yarn add pouchy pouchdb-adapter-leveldb`
 
-the **@next** branch is a large re-write of pouchy, adding TypeScript support and improving some interfaces. a proper release will come in a couple weeks after feedback is gathered!
-
 ## usage
 
 api docs and examples officially live [here](http://cdaringe.github.io/pouchy/).
