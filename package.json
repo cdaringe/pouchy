@@ -46,7 +46,7 @@
     "@types/blue-tape": "0.1.33",
     "@types/bluebird": "3.5.27",
     "@types/fs-extra": "8.0.0",
-    "@types/lodash": "4.14.137",
+    "@types/lodash": "4.14.138",
     "@types/pouchdb": "6.4.0",
     "@types/pouchdb-adapter-leveldb": "6.1.3",
     "@types/tape": "4.2.33",
