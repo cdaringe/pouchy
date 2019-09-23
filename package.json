@@ -40,9 +40,9 @@
   },
   "homepage": "https://github.com/cdaringe/pouchy#readme",
   "devDependencies": {
-    "@babel/core": "7.6.0",
+    "@babel/core": "7.6.2",
     "@babel/polyfill": "7.6.0",
-    "@babel/preset-env": "7.6.0",
+    "@babel/preset-env": "7.6.2",
     "@types/blue-tape": "0.1.33",
     "@types/bluebird": "3.5.27",
     "@types/fs-extra": "8.0.0",
