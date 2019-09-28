@@ -68,7 +68,7 @@
     "pouchdb-adapter-leveldb": "7.1.1",
     "pouchdb-adapter-memory": "7.1.1",
     "pouchdb-adapter-websql": "7.0.0",
-    "prettier-standard": "14.0.7",
+    "prettier-standard": "14.1.1",
     "semantic-release": "15.13.24",
     "snyk": "1.228.5",
     "spawn-pouchdb-server": "3.3.3",
