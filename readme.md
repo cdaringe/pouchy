@@ -3,7 +3,7 @@
 > [_"Pouchy is the sugar API for PouchDB that I've been hoping someone would write"_](https://twitter.com/nolanlawson/status/647224028529299456)
 > @nolanlawson
 
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release) [![Greenkeeper badge](https://badges.greenkeeper.io/cdaringe/pouchy.svg)](https://greenkeeper.io/) [![CircleCI](https://circleci.com/gh/cdaringe/pouchy.svg?style=svg)](https://circleci.com/gh/cdaringe/pouchy) [![Coverage Status](https://coveralls.io/repos/github/cdaringe/pouchy/badge.svg?branch=master)](https://coveralls.io/github/cdaringe/pouchy?branch=master) [![TypeScript package](https://img.shields.io/badge/typings-included-blue.svg)](https://www.typescriptlang.org)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release) [![CircleCI](https://circleci.com/gh/cdaringe/pouchy.svg?style=svg)](https://circleci.com/gh/cdaringe/pouchy) [![Coverage Status](https://coveralls.io/repos/github/cdaringe/pouchy/badge.svg?branch=master)](https://coveralls.io/github/cdaringe/pouchy?branch=master) [![TypeScript package](https://img.shields.io/badge/typings-included-blue.svg)](https://www.typescriptlang.org)
 
 [![NPM](https://nodei.co/npm/pouchy.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/pouchy/)
 
