@@ -64,29 +64,34 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<h1 id="pouchy">pouchy</h1>
+				<a href="#pouchy" id="pouchy" style="color: inherit; text-decoration: none;">
+					<h1>pouchy</h1>
+				</a>
 				<blockquote>
 					<p><a href="https://twitter.com/nolanlawson/status/647224028529299456"><em>&quot;Pouchy is the sugar API for PouchDB that I&#39;ve been hoping someone would write&quot;</em></a>
 					@nolanlawson</p>
 				</blockquote>
-				<p><a href="https://standardjs.com"><img src="https://img.shields.io/badge/code_style-standard-brightgreen.svg" alt="JavaScript Style Guide"></a> <a href="https://github.com/semantic-release/semantic-release"><img src="https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg" alt="semantic-release"></a> <a href="https://greenkeeper.io/"><img src="https://badges.greenkeeper.io/cdaringe/pouchy.svg" alt="Greenkeeper badge"></a> <a href="https://circleci.com/gh/cdaringe/pouchy"><img src="https://circleci.com/gh/cdaringe/pouchy.svg?style=svg" alt="CircleCI"></a> <a href="https://coveralls.io/github/cdaringe/pouchy?branch=master"><img src="https://coveralls.io/repos/github/cdaringe/pouchy/badge.svg?branch=master" alt="Coverage Status"></a> <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/typings-included-blue.svg" alt="TypeScript package"></a></p>
+				<p><a href="https://standardjs.com"><img src="https://img.shields.io/badge/code_style-standard-brightgreen.svg" alt="JavaScript Style Guide"></a> <a href="https://github.com/semantic-release/semantic-release"><img src="https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg" alt="semantic-release"></a> <a href="https://circleci.com/gh/cdaringe/pouchy"><img src="https://circleci.com/gh/cdaringe/pouchy.svg?style=svg" alt="CircleCI"></a> <a href="https://coveralls.io/github/cdaringe/pouchy?branch=master"><img src="https://coveralls.io/repos/github/cdaringe/pouchy/badge.svg?branch=master" alt="Coverage Status"></a> <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/typings-included-blue.svg" alt="TypeScript package"></a></p>
 				<p><a href="https://nodei.co/npm/pouchy/"><img src="https://nodei.co/npm/pouchy.png?downloads=true&downloadRank=true&stars=true" alt="NPM"></a></p>
 				<p>simple, enhanced <a href="https://github.com/pouchdb/pouchdb">PouchDB</a>.  <code>Pouchy</code> wraps &amp; extends <code>PouchDB</code> and provides various sorely needed sugar methods.  further, it assists by standardizing the returned document format.  most methods provided are <em>very</em> simple PouchDB-native method modifiers, but are targeted to save you frequent boilerplate re-typing!  this library also proxies the PouchDB API directly, so you can use it like a PouchDB instance itself!</p>
-				<h2 id="install">install</h2>
+				<a href="#install" id="install" style="color: inherit; text-decoration: none;">
+					<h2>install</h2>
+				</a>
 				<p><code>yarn add pouchy</code></p>
 				<p>if you need node support to flush databases to disk, versus using pouchy as an
 				api client to remote couch/pouches, add your preferred adapters too. e.g.:</p>
 				<p><code>yarn add pouchy pouchdb-adapter-leveldb</code></p>
-				<p>the <strong>@next</strong> branch is a large re-write of pouchy, adding TypeScript support and improving some interfaces. a proper release will come in a couple weeks after feedback is gathered!</p>
-				<h2 id="usage">usage</h2>
+				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+					<h2>usage</h2>
+				</a>
 				<p>api docs and examples officially live <a href="http://cdaringe.github.io/pouchy/">here</a>.</p>
 				<p>here are some basic examples:</p>
 				<pre><code class="language-ts"><span class="hljs-comment">// local, node database</span>
 <span class="hljs-keyword">import</span> Pouchy <span class="hljs-keyword">from</span> <span class="hljs-string">'pouchy'</span>
 <span class="hljs-keyword">import</span> level <span class="hljs-keyword">from</span> <span class="hljs-string">'pouchdb-adapter-leveldb'</span>
 Pouchy.plugin(level)
-
-<span class="hljs-keyword">const</span> fruit = <span class="hljs-keyword">new</span> Pouchy({ name: <span class="hljs-string">'fruit'</span> })
+<span class="hljs-keyword">type</span> Fruit = { <span class="hljs-keyword">type</span>: <span class="hljs-built_in">string</span>, tastes: <span class="hljs-built_in">string</span> }
+<span class="hljs-keyword">const</span> fruit = <span class="hljs-keyword">new</span> Pouchy&lt;Fruit&gt;({ name: <span class="hljs-string">'fruit'</span> })
 <span class="hljs-keyword">const</span> orange = <span class="hljs-keyword">await</span> fruit.save({ <span class="hljs-keyword">type</span>: <span class="hljs-string">'orange'</span>, tastes: <span class="hljs-string">'delicious'</span> })
 <span class="hljs-built_in">console</span>.log(orange)
 
@@ -111,7 +116,9 @@ Pouchy.plugin(memory)
 customers.save({ <span class="hljs-attr">firstName</span>: <span class="hljs-string">'bill'</span>, <span class="hljs-attr">lastName</span>: <span class="hljs-string">'brasky'</span> })
 <span class="hljs-comment">// wait for it... and couchdb/pouchdb-server @ http://mydomain.org/db/customers</span>
 <span class="hljs-comment">// will receive bill brasky!</span></code></pre>
-				<h2 id="why">why</h2>
+				<a href="#why" id="why" style="color: inherit; text-decoration: none;">
+					<h2>why</h2>
+				</a>
 				<p>why use <code>pouchy</code> over <code>pouchdb</code>?</p>
 				<ul>
 					<li>because managing <code>_id</code> and <code>_rev</code> can be obnoxious with pouchdb (no hard feelings, of course).<ul>
@@ -132,7 +139,9 @@ customers.save({ <span class="hljs-attr">firstName</span>: <span class="hljs-str
 					<li>because you want to pre-define *ouchdb synchronization behavior on construction!  start syncing pronto, declaratively!</li>
 				</ul>
 				<p>Thanks! <a href="http://cdaringe.com/">cdaringe</a></p>
-				<h1 id="changelog">changelog</h1>
+				<a href="#changelog" id="changelog" style="color: inherit; text-decoration: none;">
+					<h1>changelog</h1>
+				</a>
 				<ul>
 					<li>12.3.+ - switched to semantic-release. please view the &quot;Releases&quot; GitHub tab</li>
 					<li>12.0.0<ul>
@@ -199,10 +208,10 @@ customers.save({ <span class="hljs-attr">firstName</span>: <span class="hljs-str
 						<a href="globals.html"><em>Globals</em></a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/pouchy.html">Pouchy</a>
+						<a href="modules/_index_.html">"index"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/document_key_prefixer.html">document-<wbr>key-<wbr>prefixer</a>
+						<a href="modules/_to_underscore_prefix_.html">"to-<wbr>underscore-<wbr>prefix"</a>
 					</li>
 				</ul>
 			</nav>
@@ -225,6 +234,7 @@ customers.save({ <span class="hljs-attr">firstName</span>: <span class="hljs-str
 				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
 				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
@@ -273,7 +283,7 @@ customers.save({ <span class="hljs-attr">firstName</span>: <span class="hljs-str
 	</div>
 </footer>
 <div class="container tsd-generator">
-	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
 </div>
 <div class="overlay"></div>
 <script src="assets/js/main.js"></script>
