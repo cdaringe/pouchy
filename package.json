@@ -1,6 +1,6 @@
 {
   "name": "pouchy",
-  "version": "12.3.0",
+  "version": "14.0.0",
   "description": "A simple, opinionated interface for the amazing PouchDB",
   "main": "build/index.js",
   "scripts": {
