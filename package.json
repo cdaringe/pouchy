@@ -2,7 +2,7 @@
   "name": "pouchy",
   "version": "12.3.0",
   "description": "A simple, opinionated interface for the amazing PouchDB",
-  "main": "src/index.js",
+  "main": "build/index.js",
   "scripts": {
     "build": "tsc",
     "docs:build": "typedoc --name Pouchy --exclude '**/__test__/**,**/browser/**' --readme ./readme.md --out docs/ src/",
