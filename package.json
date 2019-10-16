@@ -45,7 +45,7 @@
     "@babel/preset-env": "7.6.3",
     "@types/blue-tape": "0.1.33",
     "@types/bluebird": "3.5.28",
-    "@types/fs-extra": "8.0.0",
+    "@types/fs-extra": "8.0.1",
     "@types/lodash": "4.14.144",
     "@types/pouchdb": "6.4.0",
     "@types/pouchdb-adapter-leveldb": "6.1.3",
