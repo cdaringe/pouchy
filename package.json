@@ -44,7 +44,7 @@
     "@babel/polyfill": "7.7.0",
     "@babel/preset-env": "7.7.1",
     "@types/blue-tape": "0.1.33",
-    "@types/bluebird": "3.5.28",
+    "@types/bluebird": "3.5.29",
     "@types/fs-extra": "8.0.1",
     "@types/lodash": "4.14.146",
     "@types/pouchdb": "6.4.0",
