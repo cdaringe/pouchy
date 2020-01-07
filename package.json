@@ -58,7 +58,7 @@
     "coveralls": "3.0.9",
     "eslint-plugin-typescript": "0.14.0",
     "fs-extra": "8.1.0",
-    "gh-pages": "2.1.1",
+    "gh-pages": "2.2.0",
     "husky": "4.0.0",
     "jsdock": "1.0.4",
     "lint-staged": "9.5.0",
