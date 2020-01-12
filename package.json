@@ -42,7 +42,7 @@
   "devDependencies": {
     "@babel/core": "7.8.0",
     "@babel/polyfill": "7.8.0",
-    "@babel/preset-env": "7.8.0",
+    "@babel/preset-env": "7.8.2",
     "@types/blue-tape": "0.1.33",
     "@types/bluebird": "3.5.29",
     "@types/fs-extra": "8.0.1",
