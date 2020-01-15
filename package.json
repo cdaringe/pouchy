@@ -76,7 +76,7 @@
     "tape": "4.13.0",
     "testem": "3.0.2",
     "typedoc": "0.16.3",
-    "typedoc-plugin-external-module-name": "2.1.0",
+    "typedoc-plugin-external-module-name": "2.2.1",
     "typescript": "3.7.4"
   },
   "dependencies": {
