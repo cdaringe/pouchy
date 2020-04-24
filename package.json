@@ -73,7 +73,7 @@
     "snyk": "1.311.0",
     "spawn-pouchdb-server": "3.3.3",
     "standardx": "5.0.0",
-    "tape": "4.13.2",
+    "tape": "5.0.0",
     "testem": "3.1.0",
     "typedoc": "0.17.4",
     "typedoc-plugin-external-module-name": "3.0.0",
