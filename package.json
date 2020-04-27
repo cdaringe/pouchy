@@ -75,7 +75,7 @@
     "standardx": "5.0.0",
     "tape": "5.0.0",
     "testem": "3.1.0",
-    "typedoc": "0.17.5",
+    "typedoc": "0.17.6",
     "typedoc-plugin-external-module-name": "3.0.0",
     "typescript": "3.8.3"
   },
