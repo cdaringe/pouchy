@@ -77,7 +77,7 @@
     "testem": "3.2.0",
     "typedoc": "0.17.8",
     "typedoc-plugin-external-module-name": "4.0.3",
-    "typescript": "3.9.6"
+    "typescript": "3.9.7"
   },
   "dependencies": {
     "bluebird": "^3.5.3",
