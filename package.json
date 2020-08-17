@@ -70,7 +70,7 @@
     "pouchdb-adapter-websql": "7.0.0",
     "prettier-standard": "16.4.1",
     "semantic-release": "17.1.1",
-    "snyk": "1.374.0",
+    "snyk": "1.375.0",
     "spawn-pouchdb-server": "3.3.3",
     "standardx": "5.0.0",
     "tape": "5.0.1",
