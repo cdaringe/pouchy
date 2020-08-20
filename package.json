@@ -40,7 +40,7 @@
   },
   "homepage": "https://github.com/cdaringe/pouchy#readme",
   "devDependencies": {
-    "@babel/core": "7.11.1",
+    "@babel/core": "7.11.4",
     "@babel/polyfill": "7.10.4",
     "@babel/preset-env": "7.11.0",
     "@types/blue-tape": "0.1.33",
