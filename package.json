@@ -72,7 +72,7 @@
     "semantic-release": "17.2.2",
     "snyk": "1.424.2",
     "spawn-pouchdb-server": "3.3.3",
-    "standardx": "6.0.0",
+    "standardx": "7.0.0",
     "tape": "5.0.1",
     "testem": "3.2.0",
     "typedoc": "0.19.2",
