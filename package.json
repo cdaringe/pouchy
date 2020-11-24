@@ -61,7 +61,7 @@
     "gh-pages": "3.1.0",
     "husky": "4.3.0",
     "jsdock": "1.0.4",
-    "lint-staged": "10.5.1",
+    "lint-staged": "10.5.2",
     "npm-run-all": "4.1.5",
     "nyc": "15.1.0",
     "perish": "1.0.3",
