@@ -81,7 +81,7 @@
   },
   "dependencies": {
     "bluebird": "^3.5.3",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.15",
     "path": "0.12.7",
     "pouchdb-adapter-http": "^7.0.0",
     "pouchdb-core": "^7.0.0",
